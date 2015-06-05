@@ -1,0 +1,86 @@
+{% extends "base_map.html" %} 
+{% load url from future %}
+
+{% block mapping %} 
+	{% if message %}
+    	<script language="javascript" type="text/javascript" defer="defer"> alert("{{ message }}");</script> 
+	{% endif %}
+	{% if cart_size == 0 %}
+    	<script language="javascript" type="text/javascript" defer="defer"> alert('Your dispatch cart is empty');
+			window.location.replace('{% url "selected_map_index_url" mapper_name %}')
+		</script> 
+	{% endif %}
+
+		
+    <table align="center">
+
+    </table>
+    <table align="center">
+      <tbody>
+          <tr>
+    	    <td rowspan="3">
+	          <!-- Shopping cart -->
+				{% include "cart_include.html" %}
+          </td>
+    	</tr>
+		{% if option == 'preview' %} 
+        <!--   We have choosen to preview currently selected items on a map -->
+        <tr>
+          <td>
+            <div id="map" align="center"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4> Instructions</h4>
+            <ol>
+              <li>Click the finish button to complete this session or click the
+                update button to make changes to the cart.</li>
+            </ol>
+          </td>
+        </tr>
+        {% endif %} 
+        {% if option == 'save' %}
+        <!--   We are preparing to complete shopping, plot or continue shopping -->
+        <tr>
+          <td>
+            <h4> Instructions</h4>
+            <ol>
+              <li>Select a netbook.</li>
+              <li>Click the finish button to complete this session. </li>
+              <li>OR click the update button to make changes to the cart.</li>
+              <li>OR click the preview button to view your currently selected
+                items on a map.</li>
+            </ol>
+          </td>
+        </tr>
+        <tr>
+        <td>
+        </td>
+        </tr>
+        {% endif %}
+        
+      </tbody>
+    </table>
+    
+    <form action="{% url "complete_cart_save" mapper_name %}" method="post">
+    {% csrf_token %}
+      <table align="center">
+        <tbody>
+          <tr>
+            <td> 
+            	<input value="Finish" type="submit"> 
+            	<input value="Continue " type="button" onclick="window.location='{% url "selected_map_index_url" mapper_name %}'">
+              	{% if option == "save" %} 
+              	<input value="Preview" onclick="window.location='{% url "map_checkout_cart_url" mapper_name%}?option=preview'" type="button">
+              {% endif %}
+              	<input value="Back" onclick="history.go(-1)" type="button">
+          	</td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+    {% endblock mapping %}
+    
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{% load url from future %}
+
+<div class="shopping_cart">
+<h4>Dispatch cart</h4>
+	{% if cart_size == 0 %}
+		Cart is empty
+	{% endif %}
+	{% if identifiers %}
+		<div>Number of {{ item_label }}(s): {{ cart_size }}</div><br>
+		<form action="{% url "update_identifier_cart" mapper_name %}" method="post">
+		{% csrf_token %}
+			<input type="hidden" name="option" value="{{ option }}" />
+		{% for identifier in identifiers %} 
+			<input type="checkbox" name="identifiers" value="{{ identifier }}" />
+			{{ identifier }} <br>
+		{% endfor %}
+			<p>
+			<input type="submit" name="update" value="Remove selected" />
+			<input name="preview" value="Preview" onclick="window.location='{% url "map_checkout_cart_url" mapper_name%}?option=preview'" type="button">
+			</p>
+		 </form>
+	 {% endif %}
+</div>

@@ -1,0 +1,68 @@
+{% extends "base_site_mochudi_survey.html" %}
+{% load url from future %}
+
+{% block content %}
+	{% if message %}
+		<div align="center">{{ message }} <br >
+		Click <a href="/admin/bhp_dispatch/dispatch/">here</a> to now dispatch the items to the netbook.
+		</div>
+	{% endif %}
+	{% if option == 'save' %}
+		<div align="center">
+			Click <a href="/admin/bhp_dispatch/dispatch/">here</a> to dispatch the items to the netbook. <br>
+			Or go <a href="javascript:history.go(-1)">back</a> the select other items from the same ward
+		
+		</div>
+	{% endif %}
+    <H3>Household Map</H3>
+        
+   <form action="{% url "map_plot_item_points_url" maper_name %}" method="post">
+   	{% csrf_token %}
+    <table align="center">
+    	<tr>
+    		<td colspan="2">
+    			<H4> Instructions</H4>
+			    <ol>
+				    <li>Select a ward;</li>
+				    <li>Choose the icon you want used for markers</li>
+				    <li>Select a ward section;</li>
+				    <li>Click the submit button</li>
+			    </ol>
+    		</td>
+    	</tr>
+       	<tr width="100">
+    		<td rowspan="4">
+    			{% include "cart_include.html" %}
+    		</td>
+    	</tr>
+	    <tr>	
+			<td><b><!-- form to select a ward from a drop down menu -->Select ward:</b></td>
+			<td>
+				<select id="ward" name="ward">
+				<!-- loop though the ward dictionary from a view to list all ward -->
+				{% for ward in wards %}
+				  <option value="{{ ward }}">{{ ward }}</option>
+				{% endfor %}
+				</select>
+			</td>
+		</tr>
+		</tr>
+			<td><b>Select section:</b></td>
+			<td>
+				<select id="section" name="section">
+				<!-- loop though the ward dictionary from a view to list all ward sections -->
+				{% for section in ward_sections %}
+				  <option value="{{ section }}">{{ section }}</option>
+				{% endfor %}
+				</select>
+			</td>
+		</tr>
+		<tr align="center">
+			<td colspan = "2">
+				<p><input type="submit" value="submit"></p>
+			</td>
+		</tr>
+      </table>
+	</form>	
+{% endblock content %}
+      

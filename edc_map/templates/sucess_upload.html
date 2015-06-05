@@ -1,0 +1,18 @@
+{% extends "base_bhp_map.html" %}
+{% load url from future %}
+
+{% block content %}
+    {% if mapper_names %}
+        <div id="section_navbar">
+        <ul>
+        {% for mapper_name in mapper_names %}
+         <li><a href="{% url "selected_map_index_url" mapper_name %}">{{ mapper_name }} maps</a>
+        {% endfor %}
+        </ul>
+        </div>
+    {% else %}
+    	
+    	<h1><b>{{ message }} for {{ mapper_name }}</b></h1>
+    	
+	{% endif %}	
+{% endblock content %}

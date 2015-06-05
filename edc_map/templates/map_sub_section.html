@@ -1,0 +1,70 @@
+{% extends "base_bhp_map.html" %}
+{% load url from future %}
+
+{% block content %}
+    
+    <H3>{{ item_label }} Map</H3>
+	{% if show_map == 1 %}
+		{% if option == 'plot' %}
+			{% if not has_items %}
+				<script language="javascript" type="text/javascript" defer> alert('Oops! No {{ item_label }} found. Try broadening your search');
+				window.location.replace('{% url "selected_map_index_url" mapper_name %}')
+				</script>
+			{% endif %}
+		{% endif %}      
+	   
+	   	<div id="section_navbar">
+    	<ul>
+    	<li><A href="{% url 'clear_sub_section_index_url' mapper_name %}">clear {{ section_field_attr }}</A></li>
+    	</ul>
+    	</div>
+	   <br /><br />
+	   <ul>
+	   		<li>Select the {{ region_label }} that you would like to divide into {{ section_label }}</li>
+	   		<li>Select the {{ section_label }} to assign to an item</li>
+	   		<li>Click submit</li>
+	   </ul>
+	   <form action="{% url "set_sub_section_url" mapper_name %}" method="post">
+	   	{% csrf_token %}
+	    
+	    <div id="selection_box"> 
+	    {{ region_label }}:&nbsp;<select id="{{ item_region_field }}" name="{{ item_region_field }}">
+			{% for region in regions %}
+			  <option value="{{ region }}">{{ region }}</option>
+			{% endfor %}
+		</select>
+		{{ section_label }}:&nbsp;<select id="{{ section_field_attr }}" name="{{ section_field_attr }}">
+			{% for section in sections %}
+			  <option value="{{ section }}">{{ section }}</option>
+			{% endfor %}
+		</select>
+		selected:&nbsp;<select id="selected" name="selected">
+			<option value="twenty_percent">Twenty Percent</option>
+			<option value="five_percent">Five Percent</option>
+		</select>
+		<input type="submit" value="submit">			
+		</form>	
+		</div>
+	{% endif %}
+	{% if show_map == 0 %}
+		{% if message %}
+			<script language="javascript" type="text/javascript" defer> alert('{{ message }}'); </script>
+		{% endif %}
+	    <table align="center">
+		    <tr>
+		    	<td>
+		    		Click the continue button to select more items or click the checkout button
+		    		to finish this session.
+		    	</td>
+			</tr>
+			<tr align="center">
+				<td>
+				<input type="button" value="Manage sections" onclick="window.location='{% url "map_section_url" mapper_name %}'" />
+				<input type="button" value="Continue" onclick="window.location='{% url "selected_map_index_url" mapper_name %}'" />
+				</td>
+			</tr>
+		</table>
+		
+	{% endif %}
+{% endblock content %}
+      

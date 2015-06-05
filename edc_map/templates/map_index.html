@@ -1,0 +1,55 @@
+{% extends "base_bhp_map.html" %}
+{% load url from future %}
+
+{% block content %}
+    {% if mapper_names %}
+        <div id="section_navbar">
+        <ul>
+        {% for mapper_name in mapper_names %}
+         <li><a href="{% url "selected_map_index_url" mapper_name %}">{{ mapper_name }} maps</a>
+        {% endfor %}
+        </ul>
+        </div>
+    {% else %}
+    
+    <H5>Dispatch by {{ mapper_name }} Map</H5>
+    <div id="section_navbar">
+    <ul>
+    <li><A href="{% url "map_section_url" mapper_name %}">Manage {{ region_field_attr }}s</A></li>
+    <li><A href="{% url "map_gps_point_update_url" mapper_name %}">Update GPS</A></li>
+    <li><A href="{% url "dispatch_to_gps_index_url" mapper_name %}">Dispatch to GPS</A></li>
+    <li><A href="{% url "kmz_file_upload_url" mapper_name %}">Uload kmz file</A></li>
+    </ul>
+    </div>
+	<br /><br />
+	<ul><b>
+		<li>Select the {{ region_label }} and {{ section_label }} you would like to dispatch item from</li>
+		<li>Click submit</li>
+	</ul></b>
+
+    <div id="selection_box">  
+    <form action="{% url "map_plot_item_points_url" mapper_name %}" method="post">
+    {% csrf_token %}
+	{{ region_label }}:&nbsp;<select id="{{ region_field_attr }}" name="{{ region_field_attr }}">
+	<option value="All">All</option>
+		{% for region in regions %}
+		  <option value="{{ region }}">{{ region }}</option>
+		{% endfor %}
+		</select>
+	{{ section_label }}:&nbsp;<select id="{{ section_field_attr }}" name="{{ section_field_attr }}">
+	<option value="All">All</option>
+	{% for section in sections %}
+	    <option value="{{ section }}">{{ section }}</option>
+	{% endfor %}
+	</select>
+	selected:&nbsp;<select id="selected" name="selected">
+		<option value="twenty_percent">Twenty Percent</option>
+		<option value="five_percent">Five Percent</option>
+	</select>
+	<input type="submit" value="submit">
+	</form>
+    </div>
+
+	{% endif %}	
+{% endblock content %}
+      

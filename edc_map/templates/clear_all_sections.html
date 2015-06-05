@@ -1,0 +1,25 @@
+{% extends "base_bhp_map.html" %}
+{% load url from future %}
+
+{% block content %}
+    <H5>{{ mapper_name }} map</H5>
+       
+   	<form action="{% url "clear_section_url" mapper_name %}" method="post">
+   	{% csrf_token %}
+   	<br /><br />
+   	<ul>
+   		<li>select the {{ region_field_attr }} you would like to clear its value</li>
+   		<li>Click submit</li>
+   	</ul>
+   	
+   	<div id="selection_box"> 
+		Clear {{ region_field_attr }} in:&nbsp;<select id="{{ region_field_attr }}" name="{{ region_field_attr }}">
+		{% for region in regions %}
+	  		<option value="{{ region }}">{{ region }}</option>
+		{% endfor %}
+		</select>
+		<input type="submit" value="submit">
+   	</form>
+   	</div>
+	
+{% endblock content %}

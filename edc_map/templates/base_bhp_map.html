@@ -1,0 +1,13 @@
+{% extends "section.html" %}
+{% load i18n %}
+{% load admin_urls %}
+{% load url from future %}
+{% block extrahead %}
+{{ block.super }} 
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/map.css" />
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url "section_index_url"  %}">Home</a> &rsaquo; <a href="{% url "section_url" 'administration' %}">Administration</a> &rsaquo; <a href="{% url "map_index_url" %}">Dispatch by map</a>{% if mapper_name %} &rsaquo; {{ mapper_name }}{% endif %}</div>
+{% endblock %}
+
+{% block content%}{% endblock %}

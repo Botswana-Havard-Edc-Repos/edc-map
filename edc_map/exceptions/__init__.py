@@ -1,0 +1,4 @@
+
+
+class MapperError(Exception):
+    pass
