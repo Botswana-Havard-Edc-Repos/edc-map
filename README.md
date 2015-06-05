@@ -1,5 +1,3 @@
-# edc-map
-
 [![Build Status](https://travis-ci.org/botswana-harvard/edc-map.svg?branch=develop)](https://travis-ci.org/botswana-harvard/edc-map)
 [![Coverage Status](https://coveralls.io/repos/botswana-harvard/edc-map/badge.svg)](https://coveralls.io/r/botswana-harvard/edc-map)
 [![Documentation Status](https://readthedocs.org/projects/django-crypto-fields/badge/?version=latest)](https://readthedocs.org/projects/edc-map/?badge=latest)
