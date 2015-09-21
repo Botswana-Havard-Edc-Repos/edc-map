@@ -37,11 +37,12 @@ def update_cart(request, **kwargs):
         if option == 'preview':
             items = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): identifiers, mapper.item_selected_field: 1})
             icon = request.session['icon']
-            payload = mapper.prepare_map_points(items,
+            payload = mapper.prepare_map_points(
+                items,
                 icon,
                 request.session['identifiers'],
                 'egg-circle'
-                )
+            )
         return render_to_response(
             'view_cart.html', {
                 'payload': payload,
@@ -52,6 +53,6 @@ def update_cart(request, **kwargs):
                 'message': message,
                 'option': option,
                 'update_error': update_error
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

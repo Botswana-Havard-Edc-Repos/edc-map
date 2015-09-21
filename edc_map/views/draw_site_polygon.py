@@ -5,12 +5,6 @@ from ..exceptions import MapperError
 
 
 def draw_site_polygon(request, **kwargs):
-    """Plots items from edc.base selection criteria.
-
-      * Filter points to plot by sending coordinates of a selected ward only to the items.html template.
-      * Regions contain sections    """
-    # TODO: difference in ward ward section selected section and section ??? very confusing
-            # docstring Comment is out of date?
     template = 'map.html'
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')
@@ -34,10 +28,9 @@ def draw_site_polygon(request, **kwargs):
             pass
         payload = ()
         if selected_section != "ALL":
-            for lon, lat, identifier_label, icon, other_identifier_label in payload:
+            for lon, lat, _, icon, other_identifier_label in payload:
                 icon_name_length = len(icon)
                 icon_label = icon[icon_name_length - 1]
-                #print icon_label
                 cso_icon_dict.append([icon_label, other_identifier_label])
         if selected_section == "All":
             section_color_codes = mapper.make_dictionary(mapper.other_icons, mapper.sections)
@@ -46,7 +39,7 @@ def draw_site_polygon(request, **kwargs):
         for key_color, sec_value in section_color_codes.iteritems():
             section_color_code_list.append([key_color[:-1], sec_value])
         has_items = True
-        payload_empty =True
+        payload_empty = True
         gps_coordinates = []
         landmark_list = []
         landmarks = mapper.landmarks
@@ -77,6 +70,6 @@ def draw_site_polygon(request, **kwargs):
                 'cso_icon_dict': cso_icon_dict,
                 'section_color_code_list': section_color_code_list,
                 'selected_section': selected_section
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

@@ -1,5 +1,6 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
 from ..classes import site_mappers
 from ..exceptions import MapperError
 
@@ -41,25 +42,26 @@ def add_to_cart(request, **kwargs):
             is_error = True
         item_instances = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
         icon = request.session['icon']
-        payload = mapper.prepare_map_points(item_instances,
+        payload = mapper.prepare_map_points(
+            item_instances,
             icon,
             request.session['identifiers'],
             'egg-circle'
-            )
+        )
         return render_to_response(
-                template, {
-                    'identifier_field_attr': mapper.identifier_field_attr,
-                    'mapper_name': mapper_name,
-                    'payload': payload,
-                    'identifiers': item_identifiers,
-                    'cart': cart,
-                    'cart_size': cart_size,
-                    'message': message,
-                    'option': 'save',
-                    'icons': mapper.icons,
-                    'is_error': is_error,
-                    'show_map': 0,
-                    'item_label': mapper.item_label,
-                },
-                context_instance=RequestContext(request)
-            )
+            template, {
+                'identifier_field_attr': mapper.identifier_field_attr,
+                'mapper_name': mapper_name,
+                'payload': payload,
+                'identifiers': item_identifiers,
+                'cart': cart,
+                'cart_size': cart_size,
+                'message': message,
+                'option': 'save',
+                'icons': mapper.icons,
+                'is_error': is_error,
+                'show_map': 0,
+                'item_label': mapper.item_label,
+            },
+            context_instance=RequestContext(request)
+        )

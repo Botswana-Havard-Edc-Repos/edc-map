@@ -1,14 +1,13 @@
 import os
 from xml import sax
 from zipfile import ZipFile
-# import xml.sax
-# import xml.sax.handler
+
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from ..classes import site_mappers
+
+from ..classes import PlacemarkHandler, site_mappers
 from ..exceptions import MapperError
-from ..classes import PlacemarkHandler
 
 
 def create_set_handler_parse_file(fname):
@@ -50,7 +49,7 @@ def build_table(mapping):
 def handle_uploaded_file(f, community):
     """Copies uploaded kmz file to settings.MEDIA_ROOT."""
     filename = None
-    if file:
+    if f:
         file_extension = f.content_type.split("/")[1]
         filename = "{0}.{1}".format(community, file_extension)
         abs_filename = "{0}{1}".format(settings.MEDIA_ROOT, '/' + filename)
@@ -60,7 +59,7 @@ def handle_uploaded_file(f, community):
             for chunk in f.chunks():
                 destination.write(chunk)
             destination.close()
-    return filename,
+    return filename
 
 
 def create_kmz_items(request, **kwargs):
@@ -95,9 +94,9 @@ def create_kmz_items(request, **kwargs):
         else:
             message = 'No file was uploaded'
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'message': message,
-                },
-                context_instance=RequestContext(request)
-            )
+            template, {
+                'mapper_name': mapper_name,
+                'message': message,
+            },
+            context_instance=RequestContext(request)
+        )

@@ -6,7 +6,8 @@ from .views import (item_map, add_to_cart, update_cart, checkout_cart, save_cart
                     upload_item_map, map_section, map_sub_sections, db_update, db_update_index,
                     dispatch_to_gps_index, coordinates_to_gps, map_index)
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^item_map/(?P<mapper_name>\w+)/(?P<identifier>[a-zA-Z0-9_-]+)/(?P<lon>[a-z0-9\.\-\:]+)/(?P<lat>[a-z0-9\.\-\:]+)/(?P<saved>saved)/',
         item_map,
         name='item_map_url'),

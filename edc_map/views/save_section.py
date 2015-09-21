@@ -26,27 +26,29 @@ def save_section(request, **kwargs):
             item_identifiers = item_identifiers.split(",")
         items = []
         if item_identifiers:
-            items = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
+            items = mapper.item_model.objects.filter(
+                **{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
             for item in items:
                 setattr(item, mapper.region_field_attr, selected_region)
                 item.save()
-            items = mapper.item_model.objects.filter(**{mapper.region_field_attr: selected_region, '{0}__isnull'.format(mapper.section_field_attr): True})
+            items = mapper.item_model.objects.filter(
+                **{mapper.region_field_attr: selected_region, '{0}__isnull'.format(mapper.section_field_attr): True})
         for item in items:
             lon = item.gps_target_lon
             lat = item.gps_target_lat
             payload.append([lon, lat, str(getattr(item, mapper.identifier_field_attr)), 'mark'])
         return render_to_response(
-                'map_section.html', {
-                    'payload': payload,
-                    'mapper_name': mapper_name,
-                    'identifiers': item_identifiers,
-                    'regions': mapper.regions,
-                    'selected_region': selected_region,
-                    'message': message,
-                    'option': 'save',
-                    'icons': mapper.icons,
-                    'is_error': is_error,
-                    'show_map': 0
-                },
-                context_instance=RequestContext(request)
-            )
+            'map_section.html', {
+                'payload': payload,
+                'mapper_name': mapper_name,
+                'identifiers': item_identifiers,
+                'regions': mapper.regions,
+                'selected_region': selected_region,
+                'message': message,
+                'option': 'save',
+                'icons': mapper.icons,
+                'is_error': is_error,
+                'show_map': 0
+            },
+            context_instance=RequestContext(request)
+        )

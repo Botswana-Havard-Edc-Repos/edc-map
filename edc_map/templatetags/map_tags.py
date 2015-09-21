@@ -7,6 +7,8 @@ register = template.Library()
 @register.simple_tag
 def use_gps_to_target_verification(self):
     verify = True
-    if 'VERIFY_GPS' in dir(settings):
+    try:
         verify = settings.VERIFY_GPS
+    except AttributeError:
+        pass
     return verify

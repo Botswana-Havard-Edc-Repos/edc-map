@@ -18,14 +18,14 @@ def empty_cart(request, message, **kwargs):
         except KeyError:
             pass
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'regions': mapper.regions,
-                    'sections': mapper.sections,
-                    'icons': mapper.icons,
-                    'message': message,
-                    'item_label': mapper.item_model._meta.object_name,
-                    'region_label': mapper.region_label,
-                },
-                context_instance=RequestContext(request)
-            )
+            template, {
+                'mapper_name': mapper_name,
+                'regions': mapper.regions,
+                'sections': mapper.sections,
+                'icons': mapper.icons,
+                'message': message,
+                'item_label': mapper.item_model._meta.object_name,
+                'region_label': mapper.region_label,
+            },
+            context_instance=RequestContext(request)
+        )

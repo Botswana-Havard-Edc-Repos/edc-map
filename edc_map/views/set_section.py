@@ -19,7 +19,6 @@ def set_section(request, **kwargs):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
     else:
         mapper = site_mappers.get_registry(mapper_name)()
-        #item_region_field = 'ward'
         has_items = False
         items = []
         selected_randomization = request.POST.get(mapper.item_selected_field)
@@ -34,14 +33,16 @@ def set_section(request, **kwargs):
         request.session['icon'] = request.POST.get('marker_icon')
         if mapper.item_model.objects.filter(**{mapper.region_field_attr: None}).exists():
             has_items = True
-            items = mapper.item_model.objects.filter(**{mapper.region_field_attr: None, mapper.item_selected_field: selected_randomization})
+            items = mapper.item_model.objects.filter(
+                **{mapper.region_field_attr: None, mapper.item_selected_field: selected_randomization})
 
         icon = str(request.session['icon'])
-        payload = mapper.prepare_map_points(items,
+        payload = mapper.prepare_map_points(
+            items,
             icon,
             identifiers,
             'egg-circle'
-            )
+        )
 
         if payload:
             has_items = True
@@ -63,6 +64,6 @@ def set_section(request, **kwargs):
                 'show_map': 1,
                 'identifiers': identifiers,
                 'cart_size': cart_size
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

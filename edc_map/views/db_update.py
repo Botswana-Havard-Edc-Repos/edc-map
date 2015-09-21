@@ -1,8 +1,10 @@
 from django.shortcuts import render_to_response, HttpResponse
 from django.template import RequestContext
+
+from edc_map.utils import calc_dist, get_longitude, get_latitude
+
 from ..classes import site_mappers
 from ..exceptions import MapperError
-from ..utils import calc_dist, get_longitude, get_latitude
 
 
 def db_update(request, **kwargs):
@@ -35,6 +37,6 @@ def db_update(request, **kwargs):
             else:
                 return HttpResponse("The coordinates you entered are outside {0}, check if you have made errors.".format(mapper.map_area))
         return render_to_response(
-                    template,
-                context_instance=RequestContext(request)
-            )
+            template,
+            context_instance=RequestContext(request)
+        )

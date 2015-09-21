@@ -16,10 +16,10 @@ try:
         identifier = r_line[0]
         lon = r_line[1]
         lat = r_line[2]
-        print identifier
-        print lon
-        print lat
-        print "*************"
+        print(identifier)
+        print(lon)
+        print(lat)
+        print("*************")
         r_line = r_file.readline()
         # Execute the SQL command
         cursor.execute("""

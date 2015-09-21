@@ -1,15 +1,13 @@
 import os
 import fnmatch
+
 from xml import sax
 from zipfile import ZipFile
-# import xml.sax
-# import xml.sax.handler
 
 from django.core.management.base import BaseCommand, CommandError
 
-from ...classes import site_mappers
-from ...exceptions import MapperError
-from ...classes import PlacemarkHandler
+from edc_map.classes import PlacemarkHandler, site_mappers
+from edc_map.exceptions import MapperError
 
 
 def create_set_handler_parse_file(fname):
@@ -85,7 +83,7 @@ class Command(BaseCommand):
                     h.save()
                 else:
                     pass
-                print "Total number of plots added {0} out of {1}.".format(count, len(data_list) - 1)
+                print("Total number of plots added {0} out of {1}.".format(count, len(data_list) - 1))
                 count += 1
             message = 'The file ' + filename[0] + ' was uploaded successfully \n and {0} items where created'.format(count - 2)
-            print message, '\n', "Sucess!!"
+            print(message, '\n', "Sucess!!")

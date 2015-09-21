@@ -24,19 +24,19 @@ def map_section(request, **kwargs):
             cart_size = len(request.session['identifiers'])
             identifiers = request.session['identifiers']
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'regions': mapper.regions,
-                    'icons': mapper.icons,
-                    'item_region_field': mapper.region_field_attr,
-                    'region_label': mapper.region_label,
-                    'session_icon': icon,
-                    'cart_size': cart_size,
-                    'identifiers': identifiers,
-                    'region_field_attr': mapper.region_field_attr,
-                    'section_field_attr': mapper.section_field_attr,
-                    'show_map': 1,
-                    'has_items': True,
-                    'option': 'plot'
-                },
-                context_instance=RequestContext(request))
+            template, {
+                'mapper_name': mapper_name,
+                'regions': mapper.regions,
+                'icons': mapper.icons,
+                'item_region_field': mapper.region_field_attr,
+                'region_label': mapper.region_label,
+                'session_icon': icon,
+                'cart_size': cart_size,
+                'identifiers': identifiers,
+                'region_field_attr': mapper.region_field_attr,
+                'section_field_attr': mapper.section_field_attr,
+                'show_map': 1,
+                'has_items': True,
+                'option': 'plot'
+            },
+            context_instance=RequestContext(request))

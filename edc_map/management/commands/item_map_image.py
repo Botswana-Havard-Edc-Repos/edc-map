@@ -1,4 +1,5 @@
 import os
+
 from urllib import urlretrieve
 from time import sleep
 from operator import itemgetter
@@ -7,9 +8,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from django.conf import settings
 
-from ...classes import site_mappers
-from ...exceptions import MapperError
-
+from edc_map.classes import site_mappers
+from edc_map.exceptions import MapperError
 
 
 class Command(BaseCommand):
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         else:
             mapper = site_mappers.get_registry(mapper_name)()
             letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-                    "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                       "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
             items = mapper.item_model.objects.filter(Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 2}) | Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 1}))
             landmarks = mapper.landmarks
             url_str = ''
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             file_name_17 = ''
             file_name_16 = ''
             folder = settings.MEDIA_ROOT
-            print "folder directions", folder
+            print("folder directions", folder)
             count = 0
             for item in items:
                 zoom_level = 0
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                         if not os.path.exists(file_name_16):
                             urlretrieve(url_str, file_name_16)
                             sleep(2)
-                    print "The image at zoom level: " + str(zoom) + " of plot: " + str(name) + " is done"
+                    print("The image at zoom level: " + str(zoom) + " of plot: " + str(name) + " is done")
                     zoom -= 1
                     zoom_level += 1
                     item.uploaded_map_18 = name + '_18.jpg'
@@ -84,4 +84,4 @@ class Command(BaseCommand):
                     item.uploaded_map_16 = name + '.jpg'
                     item.save()
                 count += 1
-                print str((count / float(len(items))) * 100) + ' percent done! only ' + str(len(items) - count) + ' more pictures to download'
+                print(str((count / float(len(items))) * 100) + ' percent done! only ' + str(len(items) - count) + ' more pictures to download')

@@ -14,15 +14,15 @@ def clear_sub_section_index(request, **kwargs):
     else:
         mapper = site_mappers.get_registry(mapper_name)()
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'item_label': mapper.item_label,
-                    'section_label': mapper.section_label,
-                    'region_label': '{0}s'.format(mapper.region_label),
-                    'regions': mapper.regions,
-                    'sections': mapper.sections,
-                    'region_field_attr': mapper.region_field_attr,
-                    'section_field_attr': mapper.section_field_attr,
-                 },
-                context_instance=RequestContext(request)
-            )
+            template, {
+                'mapper_name': mapper_name,
+                'item_label': mapper.item_label,
+                'section_label': mapper.section_label,
+                'region_label': '{0}s'.format(mapper.region_label),
+                'regions': mapper.regions,
+                'sections': mapper.sections,
+                'region_field_attr': mapper.region_field_attr,
+                'section_field_attr': mapper.section_field_attr,
+            },
+            context_instance=RequestContext(request)
+        )

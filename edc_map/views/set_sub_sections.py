@@ -19,7 +19,6 @@ def set_sub_section(request, **kwargs):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
     else:
         mapper = site_mappers.get_registry(mapper_name)()
-        #item_region_field = 'ward'
         has_items = False
         items = []
         identifiers = request.session.get('identifiers', [])
@@ -33,11 +32,12 @@ def set_sub_section(request, **kwargs):
             items = mapper.item_model.objects.filter(sub_section__isnull=True, section=selected_region)
 
         icon = str(request.session['icon'])
-        payload = mapper.prepare_map_points(items,
+        payload = mapper.prepare_map_points(
+            items,
             icon,
             identifiers,
             'egg-circle'
-            )
+        )
 
         if payload:
             has_items = True
@@ -61,6 +61,6 @@ def set_sub_section(request, **kwargs):
                 'show_map': 1,
                 'identifiers': identifiers,
                 'cart_size': cart_size
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

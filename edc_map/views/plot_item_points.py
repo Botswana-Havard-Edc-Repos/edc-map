@@ -6,12 +6,6 @@ from ..exceptions import MapperError
 
 
 def plot_item_points(request, **kwargs):
-    """Plot items from edc.base selection criteria.
-
-      * Filter points to plot by sending coordinates of a selected ward only to the items.html template.
-      * Regions contain sections    """
-    # TODO: difference in ward ward section selected section and section ??? very confusing
-            # docstring Comment is out of date?
     template = 'map.html'
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')
@@ -38,25 +32,40 @@ def plot_item_points(request, **kwargs):
                 items = mapper.item_model.objects.filter(Q(**{mapper.item_selected_field: selected_randomization}))
             else:
                 items = mapper.item_model.objects.filter(
-                    Q(**{mapper.section_field_attr: selected_sub_section, mapper.item_selected_field: 1}) |
-                    Q(**{'{0}__in'.format(mapper.identifier_field_attr): identifiers, mapper.item_selected_field: selected_randomization}))
+                    Q(**{
+                        mapper.section_field_attr: selected_sub_section,
+                        mapper.item_selected_field: 1}) |
+                    Q(**{
+                        '{0}__in'.format(mapper.identifier_field_attr): identifiers,
+                        mapper.item_selected_field: selected_randomization}))
         else:
             if selected_sub_section == 'All':
                 items = mapper.item_model.objects.filter(
-                Q(**{mapper.region_field_attr: selected_region, mapper.item_selected_field: selected_randomization}) |
-                Q(**{'{0}__in'.format(mapper.identifier_field_attr): identifiers, mapper.item_selected_field: selected_randomization}))
+                    Q(**{
+                        mapper.region_field_attr: selected_region,
+                        mapper.item_selected_field: selected_randomization}) |
+                    Q(**{
+                        '{0}__in'.format(mapper.identifier_field_attr): identifiers,
+                        mapper.item_selected_field: selected_randomization}))
             else:
                 items = mapper.item_model.objects.filter(
-                Q(**{mapper.region_field_attr: selected_region, mapper.section_field_attr: selected_sub_section, mapper.item_selected_field: selected_randomization}) | 
-                Q(**{'{0}__in'.format(mapper.identifier_field_attr): identifiers, mapper.section_field_attr: selected_sub_section, mapper.item_selected_field: selected_randomization}))
+                    Q(**{
+                        mapper.region_field_attr: selected_region,
+                        mapper.section_field_attr: selected_sub_section,
+                        mapper.item_selected_field: selected_randomization}) |
+                    Q(**{
+                        '{0}__in'.format(mapper.identifier_field_attr): identifiers,
+                        mapper.section_field_attr: selected_sub_section,
+                        mapper.item_selected_field: selected_randomization}))
         icon = str(request.session['icon'])
-        payload = mapper.prepare_map_points(items,
+        payload = mapper.prepare_map_points(
+            items,
             icon,
             identifiers,
             'egg-circle.png',
             'red-circle', selected_region, selected_sub_section)
         if selected_sub_section == "All":
-            section_color_codes = {'Teal':'A', 'Yellow': 'B', 'Orange': 'C', 'Pink': 'D'}
+            section_color_codes = {'Teal': 'A', 'Yellow': 'B', 'Orange': 'C', 'Pink': 'D'}
         else:
             section_color_codes = mapper.make_dictionary(mapper.sections, mapper.other_icons)
         for key_color, sec_value in section_color_codes.iteritems():
@@ -89,6 +98,6 @@ def plot_item_points(request, **kwargs):
                 'cart_size': cart_size,
                 'section_color_code_list': section_color_code_list,
                 'selected_sub_section': selected_sub_section
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

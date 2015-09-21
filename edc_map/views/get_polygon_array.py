@@ -26,10 +26,10 @@ def get_polygon_array(request, **kwargs):
                 point_tuple = point_tuple + (pnts,)
 
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'point_tuple': point_tuple,
-                    'map_area': mapper.map_area
-                    },
-                context_instance=RequestContext(request)
-            )
+            template, {
+                'mapper_name': mapper_name,
+                'point_tuple': point_tuple,
+                'map_area': mapper.map_area
+            },
+            context_instance=RequestContext(request)
+        )

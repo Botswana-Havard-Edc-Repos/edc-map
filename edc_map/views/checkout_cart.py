@@ -31,11 +31,12 @@ def checkout_cart(request, **kwargs):
             landmark_list.append([place, lon, lat])
         if option == 'preview':
             item_instances = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
-            payload = mapper.prepare_map_points(item_instances,
+            payload = mapper.prepare_map_points(
+                item_instances,
                 icon,
                 item_identifiers,
                 'egg-circle'
-                )
+            )
         return render_to_response(
             template, {
                 'mapper_name': mapper_name,
@@ -47,6 +48,6 @@ def checkout_cart(request, **kwargs):
                 'gps_center_lat': mapper.gps_center_lat,
                 'gps_center_lon': mapper.gps_center_lon,
                 'option': option
-                },
-                context_instance=RequestContext(request)
-            )
+            },
+            context_instance=RequestContext(request)
+        )

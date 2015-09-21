@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.conf import settings
+
 from ..classes import Mapper, site_mappers
 from ..exceptions import MapperError
 
@@ -29,25 +29,25 @@ def map_index(request, **kwargs):
             cart_size = len(request.session['identifiers'])
             identifiers = request.session['identifiers']
         return render_to_response(
-                template, {
-                    'mapper_name': mapper_name,
-                    'item_label': mapper.item_label,
-                    'region_field_attr': mapper.region_field_attr,
-                    'region_label': mapper.region_label,
-                    'section_field_attr': mapper.section_field_attr,
-                    'section_label': mapper.section_label,
-                    'regions': mapper.regions,
-                    'sections': mapper.sections,
-                    'icons': mapper.icons,
-                    'session_icon': icon,
-                    'cart_size': cart_size,
-                    'identifiers': identifiers
-                },
-                context_instance=RequestContext(request)
-            )
-    return render_to_response(
             template, {
-                'mapper_names': mapper_names,
+                'mapper_name': mapper_name,
+                'item_label': mapper.item_label,
+                'region_field_attr': mapper.region_field_attr,
+                'region_label': mapper.region_label,
+                'section_field_attr': mapper.section_field_attr,
+                'section_label': mapper.section_label,
+                'regions': mapper.regions,
+                'sections': mapper.sections,
+                'icons': mapper.icons,
+                'session_icon': icon,
+                'cart_size': cart_size,
+                'identifiers': identifiers
             },
             context_instance=RequestContext(request)
         )
+    return render_to_response(
+        template, {
+            'mapper_names': mapper_names,
+        },
+        context_instance=RequestContext(request)
+    )
