@@ -83,3 +83,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 VERIFY_GPS = True
+CURRENT_MAPPER = 'test_community'
+CURRENT_COMMUNITY = 'test_community'

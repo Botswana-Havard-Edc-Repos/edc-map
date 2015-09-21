@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 
-from edc.device.device.classes import device
+from .device import device
 
 from ..exceptions import MapperError
 

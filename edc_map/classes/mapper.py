@@ -1,11 +1,10 @@
-import math
-
 from datetime import date, timedelta
 from geopy import Point
 from geopy import distance
 
 from django.conf import settings
 
+from ..choices import ICONS
 from ..exceptions import MapperError
 
 
@@ -32,7 +31,7 @@ class Mapper(object):
 
     target_gps_lat_field_attr = None
     target_gps_lon_field_attr = None
-    icons = None
+    icons = ICONS
     other_icons = None
 
     identifier_field_attr = None
@@ -168,11 +167,14 @@ class Mapper(object):
         for item in items:
             identifier_label = str(getattr(item, self.identifier_field_attr))
             other_identifier_label = ""
-#             # does nothing
-#             if getattr(item, self.get_other_identifier_field_attr()):  # e.g. cso_number
-#                 other_identifier_field_label = str("  {0}: ".format(self.other_identifier_field_label) +
-#                                                    getattr(item, self.get_other_identifier_field_attr()))
-            if item.is_dispatched_as_item():
+
+            # edc_dispatch method ??
+            try:
+                is_dispatched = item.is_dispatched_as_item()
+            except AttributeError:
+                is_dispatched = None
+
+            if is_dispatched:
                 icon = dipatched_icon
                 identifier_label = "{0} already dispatched".format(identifier_label)
             elif getattr(item, self.identifier_field_attr) in cart:  # e.g household_identifier
@@ -224,30 +226,6 @@ class Mapper(object):
             d = -d
             m = -m
         return [d, m]
-
-    def get_cardinal_point_direction(self, start_lat, start_lon, end_lat, end_lon):
-        """Calculates the angle/Bearing of direction between two points
-        on the earth and returns the distance between two points and
-        the cardinal points direction.
-
-        This method is for the initial bearing which if followed in
-        a straight line along a great-circle arc will take you from
-        the start point to the end point.
-        """
-        dist = self.distance_between_points(start_lat, start_lon, end_lat, end_lon)
-        dlon = math.radians(end_lon - start_lon)
-        start_lat = math.radians(start_lat)
-        end_lat = math.radians(end_lat)
-        y = math.sin(dlon) * math.cos(end_lat)
-        x = math.cos(start_lat) * math.sin(end_lat) - math.sin(start_lat) * math.cos(end_lat) * math.cos(dlon)
-        brng = math.degrees(math.atan2(y, x))
-        bearings = ["NE", "E", "SE", "S", "SW", "W", "NW", "N"]
-        index = brng - 22.5
-        if (index < 0):
-            index += 360
-        index = int(index / 45)
-
-        return(round(dist, 3), bearings[index])
 
     def _get_gps(self, direction, degrees, minutes):
         """Converts GPS degree/minutes to latitude or longitude."""

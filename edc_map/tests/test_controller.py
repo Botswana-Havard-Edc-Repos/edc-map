@@ -24,4 +24,4 @@ class ControllerTests(TestCase):
 
     def test_controller_methods(self):
 
-        self.assertRaises(MapperError, site_mappers.get_current_mapper().map_area)
+        self.assertRaises(MapperError, site_mappers.get_current_mapper)
