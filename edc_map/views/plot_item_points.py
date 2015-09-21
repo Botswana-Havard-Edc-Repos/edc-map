@@ -1,8 +1,8 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import Q
-from edc_map import site_mappers
-from edc_map import MapperError
+from ..classes import site_mappers
+from ..exceptions import MapperError
 
 
 def plot_item_points(request, **kwargs):
@@ -12,7 +12,7 @@ def plot_item_points(request, **kwargs):
       * Regions contain sections    """
     # TODO: difference in ward ward section selected section and section ??? very confusing
             # docstring Comment is out of date?
-    template = 'edc_map.html'
+    template = 'map.html'
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')
 

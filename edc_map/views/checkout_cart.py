@@ -1,6 +1,5 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
 from ..classes import site_mappers
 from ..exceptions import MapperError
 
@@ -9,7 +8,7 @@ def checkout_cart(request, **kwargs):
     """Previews selected items in the cart.
 
     At the point the use has following options:
-        1. Choose to preview the items on the edc_map.
+        1. Choose to preview the items on the map.
         2. Continue more items to the cart.
         3. Removed some of the items from the cart
 
@@ -32,13 +31,11 @@ def checkout_cart(request, **kwargs):
             landmark_list.append([place, lon, lat])
         if option == 'preview':
             item_instances = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
-            payload = mapper.prepare_map_points(
-                item_instances,
+            payload = mapper.prepare_map_points(item_instances,
                 icon,
                 item_identifiers,
                 'egg-circle'
-            )
-
+                )
         return render_to_response(
             template, {
                 'mapper_name': mapper_name,
@@ -50,6 +47,6 @@ def checkout_cart(request, **kwargs):
                 'gps_center_lat': mapper.gps_center_lat,
                 'gps_center_lon': mapper.gps_center_lon,
                 'option': option
-            },
-            context_instance=RequestContext(request)
-        )
+                },
+                context_instance=RequestContext(request)
+            )

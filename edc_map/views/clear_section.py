@@ -29,17 +29,17 @@ def clear_section(request, **kwargs):
             cart_size = len(request.session['identifiers'])
             identifiers = request.session['identifiers']
         return render_to_response(
-            'map_section.html', {
-                'mapper_name': mapper_name,
-                'regions': mapper.regions,
-                'region_label': mapper.region_label,
-                'icons': mapper.icons,
-                'sections': mapper.sections,
-                'session_icon': icon,
-                'cart_size': cart_size,
-                'identifiers': identifiers,
-                'show_map': 0,
-                'has_items': True,
-            },
-            context_instance=RequestContext(request)
-        )
+                'map_section.html', {
+                    'mapper_name': mapper_name,
+                    'regions': mapper.regions,
+                    'region_label': mapper.region_label,
+                    'icons': mapper.icons,
+                    'sections': mapper.sections,
+                    'session_icon': icon,
+                    'cart_size': cart_size,
+                    'identifiers': identifiers,
+                    'show_map': 0,
+                    'has_items': True,
+                },
+                context_instance=RequestContext(request)
+            )

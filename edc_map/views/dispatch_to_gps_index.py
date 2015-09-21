@@ -1,13 +1,13 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from edc_map import Mapper, site_mappers
-from edc_map import MapperError
+from ..classes import Mapper, site_mappers
+from ..exceptions import MapperError
 
 
 def dispatch_to_gps_index(request, **kwargs):
-    """Display filter options to chose what to display on the edc_map
+    """Display filter options to chose what to display on the map
 
-    Select the ward, section of the ward to use on the edc_map
+    Select the ward, section of the ward to use on the map
     """
     template = 'dispatch_to_gps_index.html'
     mapper_name = kwargs.get('mapper_name', '')

@@ -1,11 +1,11 @@
 import os
 from xml import sax
 from zipfile import ZipFile
-
+# import xml.sax
+# import xml.sax.handler
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
 from ..classes import site_mappers
 from ..exceptions import MapperError
 from ..classes import PlacemarkHandler
@@ -64,7 +64,7 @@ def handle_uploaded_file(f, community):
 
 
 def create_kmz_items(request, **kwargs):
-    """Uploads item edc_map saved on disk as an images e.g google edc_map screenshot."""
+    """Uploads item map saved on disk as an images e.g google map screenshot."""
 
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')

@@ -2,12 +2,12 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from edc_map import site_mappers
-from edc_map import MapperError
+from ..classes import site_mappers
+from ..exceptions import MapperError
 
 
 def handle_uploaded_file(f, identifier):
-    """Copies uploaded edc_map image file to settings.MAP_DIR."""
+    """Copies uploaded map image file to settings.MAP_DIR."""
     filename = None
     if file:
         file_extension = f.content_type.split("/")[1]
@@ -23,7 +23,7 @@ def handle_uploaded_file(f, identifier):
 @login_required
 @csrf_protect
 def upload_item_map(request, **kwargs):
-    """Uploads item edc_map saved on disk as an images e.g google edc_map screenshot."""
+    """Uploads item map saved on disk as an images e.g google map screenshot."""
     identifier = request.POST.get('identifier', None)
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')

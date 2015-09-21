@@ -9,4 +9,6 @@ def db_update_index(request, **kwargs):
     template = "db_update.html"
 
     return render_to_response(
-        template, kwargs, context_instance=RequestContext(request))
+                template, kwargs,
+            context_instance=RequestContext(request)
+        )

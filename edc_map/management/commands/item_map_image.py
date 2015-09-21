@@ -1,5 +1,5 @@
 import os
-from urllib.request import urlretrieve
+from urllib import urlretrieve
 from time import sleep
 from operator import itemgetter
 
@@ -7,8 +7,9 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from django.conf import settings
 
-from ...classes.controller import site_mappers
+from ...classes import site_mappers
 from ...exceptions import MapperError
+
 
 
 class Command(BaseCommand):
@@ -16,7 +17,7 @@ class Command(BaseCommand):
     APP_NAME = 0
     MODEL_NAME = 1
     args = '<community>'
-    help = 'Creates edc_map images for all the items.'
+    help = 'Creates map images for all the items.'
 
     def handle(self, *args, **options):
         if not args or len(args) < 1:
@@ -28,9 +29,8 @@ class Command(BaseCommand):
             raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
         else:
             mapper = site_mappers.get_registry(mapper_name)()
-            letters = [
-                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-                "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+            letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+                    "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
             items = mapper.item_model.objects.filter(Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 2}) | Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 1}))
             landmarks = mapper.landmarks
             url_str = ''
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             file_name_17 = ''
             file_name_16 = ''
             folder = settings.MEDIA_ROOT
-            print("folder directions", folder)
+            print "folder directions", folder
             count = 0
             for item in items:
                 zoom_level = 0
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                     lmark = sorted(lmarks, key=itemgetter(0))
                     markers_l = mapper.make_dictionary(letters, lmark)
                     markers_str = ''
-                    for key, value in markers_l.items():
+                    for key, value in markers_l.iteritems():
                         if key:
                             markers_str += 'markers=color:blue%7Clabel:' + key + '%7C' + str(value[2]) + ',' + str(value[3]) + '&'
                     url_str += markers_str
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                         if not os.path.exists(file_name_16):
                             urlretrieve(url_str, file_name_16)
                             sleep(2)
-                    print("The image at zoom level: " + str(zoom) + " of plot: " + str(name) + " is done")
+                    print "The image at zoom level: " + str(zoom) + " of plot: " + str(name) + " is done"
                     zoom -= 1
                     zoom_level += 1
                     item.uploaded_map_18 = name + '_18.jpg'
@@ -84,4 +84,4 @@ class Command(BaseCommand):
                     item.uploaded_map_16 = name + '.jpg'
                     item.save()
                 count += 1
-                print(str((count / float(len(items))) * 100) + ' percent done! only ' + str(len(items) - count) + ' more pictures to download')
+                print str((count / float(len(items))) * 100) + ' percent done! only ' + str(len(items) - count) + ' more pictures to download'

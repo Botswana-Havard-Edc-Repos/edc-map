@@ -1,11 +1,11 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from edc_map import site_mappers
-from edc_map import MapperError
+from ..classes import site_mappers
+from ..exceptions import MapperError
 
 
 def get_polygon_array(request, **kwargs):
-    """Adds a list of identifiers to a shopping cart and returns back to edc_map or checkout cart.
+    """Adds a list of identifiers to a shopping cart and returns back to map or checkout cart.
 
     The list of identifiers of points that are within a polygon.
     """

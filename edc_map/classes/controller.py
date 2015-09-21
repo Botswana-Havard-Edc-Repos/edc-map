@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 
-from edc_device import device
+from edc.device.device.classes import device
 
 from ..exceptions import MapperError
 
@@ -113,19 +113,21 @@ class Controller(object):
         return self._registry
 
     def get_as_list(self):
-        """Returns a list of dictionary keys from the registry dictionary to be used as a list of edc_map areas or communities."""
+        """Returns a list of dictionary keys from the registry dictionary to be used as a list of map areas or communities."""
         lst = [k for k in self._registry]
         lst.sort()
         return lst
 
     def get_current_mapper(self):
-        """Returns the mapper class for the current community."""
-        return self.current_mapper
+        """Returns the mapper instance for the current community."""
+        current_mapper = self.registry.get(self.current_community)
+        return current_mapper()
 
-    @property
-    def current_mapper(self):
-        """Returns the mapper class for the current community."""
-        return self.registry.get(self.current_community)
+#     @property
+#     def current_mapper(self):
+#         """Returns the mapper class for the current community."""
+#         current_mapper = self.registry.get(self.current_community)
+#         return current_mapper()
 
     @property
     def current_community(self):

@@ -1,6 +1,5 @@
 from django.shortcuts import render_to_response, HttpResponse
 from django.template import RequestContext
-
 from ..classes import site_mappers
 from ..exceptions import MapperError
 from ..utils import calc_dist, get_longitude, get_latitude

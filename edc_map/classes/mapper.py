@@ -13,7 +13,7 @@ class Mapper(object):
 
     #  Remove setters and gets and use class variables
     map_code = None
-    mape_area = None
+    map_area = None
 
     item_model = None
     item_model_cls = None
@@ -25,7 +25,7 @@ class Mapper(object):
     section_label = None
     map_area_field_attr = None
 
-    # different edc_map fields, the numbers are the zoom levels
+    # different map fields, the numbers are the zoom levels
     map_field_attr_18 = None
     map_field_attr_17 = None
     map_field_attr_16 = None
@@ -48,8 +48,6 @@ class Mapper(object):
     gps_minutes_s_field_attr = None
     gps_minutes_e_field_attr = None
 
-    map_area = None
-    map_code = None
     regions = None
     sections = None
 
@@ -199,20 +197,18 @@ class Mapper(object):
                             identifier_label, icon, other_identifier_label])
         return payload
 
-    def gps_distance_between_points(self, lat, lon, center_lat=None, center_lon=None, radius=None):
+    def gps_distance_between_points(self, lat, lon, center_lat=None, center_lon=None):
         """Check if a GPS point is within the boundaries of a community
 
         This method uses geopy.distance and geopy.Point libraries to
         calculate the distance between two points and return the
-        distance in units requested. The community radius is used to
-        check is a point is within a radius of the community.
+        distance in units requested.
 
         The community_radius, community_center_lat and
         community_center_lon are from the Mapper class of each community.
         """
         center_lat = center_lat or self.gps_center_lat
         center_lon = center_lon or self.gps_center_lon
-        radius = radius or self.radius
         pt1 = Point(float(lat), float(lon))
         pt2 = Point(float(center_lat), float(center_lon))
         dist = distance.distance(pt1, pt2).km
@@ -287,7 +283,7 @@ class Mapper(object):
                                     'Got {3}m'.format(lat, lon, self.map_area, dist * 1000))
         return True
 
-    def verify_gps_to_target(self, lat, lon, center_lat, center_lon, radius, exception_cls):
+    def verify_gps_to_target(self, lat, lon, center_lat, center_lon, radius, exception_cls, radius_bypass_instance=None):
         """Verifies the gps lat, lon occur within a radius of the
         target lat/lon and raises an exception if not.
 
@@ -299,9 +295,21 @@ class Mapper(object):
         except AttributeError:
             pass
         if verify_gps_to_target:
-            dist = self.gps_distance_between_points(lat, lon, center_lat, center_lon, radius)
-            if dist > radius:
-                raise exception_cls('GPS {0} {1} is more than {2} meters from the target location {3}/{4}. '
-                                    'Got {5}m.'.format(lat, lon, radius * 1000, center_lat,
-                                                       center_lon, dist * 1000))
+            if not radius_bypass_instance:
+                dist = self.gps_distance_between_points(lat, lon, center_lat, center_lon)
+                if dist > radius:
+                    raise exception_cls('GPS {0} {1} is more than {2} meters from the target location {3}/{4}. '
+                                        'Got {5}m.'.format(lat, lon, radius * 1000, center_lat,
+                                                           center_lon, dist * 1000))
+            else:
+                dist = self.gps_distance_between_points(
+                    lat,
+                    lon,
+                    center_lat,
+                    center_lon)
+                if dist > radius_bypass_instance.bypass_radius:
+                    raise exception_cls('GPS {0} {1} is more than {2} meters from the bypass target location {3}/{4}. '
+                                        'Got {5}m.'.format(lat, lon, radius_bypass_instance.bypass_radius,
+                                                           center_lat,
+                                                           center_lon, dist * 1000))
         return True
