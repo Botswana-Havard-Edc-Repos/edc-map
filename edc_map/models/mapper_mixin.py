@@ -5,11 +5,13 @@ from django.db import models
 from ..classes import site_mappers
 from ..exceptions import MapperError
 
+from .custom_radius import CustomRadius
+
 
 class MapperMixin(models.Model):
 
-    INCREASE_RADIUS_MODEL = None  # e.g. bcpp_household.IncreasePlotRadius'
-    PLOT_LOG = None  # e.g. bcpp_household.PlotLogEntry'
+    CUSTOM_RADIUS_MODEL = CustomRadius
+    CUSTOM_RADIUS_REASONS = ['dogs', 'locked_gate']
 
     def save(self, *args, **kwargs):
         # unless overridden, if self.community != to mapper.map_area, raises
@@ -24,7 +26,7 @@ class MapperMixin(models.Model):
             mapper.verify_gps_location(self.gps_lat, self.gps_lon, MapperError)
             mapper.verify_gps_to_target(self.gps_lat, self.gps_lon, self.gps_target_lat,
                                         self.gps_target_lon, self.target_radius, MapperError,
-                                        radius_bypass_instance=self.increase_radius_instance)
+                                        custom_radius=self.custom_radius)
             self.distance_from_target = mapper.gps_distance_between_points(
                 self.gps_lat, self.gps_lon, self.gps_target_lat, self.gps_target_lon) * 1000
         try:
@@ -44,11 +46,11 @@ class MapperMixin(models.Model):
         return self.target_radius * 1000
 
     @property
-    def increase_radius_instance(self):
-        IncreasePlotRadius = self.INCREASE_RADIUS_MODEL
+    def custom_radius(self):
+        CustomRadius = self.CUSTOM_RADIUS_MODEL
         try:
-            return IncreasePlotRadius.objects.get(plot=self)
-        except IncreasePlotRadius.DoesNotExist:
+            return CustomRadius.objects.get(plot=self)
+        except CustomRadius.DoesNotExist:
             return None
 
     @property
@@ -58,7 +60,7 @@ class MapperMixin(models.Model):
 
         Plot must be inaccessible and the last reason (of 3) be either "dogs"
         or "locked gate" """
-        PlotLogEntry = self.PLOT_LOG
+        PlotLogEntry = self.PLOT_LOG_MODEL
         IncreasePlotRadius = self.INCREASE_RADIUS_MODEL
         created = False
         increase_plot_radius = None
@@ -68,7 +70,7 @@ class MapperMixin(models.Model):
             if self.plot_inaccessible:
                 plot_log_entries = PlotLogEntry.objects.filter(
                     plot_log__plot__id=self.id).order_by('report_datetime')
-                if plot_log_entries[2].reason in ['dogs', 'locked_gate']:
+                if plot_log_entries[2].reason in self.CUSTOM_RADIUS_REASONS:
                     increase_plot_radius = IncreasePlotRadius.objects.create(plot=self)
                     created = True
         except IndexError:
@@ -89,8 +91,7 @@ class MapperMixin(models.Model):
             if community != site_mappers.get_current_mapper().map_area:
                 raise exception_cls(
                     'Plot community does not correspond with the current mapper '
-                    'community of \'{}\'. Got \'{}\'. '
-                    'See settings.VERIFY_PLOT_COMMUNITY_WITH_CURRENT_MAPPER'.format(
+                    'community of \'{}\'. Got \'{}\'.'.format(
                         site_mappers.get_current_mapper().map_area, community))
 
     class Meta:

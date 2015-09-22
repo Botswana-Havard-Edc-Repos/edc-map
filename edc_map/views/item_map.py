@@ -11,7 +11,8 @@ from ..exceptions import MapperError
 def item_map(request, **kwargs):
     """Displays map for a subject on the dashboard
 
-    Show the location visually on the map of a subject from the dash by clicking the view map button on the dashboard
+    Show the location visually on the map of a subject from the dash by
+    clicking the view map button on the dashboard
     """
     mapper_name = kwargs.get('mapper_name', '')
     if not site_mappers.get_registry(mapper_name):

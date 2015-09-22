@@ -2,17 +2,23 @@ from datetime import date, timedelta
 from geopy import Point
 from geopy import distance
 
-from django.conf import settings
-
 from ..choices import ICONS
 from ..exceptions import MapperError
+
+LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+           "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
 
 class Mapper(object):
 
-    #  Remove setters and gets and use class variables
     map_code = None
     map_area = None
+    radius = 5.5
+    target_gps_lon_field_attr = 'gps_target_lon'
+    target_gps_lat_field_attr = 'gps_target_lat'
+    identifier_field_attr = 'plot_identifier'
+
+    identifier_field_label = 'Plot Identifier'
 
     item_model = None
     item_model_cls = None
@@ -29,13 +35,9 @@ class Mapper(object):
     map_field_attr_17 = None
     map_field_attr_16 = None
 
-    target_gps_lat_field_attr = None
-    target_gps_lon_field_attr = None
     icons = ICONS
     other_icons = None
 
-    identifier_field_attr = None
-    identifier_field_label = None
     other_identifier_field_attr = None
     other_identifier_field_label = None
 
@@ -56,7 +58,6 @@ class Mapper(object):
 
     gps_center_lat = None
     gps_center_lon = None
-    radius = None
     location_boundary = None
 
     def __init__(self, *args, **kwargs):
@@ -91,27 +92,27 @@ class Mapper(object):
     def __str__(self):
         return '({0.map_code!r}:{0.map_area!r})'.format(self)
 
-    def _get_attr(self, attrname):
-        if not attrname:  # attrname is the class variable name
-            raise TypeError('attrname may not be None.')
-        _name = '_{0}'.format(attrname)  # the instance variable name
-        if not getattr(self, _name):  # if instance variable is not set
-            getattr(self, 'set_{0}'.format(attrname))()
-        return getattr(self, _name)
-
-    def _set_attr(self, attrname, attr=None, allow_none=False):
-        if attrname.startswith('_'):
-            raise TypeError('attrname cannot start with \'_\'')
-        if attr:
-            setattr(self, '_{0}'.format(attrname), attr)  # set the instance variable to attr
-        else:
-            try:
-                setattr(self, '_{0}'.format(attrname), getattr(self, attrname))  # set the instance variable to the value of the class variable.
-            except:
-                pass
-        if not allow_none:
-            if not getattr(self, '_{0}'.format(attrname)):
-                raise MapperError('Attribute \'{0}\' may not be None.'.format(attrname))
+#     def _get_attr(self, attrname):
+#         if not attrname:  # attrname is the class variable name
+#             raise TypeError('attrname may not be None.')
+#         _name = '_{0}'.format(attrname)  # the instance variable name
+#         if not getattr(self, _name):  # if instance variable is not set
+#             getattr(self, 'set_{0}'.format(attrname))()
+#         return getattr(self, _name)
+# 
+#     def _set_attr(self, attrname, attr=None, allow_none=False):
+#         if attrname.startswith('_'):
+#             raise TypeError('attrname cannot start with \'_\'')
+#         if attr:
+#             setattr(self, '_{0}'.format(attrname), attr)  # set the instance variable to attr
+#         else:
+#             try:
+#                 setattr(self, '_{0}'.format(attrname), getattr(self, attrname))  # set the instance variable to the value of the class variable.
+#             except:
+#                 pass
+#         if not allow_none:
+#             if not getattr(self, '_{0}'.format(attrname)):
+#                 raise MapperError('Attribute \'{0}\' may not be None.'.format(attrname))
 
     def prepare_created_filter(self):
         """Need comment"""
@@ -162,8 +163,6 @@ class Mapper(object):
             section_color_code_dict = self.make_dictionary(self.regions, self.icons)
         else:
             section_color_code_dict = self.make_dictionary(self.sections, self.other_icons)
-        letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-                   "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
         for item in items:
             identifier_label = str(getattr(item, self.identifier_field_attr))
             other_identifier_label = ""
@@ -190,7 +189,7 @@ class Mapper(object):
                     for key_sec, icon_value in section_color_code_dict.iteritems():
                         if getattr(item, self.section_field_attr) == key_sec:
                             if icon_number <= 25:
-                                icon = icon_value + letters[icon_number] + '.png'
+                                icon = icon_value + LETTERS[icon_number] + '.png'
                                 icon_number += 1
                             if icon_number == 25:
                                 icon_number = 0
@@ -198,6 +197,42 @@ class Mapper(object):
                             getattr(item, self.target_gps_lat_field_attr),
                             identifier_label, icon, other_identifier_label])
         return payload
+
+    def location_in_map_area(self, lat, lon, exception_cls):
+        """Verifies that given lat, lon occur within the community
+        area and raises an exception if not.
+
+        Wrapper for :func:`gps_validator`"""
+        dist = self.gps_distance_between_points(lat, lon)
+        if dist > self.radius:
+            raise exception_cls('The location (GPS {0} {1}) does not fall within area of \'{2}\'.'
+                                'Got {3}m'.format(lat, lon, self.map_area, dist * 1000))
+        return True
+
+    def location_in_target(self, lat, lon, center_lat, center_lon, radius, exception_cls, custom_radius=None):
+        """Verifies the gps lat, lon occur within a radius of the
+        target lat/lon and raises an exception if not.
+
+        Wrapper for :func:`gps_validator`"""
+        radius = radius or self.radius
+        if not custom_radius:
+            dist = self.gps_distance_between_points(lat, lon, center_lat, center_lon)
+            if dist > radius:
+                raise exception_cls('GPS {0} {1} is more than {2} meters from the target location {3}/{4}. '
+                                    'Got {5}m.'.format(lat, lon, radius * 1000, center_lat,
+                                                       center_lon, dist * 1000))
+        else:
+            dist = self.gps_distance_between_points(
+                lat,
+                lon,
+                center_lat,
+                center_lon)
+            if dist > custom_radius.radius:
+                raise exception_cls('GPS {0} {1} is more than {2} meters from the bypass target location {3}/{4}. '
+                                    'Got {5}m.'.format(lat, lon, custom_radius.radius,
+                                                       center_lat,
+                                                       center_lon, dist * 1000))
+        return True
 
     def gps_distance_between_points(self, lat, lon, center_lat=None, center_lon=None):
         """Check if a GPS point is within the boundaries of a community
@@ -227,7 +262,7 @@ class Mapper(object):
             m = -m
         return [d, m]
 
-    def _get_gps(self, direction, degrees, minutes):
+    def gps(self, direction, degrees, minutes):
         """Converts GPS degree/minutes to latitude or longitude."""
         dct = {'s': -1, 'e': 1}
         if direction not in dct.keys():
@@ -236,58 +271,10 @@ class Mapper(object):
         m = float(minutes)
         return dct[direction] * round((d) + (m / 60), 5)
 
-    def get_gps_lat(self, d, m):
+    def gps_lat(self, d, m):
         """Converts degree/minutes S to latitude."""
-        return self._get_gps('s', d, m)
+        return self.gps('s', d, m)
 
-    def get_gps_lon(self, d, m):
+    def gps_lon(self, d, m):
         """Converts degree/minutes E to longitude."""
-        return self._get_gps('e', d, m)
-
-    def verify_gps_location(self, lat, lon, exception_cls):
-        """Verifies that given lat, lon occur within the community
-        area and raises an exception if not.
-
-        Wrapper for :func:`gps_validator`"""
-        verify_gps_location = True
-        try:
-            verify_gps_location = settings.VERIFY_GPS_LOCATION
-        except AttributeError:
-            pass
-        if verify_gps_location:
-            dist = self.gps_distance_between_points(lat, lon)
-            if dist > self.radius:
-                raise exception_cls('The location (GPS {0} {1}) does not fall within area of \'{2}\'.'
-                                    'Got {3}m'.format(lat, lon, self.map_area, dist * 1000))
-        return True
-
-    def verify_gps_to_target(self, lat, lon, center_lat, center_lon, radius, exception_cls, radius_bypass_instance=None):
-        """Verifies the gps lat, lon occur within a radius of the
-        target lat/lon and raises an exception if not.
-
-        Wrapper for :func:`gps_validator`"""
-        radius = radius or self.radius
-        verify_gps_to_target = True  # default
-        try:
-            verify_gps_to_target = settings.VERIFY_GPS
-        except AttributeError:
-            pass
-        if verify_gps_to_target:
-            if not radius_bypass_instance:
-                dist = self.gps_distance_between_points(lat, lon, center_lat, center_lon)
-                if dist > radius:
-                    raise exception_cls('GPS {0} {1} is more than {2} meters from the target location {3}/{4}. '
-                                        'Got {5}m.'.format(lat, lon, radius * 1000, center_lat,
-                                                           center_lon, dist * 1000))
-            else:
-                dist = self.gps_distance_between_points(
-                    lat,
-                    lon,
-                    center_lat,
-                    center_lon)
-                if dist > radius_bypass_instance.bypass_radius:
-                    raise exception_cls('GPS {0} {1} is more than {2} meters from the bypass target location {3}/{4}. '
-                                        'Got {5}m.'.format(lat, lon, radius_bypass_instance.bypass_radius,
-                                                           center_lat,
-                                                           center_lon, dist * 1000))
-        return True
+        return self.gps('e', d, m)

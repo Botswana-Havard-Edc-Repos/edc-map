@@ -35,7 +35,9 @@ def db_update(request, **kwargs):
             if distance <= mapper.gps_radius:
                 item.save()
             else:
-                return HttpResponse("The coordinates you entered are outside {0}, check if you have made errors.".format(mapper.map_area))
+                return HttpResponse(
+                    "The coordinates you entered are outside {0}, check if you have made errors.".format(
+                        mapper.map_area))
         return render_to_response(
             template,
             context_instance=RequestContext(request)

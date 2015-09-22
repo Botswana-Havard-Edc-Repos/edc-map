@@ -31,7 +31,8 @@ def add_to_cart(request, **kwargs):
         if additional_item_identifiers:
             if 'identifiers' in request.session:
                 # add to cart, Merge identifiers in the session with the additional ones, removing duplicates
-                request.session['identifiers'] = list(set(request.session['identifiers'] + additional_item_identifiers))
+                request.session['identifiers'] = list(
+                    set(request.session['identifiers'] + additional_item_identifiers))
             else:
                 request.session['identifiers'] = additional_item_identifiers
             item_identifiers = request.session['identifiers']
@@ -40,7 +41,8 @@ def add_to_cart(request, **kwargs):
         else:
             message = "No items were selected"
             is_error = True
-        item_instances = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
+        item_instances = mapper.item_model.objects.filter(
+            **{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
         icon = request.session['icon']
         payload = mapper.prepare_map_points(
             item_instances,

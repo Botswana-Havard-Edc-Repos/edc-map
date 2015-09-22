@@ -85,12 +85,16 @@ def create_kmz_items(request, **kwargs):
                 if len(points) == 5:
                     lat = float(points[2])
                     lon = float(points[1])
-                    h = mapper.item_model(**{mapper.target_gps_lat_field_attr: lat, mapper.target_gps_lon_field_attr: lon, mapper.map_area_field_attr: mapper_name})
+                    h = mapper.item_model(
+                        **{mapper.target_gps_lat_field_attr: lat,
+                           mapper.target_gps_lon_field_attr: lon,
+                           mapper.map_area_field_attr: mapper_name})
                     h.save()
                 else:
                     pass
                 count += 1
-            message = 'The file ' + filename[0] + ' was uploaded successfully \n and {0} items where created'.format(count - 2)
+            message = ('The file ' + filename[0] +
+                       ' was uploaded successfully \n and {0} items where created').format(count - 2)
         else:
             message = 'No file was uploaded'
         return render_to_response(

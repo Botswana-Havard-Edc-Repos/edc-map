@@ -32,7 +32,8 @@ def save_section(request, **kwargs):
                 setattr(item, mapper.region_field_attr, selected_region)
                 item.save()
             items = mapper.item_model.objects.filter(
-                **{mapper.region_field_attr: selected_region, '{0}__isnull'.format(mapper.section_field_attr): True})
+                **{mapper.region_field_attr: selected_region,
+                   '{0}__isnull'.format(mapper.section_field_attr): True})
         for item in items:
             lon = item.gps_target_lon
             lat = item.gps_target_lat

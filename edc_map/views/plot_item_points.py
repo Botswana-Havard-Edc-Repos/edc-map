@@ -29,7 +29,8 @@ def plot_item_points(request, **kwargs):
         request.session['icon'] = request.POST.get('marker_icon')
         if selected_region == 'All':
             if selected_sub_section == 'All':
-                items = mapper.item_model.objects.filter(Q(**{mapper.item_selected_field: selected_randomization}))
+                items = mapper.item_model.objects.filter(
+                    Q(**{mapper.item_selected_field: selected_randomization}))
             else:
                 items = mapper.item_model.objects.filter(
                     Q(**{

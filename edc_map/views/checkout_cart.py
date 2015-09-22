@@ -30,7 +30,8 @@ def checkout_cart(request, **kwargs):
         for place, lon, lat in landmarks:
             landmark_list.append([place, lon, lat])
         if option == 'preview':
-            item_instances = mapper.item_model.objects.filter(**{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
+            item_instances = mapper.item_model.objects.filter(
+                **{'{0}__in'.format(mapper.identifier_field_attr): item_identifiers})
             payload = mapper.prepare_map_points(
                 item_instances,
                 icon,

@@ -29,7 +29,7 @@ class TestMapper(TestCase):
 
     def setUp(self):
         site_mappers.autodiscover()
-        self.mapper = site_mappers.get_registry('test_community')()
+        self.mapper = site_mappers.registry.get('test_community')
         self.plot = Plot.objects.create(
             plot_identifier='12345',
             community='test_community',
@@ -52,7 +52,7 @@ class TestMapper(TestCase):
             self.mapper.deg_to_dms(-24.656637), [24, 39.398])
 
     def test_verify_gps_to_target(self):
-        self.assertEqual(self.mapper.verify_gps_to_target(
+        self.assertEqual(self.mapper.location_in_target(
             -24.656637, 25.924327, -24.656637, 25.924327, 0.025, MapperError),
             True,
             'The is the same point targeted')

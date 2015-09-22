@@ -17,7 +17,8 @@ def clear_sub_section(request, **kwargs):
         mapper = site_mappers.get_registry(mapper_name)()
         selected_region = request.POST.get(mapper.region_field_attr)
         selected_section = request.POST.get(mapper.section_field_attr)
-        items = mapper.item_model.objects.filter(**{mapper.region_field_attr: selected_region, mapper.section_field_attr: selected_section})
+        items = mapper.item_model.objects.filter(
+            **{mapper.region_field_attr: selected_region, mapper.section_field_attr: selected_section})
         if selected_section == 'All':
             items = mapper.item_model.objects.filter(**{mapper.region_field_attr: selected_region})
         if items:

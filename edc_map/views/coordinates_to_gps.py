@@ -20,7 +20,8 @@ def coordinates_to_gps(request, **kwargs):
     else:
         mapper = site_mappers.get_registry(mapper_name)()
         if settings.DEVICE_ID == '99':
-            raise MapperError('You are in the server, You can\'t dispatch the whole server data to a GPS receiver.')
+            raise MapperError(
+                'You are in the server, You can\'t dispatch the whole server data to a GPS receiver.')
         else:
             # TODO: if path does not exist fail gracefully
             if os.path.exists(settings.GPS_DEVICE):
@@ -43,7 +44,12 @@ def coordinates_to_gps(request, **kwargs):
                     lon = item.gps_target_lon
                     ele = 0.0
                     city_village = mapper.map_area
-                    str_from_edc = '<wpt lat="' + str(lat) + '" lon="' + str(lon) + '"><ele>' + str(ele) + '</ele>' + '<name>' + str(identifier_name) + '</name><extensions><gpxx:WaypointExtension><gpxx:Address><gpxx:City>' + str(city_village) + '</gpxx:City><gpxx:State>South Eastern</gpxx:State></gpxx:Address></gpxx:WaypointExtension></extensions>' + '</wpt>'
+                    str_from_edc = ('<wpt lat="' + str(lat) + '" lon="' + str(lon) + '"><ele>' + str(ele) +
+                                    '</ele>' + '<name>' + str(identifier_name) +
+                                    '</name><extensions><gpxx:WaypointExtension><gpxx:Address><gpxx:City>' +
+                                    str(city_village) + ('</gpxx:City><gpxx:State>South Eastern</gpxx:State>'
+                                                         '</gpxx:Address></gpxx:WaypointExtension></extensions>') +
+                                    '</wpt>')
                     wf.write(str_from_edc)
                 wf.write(lines)
                 wf.close()
