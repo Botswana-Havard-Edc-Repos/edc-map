@@ -1,12 +1,18 @@
+import os
+
+from urllib.request import urlretrieve
+from time import sleep
+
 from datetime import date, timedelta
 from geopy import Point
 from geopy import distance
+from operator import itemgetter
 
 from ..choices import ICONS
+from ..models import MapperMixin
 from ..exceptions import MapperError
 
-LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-           "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+LETTERS = list(map(chr, range(65, 91)))
 
 
 class Mapper(object):
@@ -197,6 +203,60 @@ class Mapper(object):
                             getattr(item, self.target_gps_lat_field_attr),
                             identifier_label, icon, other_identifier_label])
         return payload
+
+    def get_coordinates(self, item):
+        """Return target coordinates of a location."""
+        latitude = str(item.gps_target_lat)
+        longitude = str(item.gps_target_lon)
+        return [latitude, longitude]
+
+    def items(self, area_name):
+        """Returns items that are being located."""
+        items = MapperMixin.objects.filter(area_name=area_name)
+        return items
+
+    def zoom(self, zoom_level):
+        """Return google map image zoom level url."""
+        return '&zoom=' + str(zoom_level)
+
+    def image_url(self, coordinates, landmarks=None, zoom_level=None):
+        """Return the url of a google map image."""
+        try:
+            latitude, longitude = coordinates
+        except ValueError:
+            pass
+        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32' + self.zoom(zoom_level) + '&center=' + latitude + ',' + longitude + self.landmarks_url(coordinates, landmarks) + '&markers=color:red%7C' + latitude + ',' + longitude + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
+        return url
+
+    def landmarks_url(self, coordinates, landmarks):
+        """Return url for landmakrs to add to google map image url."""
+
+        try:
+            latitude, longitude = coordinates
+        except ValueError:
+            pass
+        distance_landmarks = []
+        markers_str = ''
+        if landmarks:
+            for landmark in landmarks:
+                distance = self.gps_distance_between_points(latitude, longitude, landmark[1], landmark[2])
+                distance_landmarks.append([distance, landmark[0], landmark[1], landmark[2]])
+            landmarks = sorted(distance_landmarks, key=itemgetter(0))
+            landmarks_dictionary = dict(zip(LETTERS, landmarks))
+            for lable, landmark_values in landmarks_dictionary.iteritems():
+                if lable:
+                    markers_str += '&markers=color:blue%7Clabel:' + lable + '%7C' + str(landmark_values[2]) + ',' + str(landmark_values[3])
+        return markers_str
+
+    def grep_image(self, url, file_path, image_name):
+        """Grep a google map image and store in a location."""
+
+        image_path = file_path + image_name + '.jpg'
+        if os.path.exists(file_path):
+            urlretrieve(url, image_path)
+            sleep(2)
+        else:
+            raise MapperError("The path {0} provided does not exist.".format(file_path))
 
     def location_in_map_area(self, lat, lon, exception_cls):
         """Verifies that given lat, lon occur within the community
