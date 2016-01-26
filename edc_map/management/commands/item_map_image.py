@@ -25,10 +25,10 @@ class Command(BaseCommand):
 
         mapper_name = args[0]
         site_mappers.autodiscover()
-        if not site_mappers.get_registry(mapper_name):
+        if not site_mappers.get_mapper(mapper_name):
             raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
         else:
-            mapper = site_mappers.get_registry(mapper_name)()
+            mapper = site_mappers.get_mapper(mapper_name)()
             letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
                        "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
             items = mapper.item_model.objects.filter(Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 2}) | Q(**{mapper.map_area_field_attr: mapper_name, mapper.item_selected_field: 1}))

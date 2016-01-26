@@ -10,8 +10,15 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+from unipath import Path
 
+
+BASE_DIR = Path(os.path.dirname(os.path.dirname(__file__)))
+PROJECT_ROOT = Path(os.path.dirname(os.path.realpath(__file__))).ancestor(1)  # e.g.
+SOURCE_ROOT = Path(os.path.dirname(os.path.realpath(__file__))).ancestor(2)  # e.g. /home/django/source
+PROJECT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))  # e.g.
+MEDIA_ROOT = PROJECT_ROOT.child('media')
+STATIC_ROOT = PROJECT_DIR.child('static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -24,8 +31,11 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+TEMPLATE_DIRS = ()
+
 ALLOWED_HOSTS = []
 
+MEDIA_URL = '/media/'
 
 # Application definition
 
@@ -36,7 +46,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_map'
+    'edc_map',
+    'edc_device',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -62,6 +73,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+TEMPLATE_DIRS = ()
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -76,11 +88,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
 
 VERIFY_GPS = True
 CURRENT_COMMUNITY = 'test_community'

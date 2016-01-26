@@ -11,10 +11,10 @@ def update_cart(request, **kwargs):
     """
 
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         update_error = 0
         items = []
         payload = []

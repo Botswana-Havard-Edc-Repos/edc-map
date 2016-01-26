@@ -27,10 +27,10 @@ def upload_item_map(request, **kwargs):
     identifier = request.POST.get('identifier', None)
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_item_label))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         filename = handle_uploaded_file(request.FILES['file'], identifier)
         if filename:
             items = mapper.item_model.objects.filter(

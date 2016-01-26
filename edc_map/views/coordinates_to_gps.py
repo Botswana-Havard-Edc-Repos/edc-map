@@ -15,10 +15,10 @@ def coordinates_to_gps(request, **kwargs):
     mapper_item_label = kwargs.get('mapper_item_label', '')
     mapper_name = kwargs.get('mapper_name', '')
 
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_item_label))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         if settings.DEVICE_ID == '99':
             raise MapperError(
                 'You are in the server, You can\'t dispatch the whole server data to a GPS receiver.')

@@ -1,5 +1,5 @@
 from .base_mapper import BaseAreaMapper
-# from ..classes import site_mappers
+from ..classes import site_mappers
 
 
 class TestItemMapper(BaseAreaMapper):
@@ -15,4 +15,4 @@ class TestItemMapper(BaseAreaMapper):
     radius = 5.5
     location_boundary = ()
 
-# site_mappers.register(TestItemMapper)
+site_mappers.register(TestItemMapper)

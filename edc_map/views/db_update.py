@@ -13,10 +13,10 @@ def db_update(request, **kwargs):
          Filter items by entered item then save the new coordinates of that item
     """
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         template = "db_update.html"
         identifier = request.POST.get('identifier')
         gps_s = request.POST.get('gps_s')

@@ -60,10 +60,10 @@ class Command(BaseCommand):
         mapper_name = args[0]
         file_path = str(args[1])
         site_mappers.autodiscover()
-        if not site_mappers.get_registry(mapper_name):
+        if not site_mappers.get_mapper(mapper_name):
             raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
         else:
-            mapper = site_mappers.get_registry(mapper_name)()
+            mapper = site_mappers.get_mapper(mapper_name)()
             filename = None
             for file in os.listdir(str(args[1]) + '/'):
                 if fnmatch.fnmatch(file, str(mapper_name.title()) + '*kmz'):

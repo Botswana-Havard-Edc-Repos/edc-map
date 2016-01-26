@@ -12,10 +12,10 @@ def map_sub_sections(request, **kwargs):
    """
     template = 'map_sub_section.html'
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         cart_size = 0
         identifiers = []
         icon = request.session.get('icon', None)

@@ -15,10 +15,10 @@ def checkout_cart(request, **kwargs):
     Uses template :template:`/templates/view_cart.html`
     """
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         template = 'view_cart.html'
         payload = []
         item_identifiers = request.session.get('identifiers', [])

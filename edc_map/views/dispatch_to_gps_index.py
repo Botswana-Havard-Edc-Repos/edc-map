@@ -12,11 +12,11 @@ def dispatch_to_gps_index(request, **kwargs):
     template = 'dispatch_to_gps_index.html'
     mapper_name = kwargs.get('mapper_name', None)
     # mapper_names = [mname for mname in site_mappers.get_registry()] ??
-    mapper = site_mappers.get_registry(mapper_name)
+    mapper = site_mappers.get_mapper(mapper_name)
     if mapper:
         if not issubclass(mapper, Mapper):
             raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
 
     return render_to_response(
         template, {

@@ -11,10 +11,10 @@ def clear_section(request, **kwargs):
     This allows for re-assigning of ward section for items within a ward.
     """
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         selected_region = request.POST.get(mapper.region_field_attr)
         items = mapper.item_model.objects.filter(**{mapper.region_field_attr: selected_region})
         if items:

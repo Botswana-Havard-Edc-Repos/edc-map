@@ -15,10 +15,10 @@ def item_map(request, **kwargs):
     clicking the view map button on the dashboard
     """
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         longitude = kwargs.get('lon', None)
         latitude = kwargs.get('lat', None)
         map_number = request.GET.get('map', 1)

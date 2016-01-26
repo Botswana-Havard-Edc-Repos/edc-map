@@ -15,13 +15,13 @@ def map_index(request, **kwargs):
     mapper_names = []
     mapper = None
     if not mapper_name:
-        mapper_names = [mname for mname in site_mappers.get_registry()]
+        mapper_names = [mname for mname in site_mappers.map_areas]
     else:
-        mapper = site_mappers.get_registry(mapper_name)
+        mapper = site_mappers.get_mapper(mapper_name)
     if mapper:
         if not issubclass(mapper, Mapper):
             raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         cart_size = 0
         identifiers = []
         icon = request.session.get('icon', None)

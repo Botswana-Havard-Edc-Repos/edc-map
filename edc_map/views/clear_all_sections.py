@@ -9,10 +9,10 @@ def clear_all_sections(request, **kwargs):
 
     template = 'clear_all_sections.html'
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         return render_to_response(
             template, {
                 'mapper_name': mapper_name,

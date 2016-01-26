@@ -11,10 +11,10 @@ def get_polygon_array(request, **kwargs):
     """
     template = 'get_polygon_array.html'
     mapper_name = kwargs.get('mapper_name', '')
-    if not site_mappers.get_registry(mapper_name):
+    if not site_mappers.get_mapper(mapper_name):
         raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
     else:
-        mapper = site_mappers.get_registry(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)()
         polygon_array = request.GET.get('polygon')
         if polygon_array:
             polygon_array = polygon_array.split("),(")
