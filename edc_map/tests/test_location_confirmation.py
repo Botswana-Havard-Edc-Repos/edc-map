@@ -5,7 +5,7 @@ from ..contants import CONFIRMED, UNCONFIRMED
 from ..exceptions import MapperError
 from ..models import MapperMixin
 from .factories import MapperMixinFactory
-from ..area_map import TestItemMapper
+from edc_map.mappers import TestItemMapper
 
 
 class TestLocationConfirmation(TestCase):

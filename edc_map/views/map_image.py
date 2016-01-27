@@ -9,12 +9,12 @@ class MapImage(View):
 
     def __init__(self):
         self.context = {}
-        self.template_name = 'map_image_include.html'
+        self.template_name = 'map_image.html'
 
     def get(self, request, *args, **kwargs):
         obj_pk = kwargs.get('obj_pk', '')
         mapper_name = site_mappers.current_community
-        mapper = site_mappers.get_mapper(mapper_name)()
+        mapper = site_mappers.get_mapper(mapper_name)
         url = mapper.image_file_url(obj_pk)
         landmarks = mapper.landmarks
         landmarks_dict = mapper.close_landmarks(coordinates=[], landmarks=landmarks)

@@ -74,5 +74,12 @@ class MapperMixin(models.Model):
             retval = CONFIRMED
         return retval
 
+    def store_image(self):
+        mapper = site_mappers.get_mapper(self.area_name)
+        landmarks = mapper.landmarks
+        coordinates = [self.gps_target_lat, self.gps_confirm_longitude]
+        url = mapper.google_image_url(coordinates, landmarks)
+        mapper.grep_image(url, self.pk)
+
     class Meta:
         abstract = True

@@ -134,12 +134,19 @@ class Controller(object):
             for app in settings.INSTALLED_APPS:
                 mod = import_module(app)
                 try:
+                    print str(mod)
                     before_import_registry = copy.copy(site_mappers.registry)
+                    print 'before_import_registry={}'.format(str(before_import_registry))
+                    print '{}.{}'.format(app, module_name)
                     import_module('{}.{}'.format(app, module_name))
+                    print 'IMPORTED MOD={}'.format(str(mod))
                 except:
+                    print 'FAILED MOD={}'.format(str(mod))
                     site_mappers.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
+            self.autodiscovered = True
+            print str(self.registry)
             self.autodiscovered = True
 
 site_mappers = Controller()

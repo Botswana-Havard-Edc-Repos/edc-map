@@ -1,3 +1,14 @@
+{% extends "section.html"%}
+{% load admin_urls %}
+{% load url from future %}
+{% load common_tags %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url "section_index_url" %}">Home</a> 
+&rsaquo; <a href="{% url "section_url" 'administration' %}">Administration</a>
+</div>
+{% endblock %}
+{% block content %}
 <table >
 	<tr valign="top"><td colspan="2"><img src="{{ url }}" alt="item map" width="800" height="450" /></td></tr>
 	<tr><td>label</td><td>Landmark</td></tr>
@@ -6,3 +17,4 @@
 	{% endfor %}
 
 </table>
+{% endblock %}

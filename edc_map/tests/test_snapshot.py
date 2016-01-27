@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.db import models
 
 from ..models import MapperMixin
-from ..area_map import TestItemMapper
+from edc_map.mappers import TestItemMapper
 from django.conf import settings
 
 
