@@ -7,7 +7,6 @@ def grep_google_map_image_on_post_save(sender, instance, raw, created, using, **
     if not raw:
         try:
             instance.store_image()
-            print "*****************************************"
         except AttributeError as e:
             if 'store_image' not in str(e):
                 raise AttributeError(str(e))
