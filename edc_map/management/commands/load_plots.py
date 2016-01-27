@@ -65,9 +65,9 @@ class Command(BaseCommand):
         else:
             mapper = site_mappers.get_mapper(mapper_name)()
             filename = None
-            for file in os.listdir(str(args[1]) + '/'):
-                if fnmatch.fnmatch(file, str(mapper_name.title()) + '*kmz'):
-                    filename = os.path.join(file_path, file)
+            for file_name in os.listdir(str(args[1]) + '/'):
+                if fnmatch.fnmatch(file_name, str(mapper_name.title()) + '*kmz'):
+                    filename = os.path.join(file_path, file_name)
             if not os.path.exists(filename):
                 raise IOError("Files do not exist in the path: {0}.".format(filename))
             outstr = build_table(create_set_handler_parse_file(filename).mapping)
@@ -79,11 +79,15 @@ class Command(BaseCommand):
                 if len(points) == 5:
                     lat = float(points[2])
                     lon = float(points[1])
-                    h = mapper.get_item_model_cls()(**{mapper.target_gps_lat_field_attr: lat, mapper.target_gps_lon_field_attr: lon, mapper.map_area_field_attr: mapper_name})
+                    h = mapper.get_item_model_cls()(**{
+                        mapper.target_gps_lat_field_attr: lat,
+                        mapper.target_gps_lon_field_attr: lon,
+                        mapper.map_area_field_attr: mapper_name})
                     h.save()
                 else:
                     pass
                 print("Total number of plots added {0} out of {1}.".format(count, len(data_list) - 1))
                 count += 1
-            message = 'The file ' + filename[0] + ' was uploaded successfully \n and {0} items where created'.format(count - 2)
+            message = 'The file '
+            + filename[0] + ' was uploaded successfully \n and {0} items where created'.format(count - 2)
             print(message, '\n', "Sucess!!")

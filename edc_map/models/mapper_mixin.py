@@ -1,8 +1,7 @@
 from django.db import models
 
 from ..exceptions import MapperError
-# from ..classes import site_mappers
-from ..area_map import TestItemMapper
+from ..classes import site_mappers
 from ..contants import CONFIRMED, UNCONFIRMED
 
 
@@ -54,9 +53,7 @@ class MapperMixin(models.Model):
         editable=False)
 
     def save(self, *args, **kwargs):
-#         mapper_cls = site_mappers.get_mapper(self.area_name)
-        mapper = TestItemMapper()
-#         mapper = mapper_cls()
+        mapper = site_mappers.get_mapper(self.area_name)
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
             mapper.location_in_map_area(self.gps_confirm_latitude, self.gps_confirm_longitude, MapperError)
             mapper.location_in_target(
@@ -78,4 +75,4 @@ class MapperMixin(models.Model):
         return retval
 
     class Meta:
-        app_label = 'edc_map'
+        abstract = True

@@ -204,7 +204,10 @@ class Mapper(object):
             latitude, longitude = coordinates
         except ValueError:
             pass
-        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32' + self.zoom(zoom_level) + '&center=' + str(latitude) + ',' + str(longitude) + self.landmarks_url(coordinates, landmarks) + '&markers=color:red%7C' + str(latitude) + ',' + str(longitude) + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
+        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32'
+        + self.zoom(zoom_level) + '&center=' + str(latitude) + ',' + str(longitude)
+        + self.landmarks_url(coordinates, landmarks) + '&markers=color:red%7C' + str(latitude) + ','
+        + str(longitude) + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
         return url
 
     def close_landmarks(self, coordinates, landmarks):

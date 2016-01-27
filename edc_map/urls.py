@@ -59,9 +59,9 @@ urlpatterns += patterns(
 #     url(r'dispatch_to_gps_index/(?P<mapper_name>\w+)/', dispatch_to_gps_index, name='dispatch_to_gps_index_url'),
 #     url(r'coordinates_to_gps/(?P<mapper_name>\w+)/', coordinates_to_gps, name='coordinates_to_gps_url'),
 # )
-# 
+#
 # for mapper_name in site_mappers.map_areas:
 #     urlpatterns += patterns('', url(r'^(?P<mapper_name>{0})/$'.format(mapper_name), map_index,
 #                                     name='selected_map_index_url'))
-# 
+#
 # urlpatterns += patterns('', url(r'^', map_index, name='map_index_url'))
