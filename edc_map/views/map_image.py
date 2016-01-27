@@ -3,7 +3,6 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from ..classes import site_mappers
-from ..exceptions import MapperError
 
 
 class MapImage(View):
@@ -14,11 +13,8 @@ class MapImage(View):
 
     def get(self, request, *args, **kwargs):
         obj_pk = kwargs.get('obj_pk', '')
-        mapper_name = site_mappers.get_mapper('mapper_name', '')
-        if not site_mappers.get_mapper(mapper_name):
-            raise MapperError('Mapper class \'{0}\' does is not registered.'.format(mapper_name))
-        else:
-            mapper = site_mappers.get_mapper(mapper_name)()
+        mapper_name = site_mappers.current_community
+        mapper = site_mappers.get_mapper(mapper_name)()
         url = mapper.image_file_url(obj_pk)
         landmarks = mapper.landmarks
         landmarks_dict = mapper.close_landmarks(coordinates=[], landmarks=landmarks)

@@ -92,6 +92,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static/'
-
+DJANGO_SETTINGS_MODULE = True
 VERIFY_GPS = True
-CURRENT_COMMUNITY = 'test_community'
+CURRENT_COMMUNITY = 'test_area'
