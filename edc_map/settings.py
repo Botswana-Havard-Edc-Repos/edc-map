@@ -36,7 +36,6 @@ TEMPLATE_DIRS = ()
 ALLOWED_HOSTS = []
 
 MEDIA_URL = '/media/'
-
 # Application definition
 
 INSTALLED_APPS = (

@@ -14,10 +14,10 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns += patterns(
-    '',
-    url(r'^$', MapImage.as_view(), name='map_image_url'),
-)
+urlpatterns = [
+    url(r'^map/(?P<mapper_name>\w+)/(?P<obj_pk>\d+)$', MapImage.as_view(), name='map_image_url'),
+]
+
 
 # urlpatterns += patterns(
 #     '',
