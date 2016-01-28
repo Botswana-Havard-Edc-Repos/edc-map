@@ -25,6 +25,7 @@ class MapImage(View):
         url = mapper.image_file_url(file_name)
         landmarks = mapper.landmarks
         landmarks_dict = mapper.close_landmarks(coordinates=[], landmarks=landmarks)
+        print landmarks_dict
         self.context.update({
             'obj_pk': obj_pk,
             'url': url,
