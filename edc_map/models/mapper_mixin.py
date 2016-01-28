@@ -22,12 +22,14 @@ class MapperMixin(models.Model):
     gps_target_lon = models.DecimalField(
         verbose_name='target waypoint longitude',
         max_digits=10,
+        default=0.0,
         null=True,
         decimal_places=3)
 
     gps_target_lat = models.DecimalField(
         verbose_name='target waypoint latitude',
         max_digits=10,
+        default=0.0,
         null=True,
         decimal_places=3)
 
@@ -75,11 +77,17 @@ class MapperMixin(models.Model):
         return retval
 
     def store_image(self):
+        """Generate images with 3 zoom levels, 16, 17, 18."""
+
         mapper = site_mappers.get_mapper(self.area_name)
         landmarks = mapper.landmarks
-        coordinates = [self.gps_target_lat, self.gps_confirm_longitude]
-        url = mapper.google_image_url(coordinates, landmarks)
-        mapper.grep_image(url, self.pk)
+        coordinates = [self.gps_target_lat, self.gps_target_lon]
+        zoom_level = 16
+        while zoom_level < 19:
+            url = mapper.google_image_url(coordinates, landmarks, zoom_level)
+            image_name = str(self.pk) + str(zoom_level)
+            mapper.grep_image(url, image_name)
+            zoom_level += 1
 
     class Meta:
         abstract = True

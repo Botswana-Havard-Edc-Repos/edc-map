@@ -1,18 +1,34 @@
+import factory
+
 from django.test import TestCase
 
 from ..contants import CONFIRMED, UNCONFIRMED
 # from ..classes import site_mappers
 from ..exceptions import MapperError
 from ..models import MapperMixin
-from .factories import MapperMixinFactory
 from edc_map.mappers import TestItemMapper
+
+
+class TestModel(MapperMixin):
+
+    class Meta:
+        app_label = 'edc_map'
+
+
+class TestModelFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = TestModel
+
+    gps_target_lon = factory.Sequence(lambda n: '2.123{0}'.format(n))
+    gps_target_lat = factory.Sequence(lambda n: '2.12345{0}'.format(n))
 
 
 class TestLocationConfirmation(TestCase):
 
     def setUp(self):
         self.mapper = TestItemMapper()
-        self.item = MapperMixin.objects.create(gps_target_lat=24.124, gps_target_lon=22.343, area_name=self.mapper.map_area, distance_from_target=25.12)
+        self.item = TestModel.objects.create(gps_target_lat=24.124, gps_target_lon=22.343, area_name=self.mapper.map_area, distance_from_target=25.12)
 
     def test_unconfirm_item(self):
         """Test if a plot has no confirmation coordinates, its action is unconfirmed."""
@@ -37,8 +53,10 @@ class TestLocationConfirmation(TestCase):
             'gps_target_lat': 24.124,
             'gps_target_lon': 22.343}
         with self.assertRaises(MapperError) as context:
-            MapperMixinFactory(**data)
-        self.assertIn('The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.515971059m', str(context.exception))
+            TestModelFactory(**data)
+        self.assertIn(
+            'The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.51597m',
+            str(context.exception))
 
     def test_location_in_target(self):
         """Test if an item is outside a map area raises a mapper error."""
@@ -50,5 +68,7 @@ class TestLocationConfirmation(TestCase):
             'gps_target_lat': 24.124,
             'gps_target_lon': 22.343}
         with self.assertRaises(MapperError) as context:
-            MapperMixinFactory(**data)
-        self.assertIn('The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.515971059m', str(context.exception))
+            TestModelFactory(**data)
+        self.assertIn(
+            'The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.51597m',
+            str(context.exception))

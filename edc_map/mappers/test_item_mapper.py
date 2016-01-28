@@ -6,7 +6,7 @@ class TestItemMapper(BaseAreaMapper):
 
     item_model = 'MapperMixin'
     map_area = 'test_area'
-    map_code = '99'
+    map_code = '91'
     regions = []
     sections = []
     landmarks = []

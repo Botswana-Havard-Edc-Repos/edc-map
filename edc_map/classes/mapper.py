@@ -187,13 +187,6 @@ class Mapper(object):
         longitude = str(item.gps_target_lon)
         return [latitude, longitude]
 
-    def items(self, area_name):
-        """Returns items that are being located."""
-
-        from ..models import MapperMixin
-        items = MapperMixin.objects.filter(area_name=area_name)
-        return items
-
     def zoom(self, zoom_level):
         """Return google map image zoom level url."""
         return '&zoom=' + str(zoom_level)
@@ -205,7 +198,10 @@ class Mapper(object):
         except ValueError:
             pass
         #  TODO fix pep8
-        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32' + self.zoom(zoom_level) + '&center=' + str(latitude) + ',' + str(longitude) + self.landmarks_url(coordinates, landmarks) + '&markers=color:red%7C' + str(latitude) + ',' + str(longitude) + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
+        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32'
+        url += self.zoom(zoom_level) + '&center=' + str(latitude) + ',' + str(longitude)
+        url += self.landmarks_url(coordinates, landmarks) + '&markers=color:red%7C' + str(latitude) + ','
+        url += str(longitude) + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
         return url
 
     def close_landmarks(self, coordinates, landmarks):
@@ -215,6 +211,8 @@ class Mapper(object):
             coordinates: a list of coordinates pair, e.g [latitude, longitude].
             landmarks: a list of a list of landmarks, e.g [[landmark_name, latitude, longitude],].
         """
+        latitude = 0.0
+        longitude = 0.0
         try:
             latitude, longitude = coordinates
         except ValueError:
@@ -236,7 +234,7 @@ class Mapper(object):
         for lable, landmark_values in close_landmarks.iteritems():
             if lable:
                 markers_str += '&markers=color:blue%7Clabel:' + lable + '%7C' + str(landmark_values[2]) + ','
-                + str(landmark_values[3])
+                markers_str += str(landmark_values[3])
         return markers_str
 
     def grep_image(self, url, image_name):

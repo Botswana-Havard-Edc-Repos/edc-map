@@ -16,6 +16,7 @@ urlpatterns = [
 
 urlpatterns += patterns(
     '',
+    url(r'^map/(?P<obj_pk>[^/]+)/(?P<map_zoom>[1-9]{1})', MapImage.as_view(), name='map_image_url'),
     url(r'^map/(?P<obj_pk>[^/]+)$', MapImage.as_view(), name='map_image_url'),
 )
 
@@ -63,5 +64,5 @@ urlpatterns += patterns(
 # for mapper_name in site_mappers.map_areas:
 #     urlpatterns += patterns('', url(r'^(?P<mapper_name>{0})/$'.format(mapper_name), map_index,
 #                                     name='selected_map_index_url'))
-# 
+#
 # urlpatterns += patterns('', url(r'^', map_index, name='map_index_url'))
