@@ -1,9 +1,19 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.project
+.pydevproject
+test-*
+
+#Media file
+media
 
 # C extensions
 *.so
+
+.DS_Store
+# DB file
+db.sqlite3
 
 # Distribution / packaging
 .Python

@@ -1,0 +1,30 @@
+{% extends "section.html"%}
+{% load admin_urls %}
+{% load url from future %}
+{% load common_tags %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url "section_index_url" %}">Home</a> 
+&rsaquo; <a href="{% url "section_url" 'administration' %}">Administration</a>
+</div>
+{% endblock %}
+{% block content %}
+<table>
+	<tr valign="top">
+		<td colspan="2"><img src="{{ url }}" alt="item map" width="800" height="450" /></td>
+	</tr>
+	<tr>
+	<td colspan="2">
+		<A href="{% url 'map_image_url' obj_pk map_zoom_1 %}">(zoom level 16)</A>
+		<A href="{% url 'map_image_url' obj_pk map_zoom_2 %}">(zoom level 17)</A>
+		<A href="{% url 'map_image_url' obj_pk map_zoom_3 %}">(zoom level 18)</A>
+	</td>
+	</tr>
+	<tr><td colspan="2"></td></tr>
+	<tr><td>label</td><td>Landmark</td></tr>
+	{% for key, value in landmarks.items %}
+		<tr><td>{{ key }}</td><td> {{ value.0 }} {{ value.1 }} {{ value.2 }} {{ value.3 }}</td></tr>
+	{% endfor %}
+
+</table>
+{% endblock %}

@@ -1,0 +1,2 @@
+CONFIRMED = 'confirmed'
+UNCONFIRMED = 'unconfirmed'

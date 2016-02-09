@@ -1,0 +1,95 @@
+{% extends "base_map.html" %}
+
+
+{% block mapping %}
+	<H3>{{ mapper_item_label }} Map</H3>
+	{% if show_map == 1 %}
+		{% if option == 'plot' %}
+			{% if not has_items %}
+				<script language="javascript" type="text/javascript" defer> alert('Oops! No {{ mapper_item_label }} found. Try broadening your search');
+				window.location.replace('{% url "selected_map_index_url" mapper_name %}')
+				</script>
+			{% endif %}
+		{% endif %}
+	
+	
+		{% if has_items %}	
+		    <table align="center">
+			    <tr><td rowspan="3">{% include "cart_include.html" %}</td></tr>
+			    <tr><td><div align="center" id="map"></div></td></tr>
+			</table>
+			
+		    <table align="center">
+		    	<input type="hidden" value="{{ selected_region }}"  id="{{ region_field_attr }}" name="{{ region_field_attr }}" />
+		    	<input type="hidden" value="no"  id="sec" name="sec" />
+		    	<tr align="middle">
+		    		<td>
+			    	<button id="save_map_selection" disabled="disabled">Save</button> 
+			    	<button id="revert_map" disabled="disabled">Revert</button> 
+			    	<button id="clear_map">Clear</button> 
+			    	<a href="{% url "selected_map_index_url" mapper_name %}">Continue</a>
+			    	</td>
+				</tr>
+				<tr>
+					<td>
+						{% if selected_region == "All" %}
+						<H2>Key</H2>
+							{% for color, sectx in section_color_code_list %}       	
+							    	<b>{{color}}</b> : {{sectx}},
+							{% endfor %}
+						{% endif %}
+						
+						
+					</td>
+				</tr>
+			    	<tr>
+			    	<td>
+				    <H4> Instructions</H4>
+				    <ol>
+				    <li>Choose the icon you want used for markers</li>
+				    <li>(optional) Click on a marker to view information about a {{ mapper_item_label }}</li>
+				    <li>Draw a polygon around the {{mapper_item_label}}s to select; </li>
+				    <li>
+				    	<ul>
+				    		<li>Right click on the map and click to the first point to close the polygon</li>
+				            <li>Remove a marker by right clicking on it</li>
+				            <li>Add a marker by right clicking on the polygon line and dragging the marker to stretch the shape of the polygon</li>
+				         </ul>
+				    </li>
+				    <li>Click the save button</li>
+				    <li>Once the data is sent, you can choose to continue selecting more {{mapper_item_label}}s or checkout the ones you have selected already.
+				    
+				    </li>
+				    </ol>
+				    </td>
+			    </tr>
+		      </table>
+			
+		{% endif %}
+		
+	{% endif %}
+	{% if show_map == 0 %}
+		{% if message %}
+			<script language="javascript" type="text/javascript" defer> alert('{{ message }}'); </script>
+		{% endif %}
+		    <table align="center">
+			    <tr><td rowspan="3">{% include "cart_include.html" %}</td></tr>
+		    	<tr>
+			    	<td>
+			    		<p>Success! Your dispatch cart now contains these {{mapper_item_label}}s: {{ cart }}.</p>
+			    		Click the continue button to select more {{mapper_item_label}}s or click the checkout button
+			    		to finish this session.
+			    	</td>
+				</tr>
+				<tr align="center">
+					<td>
+					<input type="button" value="Checkout" onclick="window.location='{% url "map_checkout_cart_url" mapper_name %}'" /> 
+					<input type="button" value="Continue" onclick="window.location='{% url "selected_map_index_url" mapper_name %}'" />
+					</td>
+				</tr>
+			</table>
+		
+	{% endif %}
+
+{% endblock mapping %}
+      
