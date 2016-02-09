@@ -19,9 +19,7 @@ def map_index(request, **kwargs):
     else:
         mapper = site_mappers.get_mapper(mapper_name)
     if mapper:
-        if not issubclass(mapper, Mapper):
-            raise MapperError('Mapper class \'{0}\' is not registered.'.format(mapper_name))
-        mapper = site_mappers.get_mapper(mapper_name)()
+        mapper = site_mappers.get_mapper('test_area')
         cart_size = 0
         identifiers = []
         icon = request.session.get('icon', None)
@@ -30,7 +28,7 @@ def map_index(request, **kwargs):
             identifiers = request.session['identifiers']
         return render_to_response(
             template, {
-                'mapper_name': mapper_name,
+                'mapper_name': 'test_area',
                 'item_label': mapper.item_label,
                 'region_field_attr': mapper.region_field_attr,
                 'region_label': mapper.region_label,

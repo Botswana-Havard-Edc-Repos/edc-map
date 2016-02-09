@@ -19,6 +19,9 @@ SOURCE_ROOT = Path(os.path.dirname(os.path.realpath(__file__))).ancestor(2)  # e
 PROJECT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))  # e.g.
 MEDIA_ROOT = PROJECT_ROOT.child('media')
 STATIC_ROOT = PROJECT_DIR.child('static')
+GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
+GPS_DEVICE = '/Volumes/GARMIN/'
+GPX_TEMPLATE = os.path.join(STATIC_ROOT, 'gpx/template.gpx')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -47,6 +50,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'edc_map',
     'edc_device',
+    'edc_templates',
+    'edc_base',
+    'edc_admin_exclude',
+    'django_revision',
+    'edc_dashboard',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -77,6 +85,13 @@ TEMPLATE_DIRS = ()
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
+PROJECT_NUMBER = 'BHP000'
+PROJECT_IDENTIFIER_PREFIX = '000'
+PROJECT_IDENTIFIER_MODULUS = 7
+IS_SECURE_DEVICE = True
+FIELD_MAX_LENGTH = 'default'
+
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -95,3 +110,9 @@ STATIC_ROOT = '/static/'
 DJANGO_SETTINGS_MODULE = True
 VERIFY_GPS = True
 CURRENT_COMMUNITY = 'test_area'
+GIT_DIR = BASE_DIR.ancestor(1)
+APP_NAME = 'map'
+PROJECT_TITLE = 'EDC Mapping'
+INSTITUTION = 'Botswana-Harvard AIDS Institute'
+PROTOCOL_REVISION = 'v1.0'
+PROTOCOL_NUMBER = '000'

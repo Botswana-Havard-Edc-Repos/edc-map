@@ -3,6 +3,7 @@ from django.db import models
 from ..exceptions import MapperError
 from ..classes import site_mappers
 from ..contants import CONFIRMED, UNCONFIRMED
+from edc_map.classes.snapshot import Snapshot
 
 
 class MapperMixin(models.Model):
@@ -54,6 +55,19 @@ class MapperMixin(models.Model):
         default=UNCONFIRMED,
         editable=False)
 
+    section = models.CharField(
+        max_length=25,
+        null=True,
+        verbose_name='Section',
+        editable=False)
+
+    sub_section = models.CharField(
+        max_length=25,
+        null=True,
+        verbose_name='Sub-section',
+        help_text=u'',
+        editable=False)
+
     def save(self, *args, **kwargs):
         mapper = site_mappers.get_mapper(self.area_name)
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
@@ -81,12 +95,13 @@ class MapperMixin(models.Model):
 
         mapper = site_mappers.get_mapper(self.area_name)
         landmarks = mapper.landmarks
+        snapshot = Snapshot()
         coordinates = [self.gps_target_lat, self.gps_target_lon]
         zoom_level = 16
         while zoom_level < 19:
-            url = mapper.google_image_url(coordinates, landmarks, zoom_level)
+            url = snapshot.google_image_url(coordinates, landmarks, zoom_level)
             image_name = str(self.pk) + str(zoom_level)
-            mapper.grep_image(url, image_name)
+            snapshot.grep_image(url, image_name)
             zoom_level += 1
 
     class Meta:

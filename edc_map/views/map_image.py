@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from ..classes import site_mappers
+from ..classes.snapshot import Snapshot
 
 
 class MapImage(View):
@@ -15,6 +16,7 @@ class MapImage(View):
         obj_pk = kwargs.get('obj_pk', '')
         mapper_name = site_mappers.current_community
         mapper = site_mappers.get_mapper(mapper_name)
+        snapshot = Snapshot()
         map_zoom = kwargs.get('map_zoom', '1')
         if map_zoom == '1':
             file_name = obj_pk + '16'
@@ -22,10 +24,9 @@ class MapImage(View):
             file_name = obj_pk + '17'
         elif map_zoom == '3':
             file_name = obj_pk + '18'
-        url = mapper.image_file_url(file_name)
+        url = snapshot.image_file_url(file_name)
         landmarks = mapper.landmarks
-        landmarks_dict = mapper.close_landmarks(coordinates=[], landmarks=landmarks)
-        print landmarks_dict
+        landmarks_dict = snapshot.close_landmarks(coordinates=[], landmarks=landmarks)
         self.context.update({
             'obj_pk': obj_pk,
             'url': url,
