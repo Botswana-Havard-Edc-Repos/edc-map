@@ -3,31 +3,32 @@ from django.db import models
 from ..exceptions import MapperError
 from ..classes import site_mappers
 from ..contants import CONFIRMED, UNCONFIRMED
+from edc_base.encrypted_fields import EncryptedDecimalField
 from edc_map.classes.snapshot import Snapshot
 
 
 class MapperMixin(models.Model):
 
-    gps_confirm_latitude = models.DecimalField(
+    gps_confirm_latitude = EncryptedDecimalField(
         verbose_name='longitude',
         max_digits=10,
         null=True,
         decimal_places=3)
 
-    gps_confirm_longitude = models.DecimalField(
+    gps_confirm_longitude = EncryptedDecimalField(
         verbose_name='latitude',
         max_digits=10,
         null=True,
         decimal_places=3)
 
-    gps_target_lon = models.DecimalField(
+    gps_target_lon = EncryptedDecimalField(
         verbose_name='target waypoint longitude',
         max_digits=10,
         default=0.0,
         null=True,
         decimal_places=3)
 
-    gps_target_lat = models.DecimalField(
+    gps_target_lat = EncryptedDecimalField(
         verbose_name='target waypoint latitude',
         max_digits=10,
         default=0.0,
