@@ -11,7 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='edc-map',
-    version='0.1.0',
+    version='1.1dev0',
     author=u'Botswana-Harvard AIDS Institute',
     author_email='ckgathi@bhp.org.bw, ew2789@gmail.com',
     packages=find_packages(),
