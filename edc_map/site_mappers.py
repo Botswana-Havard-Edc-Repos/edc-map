@@ -2,16 +2,12 @@ import copy
 
 from collections import OrderedDict
 
+from django.apps import apps as django_apps
 from django.conf import settings
-try:
-    # Django versions >= 1.9
-    from django.utils.module_loading import import_module
-except ImportError:
-    # Django versions < 1.9
-    from django.utils.importlib import import_module
+from django.utils.module_loading import import_module
 from django.utils.module_loading import module_has_submodule
 
-from ..exceptions import MapperError, AlreadyRegistered
+from .exceptions import MapperError, AlreadyRegistered
 
 from .mapper import Mapper
 
@@ -129,18 +125,20 @@ class Controller(object):
 
     def autodiscover(self, module_name=None):
         """Autodiscovers mapper classes in the mapper.py file of any INSTALLED_APP."""
-        if not self.autodiscovered:
-            module_name = module_name or 'mappers'
-            for app in settings.INSTALLED_APPS:
+        module_name = module_name or 'mappers'
+        print('Checking for site {} ...'.format(module_name))
+        for app in django_apps.app_configs:
+            try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_mappers.registry)
                     import_module('{}.{}'.format(app, module_name))
+                    print(' * found mapper {} in {}'.format(module_name, app))
                 except:
                     site_mappers.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
-            self.autodiscovered = True
-            self.autodiscovered = True
+            except ImportError:
+                pass
 
 site_mappers = Controller()

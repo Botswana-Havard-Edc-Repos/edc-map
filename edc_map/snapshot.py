@@ -1,20 +1,12 @@
 import os
 
-try:
-    # Django versions >= 1.9
-    from urllib.request import urlretrieve
-except ImportError:
-    # Django versions < 1.9
-    from urllib import urlretrieve
-
-from time import sleep
-
 from operator import itemgetter
+from time import sleep
+from urllib.request import urlretrieve
 
 from django.conf import settings
 
-# from ..choices import ICONS
-from ..exceptions import MapperError
+from .exceptions import MapperError
 
 LETTERS = list(map(chr, range(65, 91)))
 

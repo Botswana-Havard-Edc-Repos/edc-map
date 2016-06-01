@@ -1,22 +1,19 @@
-from django.views.generic import View
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.views.generic.base import TemplateView
 
-from ..classes import site_mappers
-from ..classes.snapshot import Snapshot
+from ..site_mappers import site_mappers
+from ..snapshot import Snapshot
 
 
-class MapImage(View):
+class MapImage(TemplateView):
 
-    def __init__(self):
-        self.context = {}
-        self.template_name = 'map_image.html'
+    template_name = 'edc_map/map_image.html'
 
-    def get(self, request, *args, **kwargs):
-        obj_pk = kwargs.get('obj_pk', '')
+    def get_context_data(self, **kwargs):
+        context = super(MapImage, self).get_context_data(kwargs)
         mapper_name = site_mappers.current_community
         mapper = site_mappers.get_mapper(mapper_name)
         snapshot = Snapshot()
+        obj_pk = self.kwargs.get('obj_pk', '')
         map_zoom = kwargs.get('map_zoom', '1')
         if map_zoom == '1':
             file_name = obj_pk + '16'
@@ -27,7 +24,7 @@ class MapImage(View):
         url = snapshot.image_file_url(file_name)
         landmarks = mapper.landmarks
         landmarks_dict = snapshot.close_landmarks(coordinates=[], landmarks=landmarks)
-        self.context.update({
+        context.update({
             'obj_pk': obj_pk,
             'url': url,
             'map_zoom_1': '1',
@@ -35,13 +32,9 @@ class MapImage(View):
             'map_zoom_3': '3',
             'landmarks': landmarks_dict
         })
-        return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))
+        return context
 
-    def post(self, request, *args, **kwargs):
-        self.context.update({
-        })
-        return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))
-
-    def get_context_data(self, **kwargs):
-
-        return super(MapImage, self).get_context_data(**kwargs)
+#     def post(self, request, *args, **kwargs):
+#         self.context.update({
+#         })
+#         return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))

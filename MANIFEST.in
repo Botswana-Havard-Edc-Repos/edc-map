@@ -1,0 +1,2 @@
+recursive-include edc_map/templates *
+recursive-include edc_map/static *

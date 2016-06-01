@@ -1,8 +1,7 @@
 from datetime import date, timedelta
-from geopy import Point
-from geopy import distance
+from geopy import Point, distance
 
-from ..choices import ICONS
+from .choices import ICONS
 
 LETTERS = list(map(chr, range(65, 91)))
 

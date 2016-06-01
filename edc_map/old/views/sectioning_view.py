@@ -1,26 +1,22 @@
-from django.views.generic import View
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.views.generic.base import TemplateView
 
-from ..classes import site_mappers
-from ..classes import Sectioning
-from ..sections_and_sub_sections import SECTIONS, SUB_SECTIONS
+from ..classes import site_mappers, Sectioning
+from ..constants import SECTIONS, SUB_SECTIONS
 
 
-class SectioningView(View):
+class SectioningView(TemplateView):
 
-    def __init__(self):
-        self.context = {}
-        self.template_name = 'map.html'
+    template_name = 'map.html'
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        context = super(SectioningView, self).get_context_data(kwargs)
         mapper_name = site_mappers.current_community
         mapper = site_mappers.get_mapper(mapper_name)
         sectioning = Sectioning()
         items = []
-        item_identifiers = request.GET.get('identifiers')
-        section = request.GET.get('section', '')
-        sub_section = request.GET.get('sub_section')
+        item_identifiers = self.request.GET.get('identifiers')
+        section = self.request.GET.get('section', '')
+        sub_section = self.request.GET.get('sub_section')
         sections = SECTIONS
         sub_sections = SUB_SECTIONS
         if item_identifiers:
@@ -33,7 +29,7 @@ class SectioningView(View):
         items = mapper.item_model.objects.filter(section__isnull=True, area_name=mapper_name)
         locations = sectioning.prepare_map_points(items)
         landmarks = mapper.landmarks
-        self.context.update({
+        context.update({
             'mapper': mapper,
             'item_identifiers': item_identifiers,
             'section': section,
@@ -43,13 +39,9 @@ class SectioningView(View):
             'sections': sections,
             'sub_sections': sub_sections,
         })
-        return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))
+        return context
 
-    def post(self, request, *args, **kwargs):
-        self.context.update({
-        })
-        return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))
-
-    def get_context_data(self, **kwargs):
-
-        return super(SectioningView, self).get_context_data(**kwargs)
+#     def post(self, request, *args, **kwargs):
+#         self.context.update({
+#         })
+#         return render_to_response(self.template_name, self.context, context_instance=RequestContext(request))

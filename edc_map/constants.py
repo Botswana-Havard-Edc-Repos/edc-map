@@ -1,3 +1,5 @@
+CONFIRMED = 'confirmed'
+UNCONFIRMED = 'unconfirmed'
 SECTIONS = (
     'A', 'B', 'C', 'D', 'E'
 )

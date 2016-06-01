@@ -1,8 +1,8 @@
-from ..classes import Mapper
-from ..choices import ICONS, OTHER_ICONS
+from .choices import ICONS, OTHER_ICONS
+from .mapper import Mapper
 
 
-class BaseAreaMapper(Mapper):
+class PlotMapper(Mapper):
 
     map_code = None
     map_area = None

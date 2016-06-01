@@ -1,7 +1,8 @@
 import os
 
 from django.conf import settings
-from ..classes import site_mappers
+
+from ..site_mappers import site_mappers
 from ..exceptions import MapperError
 
 

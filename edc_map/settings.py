@@ -14,14 +14,6 @@ from unipath import Path
 
 
 BASE_DIR = Path(os.path.dirname(os.path.dirname(__file__)))
-PROJECT_ROOT = Path(os.path.dirname(os.path.realpath(__file__))).ancestor(1)  # e.g.
-SOURCE_ROOT = Path(os.path.dirname(os.path.realpath(__file__))).ancestor(2)  # e.g. /home/django/source
-PROJECT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))  # e.g.
-MEDIA_ROOT = PROJECT_ROOT.child('media')
-STATIC_ROOT = PROJECT_DIR.child('static')
-GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
-GPS_DEVICE = '/Volumes/GARMIN/'
-GPX_TEMPLATE = os.path.join(STATIC_ROOT, 'gpx/template.gpx')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -48,13 +40,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_map',
-    'edc_device',
-    'edc_templates',
-    'edc_base',
-    'edc_admin_exclude',
+    'django_crypto_fields',
     'django_revision',
-    'edc_dashboard',
+    'edc_map',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -85,13 +73,6 @@ TEMPLATE_DIRS = ()
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-PROJECT_NUMBER = 'BHP000'
-PROJECT_IDENTIFIER_PREFIX = '000'
-PROJECT_IDENTIFIER_MODULUS = 7
-IS_SECURE_DEVICE = True
-FIELD_MAX_LENGTH = 'default'
-
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -104,15 +85,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
-DJANGO_SETTINGS_MODULE = True
-VERIFY_GPS = True
-CURRENT_COMMUNITY = 'test_area'
-GIT_DIR = BASE_DIR.ancestor(1)
-APP_NAME = 'map'
-PROJECT_TITLE = 'EDC Mapping'
-INSTITUTION = 'Botswana-Harvard AIDS Institute'
-PROTOCOL_REVISION = 'v1.0'
-PROTOCOL_NUMBER = '000'
+
+# edc-map
+GIT_DIR = BASE_DIR
+KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
+SHOW_CRYPTO_FORM_DATA = True
+FIELD_MAX_LENGTH = 'default'
+MEDIA_ROOT = BASE_DIR.child('media')
+GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
+GPS_DEVICE = '/Volumes/GARMIN/'
+GPX_TEMPLATE = os.path.join(BASE_DIR, 'gpx/template.gpx')

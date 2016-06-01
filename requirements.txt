@@ -1,16 +1,12 @@
--e git+https://github.com/erikvw/django-revision@522bb4e0cc41df969f0cba9485919ec1125cd157#egg=django_revision
--e git+https://github.com/botswana-harvard/edc-admin-exclude.git@725925f52ece42c6899c978df155ed4cfe1f2507#egg=edc_admin_exclude
--e git+https://github.com/botswana-harvard/edc-base@28a2d457f2bdddfb6912b0c565164940a58f9617#egg=edc_base
--e git+https://github.com/botswana-harvard/edc-constants@e1f601a4f584ed0e84999944aab18ccb6ecb1063#egg=edc_constants-dev
--e git+https://github.com/botswana-harvard/edc-dashboard.git@6403f7999b837376962c68757a6f8e279b03f9ef#egg=edc_dashboard
--e git+https://github.com/botswana-harvard/edc-device@e641387fbe9d672b73723e624105b503a907fd66#egg=edc_device-dev
--e git+https://github.com/botswana-harvard/edc-templates.git@a423c55c98a21a10ff169b10aac1711182395c1b#egg=edc_templates
--e git+https://github.com/botswana-harvard/edc-map.git@58b9b8498181da71829d34a3993dbc39b7d96f68
+Django
+django_extensions==1.6.1
 factory-boy==2.6.0
 fake-factory==0.5.3
 geopy==1.11.0
-pyflakes==1.0.0
-python-dateutil==2.4.2
-Unipath==1.1
-gitdb==0.6.4
-GitPython==1.0.1
+python-dateutil
+Unipath
+GitPython
+pycrypto
+git+https://github.com/erikvw/django-crypto-fields@develop#egg=django_crypto_fields
+git+https://github.com/erikvw/django-revision@develop#egg=django_revision
+git+https://github.com/erikvw/edc-base@develop#egg=edc_base

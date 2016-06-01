@@ -22,6 +22,9 @@ setup(
     long_description=README,
     zip_safe=False,
     keywords='django edc gps survey',
+    install_requires=[
+        'geopy==1.11.0',
+    ],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',

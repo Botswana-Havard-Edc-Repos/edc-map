@@ -1,2 +1,0 @@
-CONFIRMED = 'confirmed'
-UNCONFIRMED = 'unconfirmed'

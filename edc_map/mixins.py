@@ -1,39 +1,41 @@
 from django.db import models
+from django.utils import timezone
 
-from ..exceptions import MapperError
-from ..classes import site_mappers
-from ..contants import CONFIRMED, UNCONFIRMED
-from edc_base.encrypted_fields import EncryptedDecimalField
-from edc_map.classes.snapshot import Snapshot
+# from django_crypto_fields.fields import EncryptedDecimalField
+
+from .constants import CONFIRMED, UNCONFIRMED
+from .exceptions import MapperError
+from .site_mappers import site_mappers
+from .snapshot import Snapshot
 
 
 class MapperMixin(models.Model):
 
-    gps_confirm_latitude = EncryptedDecimalField(
+    gps_confirm_latitude = models.DecimalField(
         verbose_name='longitude',
-        max_digits=10,
+        max_digits=15,
         null=True,
-        decimal_places=3)
+        decimal_places=10)
 
-    gps_confirm_longitude = EncryptedDecimalField(
+    gps_confirm_longitude = models.DecimalField(
         verbose_name='latitude',
-        max_digits=10,
+        max_digits=15,
         null=True,
-        decimal_places=3)
+        decimal_places=10)
 
-    gps_target_lon = EncryptedDecimalField(
+    gps_target_lon = models.DecimalField(
         verbose_name='target waypoint longitude',
-        max_digits=10,
+        max_digits=15,
         default=0.0,
         null=True,
-        decimal_places=3)
+        decimal_places=10)
 
-    gps_target_lat = EncryptedDecimalField(
+    gps_target_lat = models.DecimalField(
         verbose_name='target waypoint latitude',
-        max_digits=10,
+        max_digits=15,
         default=0.0,
         null=True,
-        decimal_places=3)
+        decimal_places=10)
 
     target_radius = models.FloatField(
         default=.025,
@@ -93,7 +95,6 @@ class MapperMixin(models.Model):
 
     def store_image(self):
         """Generate images with 3 zoom levels, 16, 17, 18."""
-
         mapper = site_mappers.get_mapper(self.area_name)
         landmarks = mapper.landmarks
         snapshot = Snapshot()
@@ -104,6 +105,24 @@ class MapperMixin(models.Model):
             image_name = str(self.pk) + str(zoom_level)
             snapshot.grep_image(url, image_name)
             zoom_level += 1
+
+    class Meta:
+        abstract = True
+
+
+class CustomRadiusMixin(models.Model):
+    """A model completed by the user to allow a plot\'s GPS target radius to be changed.
+
+    An instance is auto created once the criteria is met. See method plot.increase_plot_radius."""
+    identifier = models.CharField(max_length=50, unique=True)
+
+    radius = models.FloatField(
+        default=25.0,
+        help_text='meters')
+
+    reason = models.CharField(max_length=25)
+
+    created = models.DateTimeField(default=timezone.now())
 
     class Meta:
         abstract = True
