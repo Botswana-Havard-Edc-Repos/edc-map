@@ -6,10 +6,9 @@ from django.utils import timezone
 from .constants import CONFIRMED, UNCONFIRMED
 from .exceptions import MapperError
 from .site_mappers import site_mappers
-from .snapshot import Snapshot
 
 
-class MapperMixin(models.Model):
+class MapperModelMixin(models.Model):
 
     gps_confirm_latitude = models.DecimalField(
         verbose_name='longitude',
@@ -74,7 +73,8 @@ class MapperMixin(models.Model):
     def save(self, *args, **kwargs):
         mapper = site_mappers.get_mapper(self.area_name)
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
-            mapper.location_in_map_area(self.gps_confirm_latitude, self.gps_confirm_longitude, MapperError)
+            mapper.location_in_map_area(
+                self.gps_confirm_latitude, self.gps_confirm_longitude, MapperError)
             mapper.location_in_target(
                 self.gps_confirm_latitude,
                 self.gps_confirm_longitude,
@@ -83,28 +83,24 @@ class MapperMixin(models.Model):
                 self.target_radius,
                 MapperError,)
             self.distance_from_target = mapper.gps_distance_between_points(
-                self.gps_confirm_latitude, self.gps_confirm_longitude, self.gps_target_lat, self.gps_target_lon) * 1000
-        self.action = self.get_action()
-        super(MapperMixin, self).save(*args, **kwargs)
+                self.gps_confirm_latitude, self.gps_confirm_longitude,
+                self.gps_target_lat, self.gps_target_lon) * 1000
+        self.action = self.get_confirmation_status()
+        super(MapperModelMixin, self).save(*args, **kwargs)
 
-    def get_action(self):
+    @property
+    def latitude(self):
+        return self.gps_target_lat
+
+    @property
+    def longitude(self):
+        return self.gps_target_lon
+
+    def get_confirmation_status(self):
         retval = UNCONFIRMED
         if self.gps_confirm_latitude and self.gps_confirm_longitude:
             retval = CONFIRMED
         return retval
-
-    def store_image(self):
-        """Generate images with 3 zoom levels, 16, 17, 18."""
-        mapper = site_mappers.get_mapper(self.area_name)
-        landmarks = mapper.landmarks
-        snapshot = Snapshot()
-        coordinates = [self.gps_target_lat, self.gps_target_lon]
-        zoom_level = 16
-        while zoom_level < 19:
-            url = snapshot.google_image_url(coordinates, landmarks, zoom_level)
-            image_name = str(self.pk) + str(zoom_level)
-            snapshot.grep_image(url, image_name)
-            zoom_level += 1
 
     class Meta:
         abstract = True

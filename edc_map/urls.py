@@ -1,11 +1,12 @@
 from django.conf.urls import url
-from .views import MapImage
+
+from .views import MapImageView
 
 # from .views import (kmz_file_upload, create_kmz_items, map_index)
 
 urlpatterns = [
-    url(r'^map/(?P<obj_pk>[^/]+)/(?P<map_zoom>[1-9]{1})', MapImage.as_view(), name='map_image_url'),
-    url(r'^map/(?P<obj_pk>[^/]+)$', MapImage.as_view(), name='map_image_url'),
+    url(r'^(?P<map_area>\w+)/(?P<pk>[^/]+)/(?P<zoom_level>[1-9]{1})', MapImageView.as_view(), name='map_image_url'),
+    url(r'^(?P<map_area>\w+)/(?P<pk>[^/]+)$', MapImageView.as_view(), name='map_image_url'),
 ]
 
 # urlpatterns = [
