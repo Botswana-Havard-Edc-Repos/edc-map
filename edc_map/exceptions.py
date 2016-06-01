@@ -9,3 +9,7 @@ class AlreadyRegistered(Exception):
 
 class NotRegistered(Exception):
     pass
+
+
+class FolderDoesNotExist(Exception):
+    pass

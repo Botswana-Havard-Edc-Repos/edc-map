@@ -8,12 +8,10 @@ from django.conf import settings
 
 from .geo_mixin import GeoMixin
 from .site_mappers import site_mappers
+from .exceptions import FolderDoesNotExist
+
 
 LETTERS = list(map(chr, range(65, 91)))
-
-
-class FolderDoesNotExist(Exception):
-    pass
 
 
 class Snapshot(GeoMixin):
