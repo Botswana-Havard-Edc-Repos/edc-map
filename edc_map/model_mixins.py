@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+from geopy import Point
 # from django_crypto_fields.fields import EncryptedDecimalField
 
 from .constants import CONFIRMED, UNCONFIRMED
@@ -10,26 +10,26 @@ from .site_mappers import site_mappers
 class MapperModelMixin(models.Model):
 
     gps_confirm_latitude = models.DecimalField(
-        verbose_name='longitude',
-        max_digits=15,
-        null=True,
-        decimal_places=10)
-
-    gps_confirm_longitude = models.DecimalField(
         verbose_name='latitude',
         max_digits=15,
         null=True,
         decimal_places=10)
 
-    gps_target_lon = models.DecimalField(
-        verbose_name='target waypoint longitude',
+    gps_confirm_longitude = models.DecimalField(
+        verbose_name='longitude',
         max_digits=15,
-        default=0.0,
         null=True,
         decimal_places=10)
 
     gps_target_lat = models.DecimalField(
         verbose_name='target waypoint latitude',
+        max_digits=15,
+        default=0.0,
+        null=True,
+        decimal_places=10)
+
+    gps_target_lon = models.DecimalField(
+        verbose_name='target waypoint longitude',
         max_digits=15,
         default=0.0,
         null=True,
@@ -70,40 +70,28 @@ class MapperModelMixin(models.Model):
         editable=False)
 
     @property
+    def point(self):
+        return self.confirmed_point
+
+    @property
     def confirmed_point(self):
-        return (self.gps_confirm_latitude, self.gps_confirm_longitude)
+        return Point(self.gps_confirm_latitude, self.gps_confirm_longitude)
 
     @property
     def target_point(self):
-        return (self.gps_target_lat, self.gps_target_lon)
-
-    def raise_if_not_in_target(self):
-        self.raise_if_not_in_radius(
-            self.confirmed_point, self.target_point, self.radius,
-            units='m', label='target location')
-
-    def raise_if_not_in_area(self):
-        mapper = site_mappers.get_mapper(self.area_name)
-        self.raise_if_not_in_radius(
-            self.confirmed_point, mapper.area_center_point, mapper.area_radius,
-            units='km', label=self.map_area)
+        return Point(self.gps_target_lat, self.gps_target_lon)
 
     def save(self, *args, **kwargs):
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
-            self.raise_if_not_in_area()
-            self.raise_if_not_in_target()
-            self.distance_from_target = self.distance_between_points(
+            mapper = site_mappers.get_mapper(self.area_name)
+            mapper.raise_if_not_in_map_area(self.confirmed_point)
+            mapper.raise_if_not_in_radius(
+                self.confirmed_point, self.target_point, self.target_radius,
+                units='m', label='target location')
+            self.distance_from_target = mapper.distance_between_points(
                 self.confirmed_point, self.target_point, units='m')
         self.action = self.get_confirmation_status()
         super(MapperModelMixin, self).save(*args, **kwargs)
-
-    @property
-    def latitude(self):
-        return self.gps_target_lat
-
-    @property
-    def longitude(self):
-        return self.gps_target_lon
 
     def get_confirmation_status(self):
         retval = UNCONFIRMED

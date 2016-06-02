@@ -5,21 +5,19 @@ from .exceptions import MapperError
 
 class GeoMixin:
 
-    gps_center_lat = None
-    gps_center_lon = None
-
     def distance_between_points(self, point_a, point_b, units=None):
-        """Return distance in between two points"""
+        """Return distance between two points (vincenty, default units=km)."""
         units = units or 'km'
         return getattr(vincenty(point_a, point_b), units)
 
     def point_in_radius(self, point, center_point, radius, units=None):
-        """Return True if point is within map area."""
+        """Return True if point is within radius."""
         units = units or 'km'
         d = self.distance_between_points(point, center_point, units)
         return d <= radius
 
-    def raise_if_not_in_radius(self, point, center_point, radius, units=None, label=None, exception_cls=None):
+    def raise_if_not_in_radius(self, point, center_point, radius, units=None,
+                               label=None, exception_cls=None):
         """Raises an exception if point is not within radius (default units=km)."""
         exception_cls = exception_cls or MapperError
         label = label or ''
@@ -28,13 +26,14 @@ class GeoMixin:
             d = self.distance_between_points(point, center_point, units)
             d = round(d, 1)
             raise exception_cls(
-                'GPS {point} is more than {radius}{units} from {label} {center_point}. '
+                'GPS ({point.latitude}, {point.longitude}) is more than {radius}{units} '
+                'from {label} ({center_point.latitude}, {center_point.longitude}). '
                 'Got {distance}{units}.'.format(
                     point=point, radius=radius, center_point=center_point,
                     distance=d, units=units, label=label))
 
     def deg_to_dms(self, deg):
-        """Convert aatitude or longitude into degree minute GPS format."""
+        """Convert latitude or longitude into degree minute GPS format."""
         d = int(deg)
         md = (deg - d) * 60
         m = round(md, 3)

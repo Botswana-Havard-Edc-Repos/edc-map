@@ -1,3 +1,4 @@
 from collections import namedtuple
 
-Landmark = namedtuple('Landmark', 'name longitude latitude distance')
+
+Landmark = namedtuple('Landmark', 'name point distance')

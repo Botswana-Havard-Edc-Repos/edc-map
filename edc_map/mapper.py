@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-# from geopy import Point, distance
+from geopy import Point
 
 from .choices import ICONS
 from .geo_mixin import GeoMixin
@@ -121,15 +121,9 @@ class Mapper(GeoMixin):
                 val = val + identifier + delim
         return val
 
-    def get_coordinates(self, item):
-        """Return target coordinates of a location."""
-        latitude = str(item.gps_target_lat)
-        longitude = str(item.gps_target_lon)
-        return [latitude, longitude]
-
     @property
     def area_center_point(self):
-        return (self.gps_center_lat, self.gps_center_lon)
+        return Point(self.gps_center_lat, self.gps_center_lon)
 
     @property
     def area_radius(self):

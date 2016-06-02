@@ -4,7 +4,7 @@ from collections import OrderedDict
 from time import sleep
 from urllib.parse import urlencode
 from urllib.request import urlretrieve
-
+from geopy import Point
 from django.apps import apps as django_apps
 from django.conf import settings
 
@@ -24,12 +24,12 @@ class Snapshot(GeoMixin):
     google_api_url = 'http://maps.google.com/maps/api/staticmap'
     app_label = 'edc_map'
 
-    def __init__(self, filename_prefix, latitude, longitude, map_area,
+    def __init__(self, filename_prefix, point, map_area,
                  zoom_levels=None, app_label=None):
         """
         Keyword arguments:
             filename_prefix: a unique string prefix, e.g. a model pk.
-            latitude, longitude: decimal coordinates.
+            point: (latitude, longitude).
             map_area: name of area and also the reference key to the mapper for the area, e.g community
             zoom_levels: a list of zomm levels (Optional)
         """
@@ -44,7 +44,7 @@ class Snapshot(GeoMixin):
                 'Map Image folder for edc_map does not exist. Got {}'.format(self.image_folder))
         self.filename_prefix = filename_prefix  # used for unique filename
         self.map_area = map_area
-        self.latitude, self.longitude = latitude or 0.0, longitude or 0.0
+        self.point = point or Point(0.0, 0.0)
         self.mapper = site_mappers.get_mapper(map_area.lower())
         self.landmarks = self.prepare_landmarks(self.mapper.landmarks)
 
@@ -92,10 +92,10 @@ class Snapshot(GeoMixin):
 
     def image_url(self, zoom_level):
         """Return the url of the google map image."""
-        markers = self.format_as_markers(color='red', latitude=self.latitude, longitude=self.longitude)
+        markers = self.format_as_markers(self.point, color='red')
         query_string = urlencode(
             OrderedDict(
-                center=str(self.latitude) + ',' + str(self.longitude),
+                center=str(self.point.latitude) + ',' + str(self.point.longitude),
                 format='png32',
                 key=self.app_config.google_api_key,
                 maptype='satellite',
@@ -118,28 +118,26 @@ class Snapshot(GeoMixin):
         color = 'blue'
         for label, landmark in self.landmarks_by_label.items():
             markers.append(
-                self.format_as_markers(
-                    label=label, longitude=landmark.longitude,
-                    latitude=landmark.latitude, color=color))
+                self.format_as_markers(landmark.point, label=label, color=color))
         return markers
 
     def prepare_landmarks(self, mapper_landmarks):
         """Return mapper landmarks as a list of namedtuples (adds distance from target)."""
         landmarks = []
         for landmark in mapper_landmarks:
-            landmark = Landmark(landmark[LANDMARK_NAME], landmark[LONGITUDE], landmark[LATITUDE], 0)
-            distance = self.distance_between_points(
-                self.latitude, self.longitude, landmark.longitude, landmark.latitude)
-            landmark = Landmark(landmark.name, landmark.longitude, landmark.latitude, distance)
+            landmark = Landmark(landmark[LANDMARK_NAME], Point(landmark[LATITUDE], landmark[LONGITUDE]), 0)
+            distance = self.distance_between_points(self.point, landmark.point)
+            landmark = Landmark(landmark.name, landmark.point, distance)
             landmarks.append(landmark)
         landmarks = sorted(landmarks, key=lambda x: x.distance)
         return tuple(landmarks)
 
-    def format_as_markers(self, longitude, latitude, color, label=None):
+    def format_as_markers(self, point, color, label=None):
         """Format and encode as a markers parameter."""
         template = 'color:{color}|label:{label}|{longitude},{latitude}'
         if not label:
-            template = 'color:{color}|label:{label}|{longitude},{latitude}'.replace('|label:{label}', '')
+            # not sure why, but need to flip lat and lon for the center point??
+            template = 'color:{color}|{latitude},{longitude}'
         string = template.format(
-            color=color, label=label, longitude=longitude, latitude=latitude)
+            color=color, label=label, latitude=point.latitude, longitude=point.longitude)
         return urlencode({'markers': string}, encoding='utf-8')
