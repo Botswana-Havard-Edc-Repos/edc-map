@@ -65,9 +65,12 @@ class Snapshot(GeoMixin):
                 zoom_level: str(self.filename_prefix) + str(zoom_level) + '.jpg'})
         return image_filenames
 
-    def image_filename(self, zoom_level):
+    def image_filename(self, zoom_level, include_path=None):
         """Return an image filename."""
-        return str(self.filename_prefix) + str(zoom_level) + '.jpg'
+        image_filename = str(self.filename_prefix) + str(zoom_level) + '.jpg'
+        if include_path:
+            image_filename = os.path.join(self.image_folder, image_filename)
+        return image_filename
 
     def retrieve_and_store_images(self):
         """Retrieve and store images for each zoom level."""
