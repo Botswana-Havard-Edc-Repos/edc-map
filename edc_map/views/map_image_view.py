@@ -13,6 +13,7 @@ class MapImageView(TemplateView):
     template_name = 'edc_map/map_image.html'
     item_model = None  # model refered to by mapper / field value is passed in url
     item_model_field = None  # e.g. pk
+    filename_field = 'pk'  # maybe you rather use subject_identifier, if available
     zoom_levels = ['16', '17', '18']
     app_label = 'edc_map'  # for django_apps AppsConfig registry, if not default
 
@@ -46,7 +47,7 @@ class MapImageView(TemplateView):
         obj = self.get_object()
         if obj:
             snapshot = Snapshot(
-                obj.pk, point=obj.point,
+                getattr(obj, self.filename_field), point=obj.point,
                 map_area=self.kwargs.get('map_area'),
                 zoom_levels=self.zoom_levels,
                 app_label=self.app_label)

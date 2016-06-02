@@ -1,3 +1,6 @@
+
+# BCPP specific
+
 import os
 import fnmatch
 

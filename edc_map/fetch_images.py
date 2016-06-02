@@ -24,7 +24,7 @@ class FetchImages:
     """
     def __init__(self, download_items=None, sephamores=None):
         self.download_items = download_items  # [(url, file), ...]
-        self.sephamores = sephamores or 5
+        self.sephamores = sephamores or 25
 
     async def download(self, url, filename, session, semaphore, chunk_size=1 << 15):
         with (await semaphore):  # limit number of concurrent downloads
