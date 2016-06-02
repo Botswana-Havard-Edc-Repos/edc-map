@@ -44,14 +44,18 @@ class MapImageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(MapImageView, self).get_context_data(**kwargs)
         obj = self.get_object()
-        snapshot = Snapshot(
-            obj.pk, latitude=obj.latitude, longitude=obj.longitude,
-            map_area=self.kwargs.get('map_area'),
-            zoom_levels=self.zoom_levels,
-            app_label=self.app_label)
-        context.update({
-            'latitude': obj.latitude,
-            'longitude': obj.longitude,
-            'landmarks': snapshot.landmarks_by_label})
-        context = dict(context, **self.get_image_filenames(snapshot.image_filenames))
+        if obj:
+            snapshot = Snapshot(
+                obj.pk, point=obj.point,
+                map_area=self.kwargs.get('map_area'),
+                zoom_levels=self.zoom_levels,
+                app_label=self.app_label)
+            context.update({
+                'point': obj.point,
+                'landmarks': snapshot.landmarks_by_label})
+            context = dict(context, **self.get_image_filenames(snapshot.image_filenames))
+        else:
+            context.update({
+                'point': None,
+                'landmarks': None})
         return context

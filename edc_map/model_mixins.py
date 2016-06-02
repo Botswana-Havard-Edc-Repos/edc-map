@@ -83,7 +83,7 @@ class MapperModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
-            mapper = site_mappers.get_mapper(self.area_name)
+            mapper = site_mappers.get_mapper(self.map_area)
             mapper.raise_if_not_in_map_area(self.confirmed_point)
             mapper.raise_if_not_in_radius(
                 self.confirmed_point, self.target_point, self.target_radius,
