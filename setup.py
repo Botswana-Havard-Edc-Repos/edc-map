@@ -24,6 +24,7 @@ setup(
     keywords='django edc gps survey',
     install_requires=[
         'geopy==1.11.0',
+        'aiohttp',
     ],
     classifiers=[
         'Environment :: Web Environment',
