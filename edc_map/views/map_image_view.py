@@ -47,10 +47,11 @@ class MapImageView(TemplateView):
         snapshot = Snapshot(
             obj.pk, latitude=obj.latitude, longitude=obj.longitude,
             map_area=self.kwargs.get('map_area'),
-            zoom_levels=self.zoom_levels)
+            zoom_levels=self.zoom_levels,
+            app_label=self.app_label)
         context.update({
             'latitude': obj.latitude,
             'longitude': obj.longitude,
-            'landmarks': snapshot.nearby_landmarks})
+            'landmarks': snapshot.landmarks_by_label})
         context = dict(context, **self.get_image_filenames(snapshot.image_filenames))
         return context

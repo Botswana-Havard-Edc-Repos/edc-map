@@ -1,27 +1,39 @@
 import os
 
-from operator import itemgetter
+from collections import OrderedDict
 from time import sleep
+from urllib.parse import urlencode
 from urllib.request import urlretrieve
 
+from django.apps import apps as django_apps
 from django.conf import settings
 
 from .geo_mixin import GeoMixin
 from .site_mappers import site_mappers
 from .exceptions import FolderDoesNotExist
+from .mapper import LANDMARK_NAME, LONGITUDE, LATITUDE
+from edc_map.structures import Landmark
 
+DISTANCE = 3
 
 LETTERS = list(map(chr, range(65, 91)))
 
 
 class Snapshot(GeoMixin):
 
-    def __init__(self, filename_prefix, latitude, longitude, map_area, zoom_levels=None):
+    google_api_url = 'http://maps.google.com/maps/api/staticmap'
+    app_label = 'edc_map'
+
+    def __init__(self, filename_prefix, latitude, longitude, map_area,
+                 zoom_levels=None, app_label=None):
         """
         Keyword arguments:
-            coordinates: a list of coordinates pair, e.g [latitude, longitude].
-            landmarks: a list of a list of landmarks, e.g [[landmark_name, latitude, longitude],].
+            filename_prefix: a unique string prefix, e.g. a model pk.
+            latitude, longitude: decimal coordinates.
+            map_area: name of area and also the reference key to the mapper for the area, e.g community
+            zoom_levels: a list of zomm levels (Optional)
         """
+        self.app_config = django_apps.get_app_config(app_label or self.app_label)
         self.zoom_levels = zoom_levels or ['16', '17', '18']
         try:
             self.image_folder = settings.EDC_MAP_FOLDER
@@ -33,18 +45,20 @@ class Snapshot(GeoMixin):
         self.filename_prefix = filename_prefix  # used for unique filename
         self.map_area = map_area
         self.latitude, self.longitude = latitude or 0.0, longitude or 0.0
-        self.mapper = site_mappers.get_mapper(map_area)
-        self.landmarks = self.mapper.landmarks
+        self.mapper = site_mappers.get_mapper(map_area.lower())
+        self.landmarks = self.prepare_landmarks(self.mapper.landmarks)
 
     def retrieve_image_result_handler(self, result):
         """Callback to handle the result from each urlretrieve."""
         return None
 
-    def retrieve_image_reporthook(self, blocknumber, read_size, total_size):
+    def retrieve_image_reporthook(self, block_number, read_size, total_size):
+        """Callback for urlretrieve reporthook."""
         pass
 
     @property
     def image_filenames(self):
+        """Return a dictionary of filenames, key by zoom level."""
         image_filenames = {}
         for zoom_level in self.zoom_levels:
             image_filenames.update({
@@ -52,10 +66,11 @@ class Snapshot(GeoMixin):
         return image_filenames
 
     def image_filename(self, zoom_level):
+        """Return an image filename."""
         return str(self.filename_prefix) + str(zoom_level) + '.jpg'
 
     def retrieve_and_store_images(self):
-        """Generate and store images for each zoom level."""
+        """Retrieve and store images for each zoom level."""
         image_filenames = []
         for zoom_level in self.zoom_levels:
             path, _ = self.retrieve_and_store_image(zoom_level)
@@ -64,43 +79,67 @@ class Snapshot(GeoMixin):
 
     def retrieve_and_store_image(self, zoom_level):
         """Retrieve and store image for this zoom level"""
-        image_file_name = self.image_name(zoom_level)
-        image_url = self.google_image_url(zoom_level)
+        image_file_name = os.path.join(self.image_folder, self.image_filename(zoom_level))
+        result = (image_file_name, None)
         if not os.path.exists(image_file_name):
-            result = urlretrieve(image_url, image_file_name, reporthook=self.urlretrieve_reporthook)
+            result = urlretrieve(
+                self.image_url(zoom_level),
+                image_file_name,
+                reporthook=self.retrieve_image_reporthook)
             sleep(2)
         self.retrieve_image_result_handler(result)
         return result
 
-    def google_image_url(self, zoom_level):
-        """Return the url of a google map image."""
-        url = 'http://maps.google.com/maps/api/staticmap?size=640x600&maptype=satellite&scale:2&format=png32'
-        url += '&zoom=' + str(zoom_level) + '&center=' + str(self.latitude) + ',' + str(self.longitude)
-        url += self.landmarks_url + '&markers=color:red%7C' + str(self.latitude) + ','
-        url += str(self.longitude) + '&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&sensor=false'
-        return url
+    def image_url(self, zoom_level):
+        """Return the url of the google map image."""
+        markers = self.format_as_markers(color='red', latitude=self.latitude, longitude=self.longitude)
+        query_string = urlencode(
+            OrderedDict(
+                center=str(self.latitude) + ',' + str(self.longitude),
+                format='png32',
+                key=self.app_config.google_api_key,
+                maptype='satellite',
+                scale='2',
+                sensor='false',
+                size='640x600',
+                zoom=zoom_level))
+        query_string += '&' + '&'.join([markers] + self.landmarks_as_markers)
+        return self.google_api_url + '?' + query_string
 
     @property
-    def nearby_landmarks(self):
-        """Return landmarks sorted by close distance to the target location.
-        """
-        distance_landmarks = []
-        landmarks_dictionary = {}
-        if self.landmarks:
-            for landmark in self.landmarks:
-                distance = self.gps_distance_between_points(
-                    self.latitude, self.longitude, landmark[1], landmark[2])
-                distance_landmarks.append([distance, landmark[0], landmark[1], landmark[2]])
-            landmarks = sorted(distance_landmarks, key=itemgetter(0))
-            landmarks_dictionary = dict(zip(LETTERS, landmarks))
-        return landmarks_dictionary
+    def landmarks_by_label(self):
+        """Returns an ordered dict of label: landmark."""
+        return OrderedDict(zip(LETTERS, self.landmarks))
 
     @property
-    def landmarks_url(self):
-        """Return url for landmarks to add to google map image url."""
-        landmarks_url = ''
-        for label, landmark_values in self.nearby_landmarks.items():
-            if label:
-                landmarks_url += '&markers=color:blue%7Clabel:' + label + '%7C' + str(landmark_values[2]) + ','
-                landmarks_url += str(landmark_values[3])
-        return landmarks_url
+    def landmarks_as_markers(self):
+        """Return a list of landmarks formatted/encoded as markers."""
+        markers = []
+        color = 'blue'
+        for label, landmark in self.landmarks_by_label.items():
+            markers.append(
+                self.format_as_markers(
+                    label=label, longitude=landmark.longitude,
+                    latitude=landmark.latitude, color=color))
+        return markers
+
+    def prepare_landmarks(self, mapper_landmarks):
+        """Return mapper landmarks as a list of namedtuples (adds distance from target)."""
+        landmarks = []
+        for landmark in mapper_landmarks:
+            landmark = Landmark(landmark[LANDMARK_NAME], landmark[LONGITUDE], landmark[LATITUDE], 0)
+            distance = self.distance_between_points(
+                self.latitude, self.longitude, landmark.longitude, landmark.latitude)
+            landmark = Landmark(landmark.name, landmark.longitude, landmark.latitude, distance)
+            landmarks.append(landmark)
+        landmarks = sorted(landmarks, key=lambda x: x.distance)
+        return tuple(landmarks)
+
+    def format_as_markers(self, longitude, latitude, color, label=None):
+        """Format and encode as a markers parameter."""
+        template = 'color:{color}|label:{label}|{longitude},{latitude}'
+        if not label:
+            template = 'color:{color}|label:{label}|{longitude},{latitude}'.replace('|label:{label}', '')
+        string = template.format(
+            color=color, label=label, longitude=longitude, latitude=latitude)
+        return urlencode({'markers': string}, encoding='utf-8')

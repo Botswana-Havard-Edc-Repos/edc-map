@@ -26,9 +26,9 @@ class TestMapper(TestCase):
         self.items = [self.item]
 
     def test_distance_between_points(self):
-        self.assertRaises(TypeError, self.mapper.gps_distance_between_points, self.lat, self.lon)
+        self.assertRaises(TypeError, self.mapper.distance_between_points, self.lat, self.lon)
         self.assertEqual(
-            self.mapper.gps_distance_between_points(
+            self.mapper.distance_between_points(
                 -24.656637, 25.924327, -24.656366, 25.922935), 0.14407256837110122, 'Correct distance if matching')
 
     def test_degrees_to_degrees_minutes_sec(self):

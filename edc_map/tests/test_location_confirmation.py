@@ -43,7 +43,7 @@ class TestLocationConfirmation(TestCase):
         self.item.save()
         self.assertEqual(self.item.action, CONFIRMED)
 
-    def test_location_in_map_area(self):
+    def test_point_in_map_area(self):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {
@@ -58,7 +58,7 @@ class TestLocationConfirmation(TestCase):
             'The location (GPS -24.664542 25.783037) does not fall within area of \'test_area\'.Got 14244.29755501753m',
             str(context.exception))
 
-    def test_location_in_target(self):
+    def test_point_in_radius(self):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {

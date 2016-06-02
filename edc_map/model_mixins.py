@@ -4,7 +4,6 @@ from django.utils import timezone
 # from django_crypto_fields.fields import EncryptedDecimalField
 
 from .constants import CONFIRMED, UNCONFIRMED
-from .exceptions import MapperError
 from .site_mappers import site_mappers
 
 
@@ -46,7 +45,7 @@ class MapperModelMixin(models.Model):
         editable=True,
         help_text='distance in meters')
 
-    area_name = models.CharField(
+    map_area = models.CharField(
         max_length=25,
         help_text='If the area name is incorrect, please contact the DMC immediately.',
         editable=False)
@@ -70,21 +69,31 @@ class MapperModelMixin(models.Model):
         help_text=u'',
         editable=False)
 
-    def save(self, *args, **kwargs):
+    @property
+    def confirmed_point(self):
+        return (self.gps_confirm_latitude, self.gps_confirm_longitude)
+
+    @property
+    def target_point(self):
+        return (self.gps_target_lat, self.gps_target_lon)
+
+    def raise_if_not_in_target(self):
+        self.raise_if_not_in_radius(
+            self.confirmed_point, self.target_point, self.radius,
+            units='m', label='target location')
+
+    def raise_if_not_in_area(self):
         mapper = site_mappers.get_mapper(self.area_name)
+        self.raise_if_not_in_radius(
+            self.confirmed_point, mapper.area_center_point, mapper.area_radius,
+            units='km', label=self.map_area)
+
+    def save(self, *args, **kwargs):
         if self.gps_confirm_longitude and self.gps_confirm_latitude:
-            mapper.location_in_map_area(
-                self.gps_confirm_latitude, self.gps_confirm_longitude, MapperError)
-            mapper.location_in_target(
-                self.gps_confirm_latitude,
-                self.gps_confirm_longitude,
-                self.gps_target_lat,
-                self.gps_target_lon,
-                self.target_radius,
-                MapperError,)
-            self.distance_from_target = mapper.gps_distance_between_points(
-                self.gps_confirm_latitude, self.gps_confirm_longitude,
-                self.gps_target_lat, self.gps_target_lon) * 1000
+            self.raise_if_not_in_area()
+            self.raise_if_not_in_target()
+            self.distance_from_target = self.distance_between_points(
+                self.confirmed_point, self.target_point, units='m')
         self.action = self.get_confirmation_status()
         super(MapperModelMixin, self).save(*args, **kwargs)
 

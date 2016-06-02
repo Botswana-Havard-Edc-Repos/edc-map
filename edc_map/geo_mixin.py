@@ -1,4 +1,6 @@
-from geopy import Point, distance
+from geopy.distance import vincenty
+
+from .exceptions import MapperError
 
 
 class GeoMixin:
@@ -6,26 +8,33 @@ class GeoMixin:
     gps_center_lat = None
     gps_center_lon = None
 
-    def gps_distance_between_points(self, lat, lon, center_lat=None, center_lon=None):
-        """Check if a GPS point is within the boundaries of a community
+    def distance_between_points(self, point_a, point_b, units=None):
+        """Return distance in between two points"""
+        units = units or 'km'
+        return getattr(vincenty(point_a, point_b), units)
 
-        This method uses geopy.distance and geopy.Point libraries to
-        calculate the distance between two points and return the
-        distance in units requested.
+    def point_in_radius(self, point, center_point, radius, units=None):
+        """Return True if point is within map area."""
+        units = units or 'km'
+        d = self.distance_between_points(point, center_point, units)
+        return d <= radius
 
-        The community_radius, community_center_lat and
-        community_center_lon are from the Mapper class of each community.
-        """
-        center_lat = center_lat or self.gps_center_lat
-        center_lon = center_lon or self.gps_center_lon
-        pt1 = Point(float(lat), float(lon))
-        pt2 = Point(float(center_lat), float(center_lon))
-        dist = distance.distance(pt1, pt2).km
-        return dist
+    def raise_if_not_in_radius(self, point, center_point, radius, units=None, label=None, exception_cls=None):
+        """Raises an exception if point is not within radius (default units=km)."""
+        exception_cls = exception_cls or MapperError
+        label = label or ''
+        units = units or 'km'
+        if not self.point_in_radius(point, center_point, radius, units):
+            d = self.distance_between_points(point, center_point, units)
+            d = round(d, 1)
+            raise exception_cls(
+                'GPS {point} is more than {radius}{units} from {label} {center_point}. '
+                'Got {distance}{units}.'.format(
+                    point=point, radius=radius, center_point=center_point,
+                    distance=d, units=units, label=label))
 
     def deg_to_dms(self, deg):
-        """Convert a latitude or longitude into degree minute GPS format
-        """
+        """Convert aatitude or longitude into degree minute GPS format."""
         d = int(deg)
         md = (deg - d) * 60
         m = round(md, 3)
@@ -33,6 +42,14 @@ class GeoMixin:
             d = -d
             m = -m
         return [d, m]
+
+    def gps_lat(self, d, m):
+        """Converts degree/minutes S to latitude."""
+        return self.gps('s', d, m)
+
+    def gps_lon(self, d, m):
+        """Converts degree/minutes E to longitude."""
+        return self.gps('e', d, m)
 
     def gps(self, direction, degrees, minutes):
         """Converts GPS degree/minutes to latitude or longitude."""
@@ -42,11 +59,3 @@ class GeoMixin:
         d = float(degrees)
         m = float(minutes)
         return dct[direction] * round((d) + (m / 60), 5)
-
-    def gps_lat(self, d, m):
-        """Converts degree/minutes S to latitude."""
-        return self.gps('s', d, m)
-
-    def gps_lon(self, d, m):
-        """Converts degree/minutes E to longitude."""
-        return self.gps('e', d, m)

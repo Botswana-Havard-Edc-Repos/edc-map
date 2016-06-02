@@ -3,8 +3,13 @@ from datetime import date, timedelta
 
 from .choices import ICONS
 from .geo_mixin import GeoMixin
+from edc_map.exceptions import MapperError
 
 LETTERS = list(map(chr, range(65, 91)))
+
+LANDMARK_NAME = 0
+LONGITUDE = 1
+LATITUDE = 2
 
 
 class Mapper(GeoMixin):
@@ -47,7 +52,7 @@ class Mapper(GeoMixin):
     regions = None
     sections = None
 
-    landmarks = None
+    landmarks = None  # format ((name, longitude, latitude), )
 
     intervention = None
 
@@ -122,38 +127,20 @@ class Mapper(GeoMixin):
         longitude = str(item.gps_target_lon)
         return [latitude, longitude]
 
-    def location_in_map_area(self, lat, lon, exception_cls):
-        """Verifies that given lat, lon occur within the community
-        area and raises an exception if not.
+    @property
+    def area_center_point(self):
+        return (self.gps_center_lat, self.gps_center_lon)
 
-        Wrapper for :func:`gps_validator`"""
-        distance = self.gps_distance_between_points(lat, lon)
-        if distance > self.radius:
-            raise exception_cls('The location (GPS {0} {1}) does not fall within area of \'{2}\'.'
-                                'Got {3}m'.format(lat, lon, self.map_area, distance * 1000))
-        return True
+    @property
+    def area_radius(self):
+        return self.radius
 
-    def location_in_target(self, lat, lon, center_lat, center_lon, radius, exception_cls, custom_radius=None):
-        """Verifies the gps lat, lon occur within a radius of the
-        target lat/lon and raises an exception if not.
+    def point_in_map_area(self, point):
+        """Return True if point is within mapper area radius."""
+        return self.point_in_radius(
+            point, self.area_center_point, self.area_radius)
 
-        Wrapper for :func:`gps_validator`"""
-        radius = radius or self.radius
-        if not custom_radius:
-            distance = self.gps_distance_between_points(lat, lon, center_lat, center_lon)
-            if distance > radius:
-                raise exception_cls('GPS {0} {1} is more than {2} meters from the target location {3}/{4}. '
-                                    'Got {5}m.'.format(lat, lon, radius * 1000, center_lat,
-                                                       center_lon, distance * 1000))
-        else:
-            distance = self.gps_distance_between_points(
-                lat,
-                lon,
-                center_lat,
-                center_lon)
-            if distance > custom_radius.radius:
-                raise exception_cls('GPS {0} {1} is more than {2} meters from the bypass target location {3}/{4}. '
-                                    'Got {5}m.'.format(lat, lon, custom_radius.radius,
-                                                       center_lat,
-                                                       center_lon, distance * 1000))
-        return True
+    def raise_if_not_in_map_area(self, point):
+        self.raise_if_not_in_radius(
+            point, self.area_center_point, self.area_radius,
+            units='km', label=self.map_area)

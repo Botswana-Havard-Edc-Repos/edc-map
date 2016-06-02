@@ -11,6 +11,7 @@ class EdcMapAppConfig(AppConfig):
     verbose_name = 'Edc Map'
     image_folder = os.path.join(settings.MEDIA_ROOT, 'edc_map')
     image_folder_url = os.path.join(settings.MEDIA_URL, 'edc_map')
+    google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
 
     def ready(self):
         from edc_map import signals
