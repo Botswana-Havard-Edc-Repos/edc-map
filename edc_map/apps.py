@@ -12,6 +12,7 @@ class EdcMapAppConfig(AppConfig):
     image_folder = os.path.join(settings.MEDIA_ROOT, 'edc_map')
     image_folder_url = os.path.join(settings.MEDIA_URL, 'edc_map')
     google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
+    verify_point_on_save = True
 
     def ready(self):
         from edc_map import signals
