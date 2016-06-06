@@ -1,16 +1,18 @@
+import json
 import os
 
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.views.generic.base import TemplateView
 from django.apps import apps as django_apps
+from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
 
 from ..snapshot import Snapshot
 
 
 class MapImageView(TemplateView):
 
-    template_name = 'edc_map/map_image.html'
+    template_name = 'edc_map/map_image_view.html'
     item_model = None  # model refered to by mapper / field value is passed in url
     item_model_field = None  # e.g. pk
     filename_field = 'pk'  # maybe you rather use subject_identifier, if available
@@ -42,6 +44,14 @@ class MapImageView(TemplateView):
             'image_file_zoom_level_two': os.path.join(self.image_folder_url, filenames.get('17')),
             'image_file_zoom_level_three': os.path.join(self.image_folder_url, filenames.get('18'))}
 
+    def get_image_filenames2(self, filenames):
+        """Return a dictionary of filenames for the three zoom levels."""
+        image_filenames = {}
+        for zoom_level in self.zoom_levels:
+            image_filenames.update({
+                zoom_level: os.path.join(self.image_folder_url, filenames.get(zoom_level))})
+        return image_filenames
+
     def get_context_data(self, **kwargs):
         context = super(MapImageView, self).get_context_data(**kwargs)
         obj = self.get_object()
@@ -53,10 +63,17 @@ class MapImageView(TemplateView):
                 app_label=self.app_label)
             context.update({
                 'point': obj.point,
-                'landmarks': snapshot.landmarks_by_label})
+                'landmarks': snapshot.landmarks_by_label,
+                'image_filenames': self.get_image_filenames2(snapshot.image_filenames)})
             context = dict(context, **self.get_image_filenames(snapshot.image_filenames))
         else:
             context.update({
                 'point': None,
-                'landmarks': None})
+                'landmarks': None,
+                'image_filenames': None})
+        context.update(zoom_levels=self.zoom_levels)
+        json_data = json.dumps(
+            dict(zoom_levels=context['zoom_levels'], image_filenames=context['image_filenames']),
+            cls=DjangoJSONEncoder)
+        context.update(json_data=json_data)
         return context

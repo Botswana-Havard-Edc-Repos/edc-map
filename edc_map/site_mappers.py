@@ -1,4 +1,5 @@
 import copy
+import sys
 
 from collections import OrderedDict
 
@@ -126,14 +127,14 @@ class Controller(object):
     def autodiscover(self, module_name=None):
         """Autodiscovers mapper classes in the mapper.py file of any INSTALLED_APP."""
         module_name = module_name or 'mappers'
-        print('Checking for site {} ...'.format(module_name))
+        sys.stdout.write(' * checking for site {} ...\n'.format(module_name))
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_mappers.registry)
                     import_module('{}.{}'.format(app, module_name))
-                    print(' * found mapper {} in {}'.format(module_name, app))
+                    sys.stdout.write(' * registered mappers \'{}\' from \'{}\'\n'.format(module_name, app))
                 except:
                     site_mappers.registry = before_import_registry
                     if module_has_submodule(mod, module_name):

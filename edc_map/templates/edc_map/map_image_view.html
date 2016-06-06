@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block extra-scripts %}
+{{ block.super }}
+<script type="text/javascript" charset="utf8" src="{% static 'js/edc_map/map_image_view.js' %}"></script>
+{% endblock extra-scripts %}
+
+{% block main %}
+<p></p>
+
+<div id="div-home" class="col-md-10">
+
+    <div class="panel panel-default">
+        <div id="div-zoom-buttons-container" class="panel-body">
+            <span class="pull-right">
+                <button id="id-button-back-call" type="button" class="btn btn-sm btn-default">Call</button>
+                <button id="id-button-back-subject" type="button" class="btn btn-sm btn-default">Subject</button>            
+            </span>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ map_area|default:"area"|title }} (latitude={{ point.latitude }} longitude={{ point.longitude }}) <span class="pull-right">{{ subject_identifier }}</span></div>
+            <div id="div-image-maps-container" class="panel-body">
+                <div id="div-missing-image-alert" class="alert alert-warning" style="display:none">
+                </div>
+            </div>
+    </div>
+
+    <div id="div-landmarks" class="panel panel-default" style="display:none">
+        <div class="panel-heading">{{ map_area|default:"area"|title }} Landmarks</div>
+        <ul class="list-group">
+        {% for label, landmark in landmarks.items %}
+            <li class="list-group-item list-group-item-info"><b>{{ label }}</b>: {{ landmark.name }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+{% endblock main %}
+
+{% block extra-scripts-bottom %}
+{{ block.super }}
+<script type="text/javascript" charset="utf8" class="init">
+    $(document).ready( function() { 
+        mapImageViewReady('{{ json_data|escapejs }}');
+    });
+</script>
+
+{% endblock extra-scripts-bottom %}

@@ -1,4 +1,5 @@
 import os
+import sys
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -15,6 +16,7 @@ class EdcMapAppConfig(AppConfig):
     verify_point_on_save = True
 
     def ready(self):
+        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         from edc_map import signals
         from edc_map.site_mappers import site_mappers
         if not os.path.exists(self.image_folder):
