@@ -12,17 +12,18 @@ class Command(BaseCommand):
     help = 'Fetch map images from google given a model listing the gps coordinates.'
 
     def add_arguments(self, parser):
+        parser.add_argument('app_config', type=str, help='app config for edc_map or other map app')
         parser.add_argument('model', type=str, help='app_label.model_name')
         parser.add_argument('max_downloads', type=int, help='Maximum number of concurrent downloads')
 
     def handle(self, *args, **options):
         download_items = []
+        app_config = django_apps.get_app_config(options['app_config'])
         try:
             model = django_apps.get_model(*options['model'].split('.'))
         except LookupError as e:
             raise CommandError(str(e))
         sephamores_count = options['max_downloads']
-        zoom_levels = ['16', '17', '18']
         record_count = model.objects.all().count()
         self.stdout.write(
             self.style.NOTICE('Preparing download items ...'))
@@ -30,8 +31,8 @@ class Command(BaseCommand):
             self.style.NOTICE('  * found {} records.'.format(record_count)))
         for obj in model.objects.all():
             s = Snapshot(obj.subject_identifier, obj.point, obj.map_area,
-                         zoom_levels=zoom_levels, app_label='bcpp_map')
-            for zoom_level in zoom_levels:
+                         zoom_levels=app_config.zoom_levels, app_label='bcpp_map')
+            for zoom_level in app_config.zoom_levels:
                 if not os.path.exists(s.image_filename(zoom_level, include_path=True)):
                     download_items.append(
                         (s.image_url(zoom_level), s.image_filename(zoom_level, include_path=True)))
