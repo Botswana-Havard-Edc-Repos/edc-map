@@ -15,8 +15,12 @@ class EdcMapAppConfig(AppConfig):
     google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
     verify_point_on_save = True  # not used
     zoom_levels = ['16', '17', '18']
+    landmark_model = ('edc_map', 'landmark')
+    mapper_data_model = ('edc_map', 'mapperdata')
 
     def ready(self):
+        self.landmark_model = (self.name, 'landmark')
+        self.mapper_data_model = (self.name, 'mapperdata')
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         from edc_map import signals
         from edc_map.site_mappers import site_mappers

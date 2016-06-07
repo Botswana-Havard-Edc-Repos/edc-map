@@ -2,9 +2,63 @@ from django.db import models
 from django.utils import timezone
 from geopy import Point
 # from django_crypto_fields.fields import EncryptedDecimalField
-
 from .constants import CONFIRMED, UNCONFIRMED
 from .site_mappers import site_mappers
+
+
+class LandmarkMixin(models.Model):
+
+    map_area = models.CharField(max_length=25)
+
+    label = models.CharField(max_length=50)
+
+    latitude = models.DecimalField(
+        max_digits=15,
+        null=True,
+        decimal_places=10)
+
+    longitude = models.DecimalField(
+        max_digits=15,
+        null=True,
+        decimal_places=10)
+
+    def __str__(self):
+        return '{}: {}'.format(self.map_area, self.label)
+
+    @property
+    def point(self):
+        return Point(self.latitude, self.longitude)
+
+    @property
+    def name(self):
+        return self.label
+
+    class Meta:
+        abstract = True
+
+
+class MapperDataModelMixin(models.Model):
+
+    center_lat = models.DecimalField(
+        max_digits=15,
+        null=True,
+        decimal_places=10)
+
+    center_lon = models.DecimalField(
+        max_digits=15,
+        null=True,
+        decimal_places=10)
+
+    radius = models.DecimalField(
+        max_digits=10,
+        null=True,
+        decimal_places=2)
+
+    map_area = models.CharField(
+        max_length=25)
+
+    class Meta:
+        abstract = True
 
 
 class MapperModelMixin(models.Model):

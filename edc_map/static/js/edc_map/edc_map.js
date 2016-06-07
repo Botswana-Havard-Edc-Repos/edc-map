@@ -32,7 +32,7 @@ function initialize() {
     //create map object
     map = new google.maps.Map(document.getElementById('googleMap'), {
         zoom: 14,
-        center: new google.maps.LatLng({{ mapper.gps_center_lat }}, {{ mapper.gps_center_lon }}),
+        center: new google.maps.LatLng({{ mapper.center_lat }}, {{ mapper.center_lon }}),
         mapTypeId: google.maps.MapTypeId.SATELLITE
     });
     geocoder = new google.maps.Geocoder();
