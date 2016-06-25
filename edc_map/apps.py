@@ -26,6 +26,6 @@ class EdcMapAppConfig(AppConfig):
         from edc_map.site_mappers import site_mappers
         if not os.path.exists(self.image_folder):
             raise FolderDoesNotExist(
-                'Map Image folder for \'{}\' does not exist. Got \'{}\''.format(
+                'Map Image folder for \'{}\' does not exist. Got \'{}\'. See EdcMapAppConfig or subclass.'.format(
                     self.name, self.image_folder))
         site_mappers.autodiscover()
