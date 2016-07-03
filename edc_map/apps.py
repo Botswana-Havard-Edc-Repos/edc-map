@@ -19,9 +19,9 @@ class EdcMapAppConfig(AppConfig):
     mapper_data_model = ('edc_map', 'mapperdata')
 
     def ready(self):
+        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         self.landmark_model = (self.name, 'landmark')
         self.mapper_data_model = (self.name, 'mapperdata')
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         from edc_map import signals
         from edc_map.site_mappers import site_mappers
         if not os.path.exists(self.image_folder):
@@ -29,3 +29,4 @@ class EdcMapAppConfig(AppConfig):
                 'Map Image folder for \'{}\' does not exist. Got \'{}\'. See EdcMapAppConfig or subclass.'.format(
                     self.name, self.image_folder))
         site_mappers.autodiscover()
+        sys.stdout.write('  Done.\n'.format(self.verbose_name))
