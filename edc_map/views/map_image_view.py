@@ -59,8 +59,7 @@ class MapImageView(TemplateView):
             snapshot = Snapshot(
                 getattr(obj, self.filename_field), point=obj.point,
                 map_area=self.kwargs.get('map_area'),
-                zoom_levels=self.zoom_levels,
-                app_label=self.app_label)
+                zoom_levels=self.zoom_levels)
             context.update({
                 'point': obj.point,
                 'landmarks': snapshot.landmarks_by_label,
