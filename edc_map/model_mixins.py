@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from geopy import Point
-# from django_crypto_fields.fields import EncryptedDecimalField
+
 from .constants import CONFIRMED, UNCONFIRMED
 from .site_mappers import site_mappers
 

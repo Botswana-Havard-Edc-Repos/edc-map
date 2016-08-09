@@ -134,7 +134,8 @@ class Controller(object):
                 try:
                     before_import_registry = copy.copy(site_mappers.registry)
                     import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(' * registered mappers \'{}\' from \'{}\'\n'.format(module_name, app))
+                    sys.stdout.write(
+                        ' * registered mappers \'{}\' from \'{}\'\n'.format(module_name, app))
                 except:
                     site_mappers.registry = before_import_registry
                     if module_has_submodule(mod, module_name):

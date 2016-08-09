@@ -22,10 +22,10 @@ LETTERS = list(map(chr, range(65, 91)))
 class Snapshot(GeoMixin):
 
     google_api_url = 'http://maps.google.com/maps/api/staticmap'
-    app_label = 'edc_map'
+    # app_label = 'edc_map'
 
     def __init__(self, filename_prefix, point, map_area,
-                 zoom_levels=None, app_label=None):
+                 zoom_levels=None):
         """
         Keyword arguments:
             filename_prefix: a unique string prefix, e.g. a model pk.
@@ -33,7 +33,7 @@ class Snapshot(GeoMixin):
             map_area: name of area and also the reference key to the mapper for the area, e.g community
             zoom_levels: a list of zomm levels (Optional)
         """
-        self.app_config = django_apps.get_app_config(app_label or self.app_label)
+        self.app_config = django_apps.get_app_config('edc_map')
         self.zoom_levels = zoom_levels or ['16', '17', '18']
         try:
             self.image_folder = settings.EDC_MAP_FOLDER

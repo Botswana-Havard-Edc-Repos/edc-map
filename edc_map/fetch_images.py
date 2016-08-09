@@ -15,7 +15,7 @@ class FetchImages:
         zoom_levels = ['16', '17', '18']
         for obj in SubjectLocation.objects.all():
             s = Snapshot(obj.pk, obj.point, obj.map_area,
-                         zoom_levels=zoom_levels, app_label='bcpp_map')
+                         zoom_levels=zoom_levels)
             for zoom_level in zoom_levels:
                 download_items.append(
                     (s.image_url(zoom_level),
@@ -44,7 +44,8 @@ class FetchImages:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
         with closing(asyncio.get_event_loop()) as loop, closing(aiohttp.ClientSession()) as session:
             semaphore = asyncio.Semaphore(self.sephamores)
-            download_tasks = (self.download(url, filename, session, semaphore) for url, filename in self.download_items)
+            download_tasks = (self.download(url, filename, session, semaphore)
+                              for url, filename in self.download_items)
             result = loop.run_until_complete(asyncio.gather(*download_tasks))
             results.append(result)
         return results

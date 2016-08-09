@@ -1,13 +1,13 @@
 import os
 import sys
 
-from django.apps import AppConfig
+from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 
 from edc_map.exceptions import FolderDoesNotExist
 
 
-class EdcMapAppConfig(AppConfig):
+class AppConfig(DjangoAppConfig):
     name = 'edc_map'
     verbose_name = 'Edc Map'
     image_folder = os.path.join(settings.MEDIA_ROOT, 'edc_map')
@@ -15,18 +15,25 @@ class EdcMapAppConfig(AppConfig):
     google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
     verify_point_on_save = True  # not used
     zoom_levels = ['16', '17', '18']
-    landmark_model = ('edc_map', 'landmark')
-    mapper_data_model = ('edc_map', 'mapperdata')
+
+    # model that uses the landmark model mixin
+    landmark_model = None  # ('bcpp_map', 'landmark')
+
+    # model with the MapperModelMixin which has gps data fields
+    mapper_model = None  # ('bcpp_interview', 'subjectlocation')
+
+    # uses the MapperDataModelMixin. This would be a replacement for the mappers as classes
+    mapp_data_model = None  # not used yet
+
+    mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        self.landmark_model = (self.name, 'landmark')
-        self.mapper_data_model = (self.name, 'mapperdata')
         from edc_map import signals
         from edc_map.site_mappers import site_mappers
         if not os.path.exists(self.image_folder):
             raise FolderDoesNotExist(
-                'Map Image folder for \'{}\' does not exist. Got \'{}\'. See EdcMapAppConfig or subclass.'.format(
-                    self.name, self.image_folder))
+                'Map Image folder for \'{name}\' does not exist. Got \'{folder}\'. '
+                'See {name}.AppConfig.'.format(name=self.name, folder=self.image_folder))
         site_mappers.autodiscover()
-        sys.stdout.write('  Done.\n'.format(self.verbose_name))
+        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))

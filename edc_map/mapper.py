@@ -9,10 +9,11 @@ LANDMARK_NAME = 0
 LONGITUDE = 1
 LATITUDE = 2
 
+app_config = django_apps.get_app_config('edc_map')
+
 
 class Mapper(GeoMixin):
 
-    app_config = django_apps.get_app_config('edc_map')
     center_lat = None
     center_lon = None
     landmarks = None  # format ((name, longitude, latitude), )
@@ -22,13 +23,13 @@ class Mapper(GeoMixin):
     def __init__(self):
         self.name = self.map_area or 'mapper {}'.format(self.__class__.name)
         try:
-            self.item_model = django_apps.get_model(*self.app_config.mapper_model)
+            self.item_model = django_apps.get_model(*app_config.mapper_model)
             self.item_model_cls = self.item_model
             self.item_label = self.item_model._meta.verbose_name
         except LookupError as e:
             print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
         try:
-            self.survey_model = django_apps.get_model(*self.app_config.mapper_survey_model)
+            self.survey_model = django_apps.get_model(*app_config.mapper_survey_model)
         except LookupError as e:
             print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
         self.load()
@@ -40,8 +41,6 @@ class Mapper(GeoMixin):
         return '({0.map_area!r})'.format(self)
 
     def load(self):
-        LandmarkModel = django_apps.get_model(*self.app_config.landmark_model)
-        MapperDataModel = django_apps.get_model(*self.app_config.mapper_data_model)
         return None
 
     @property
