@@ -3,6 +3,7 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+from django.core.management.color import color_style
 
 from edc_map.exceptions import FolderDoesNotExist
 
@@ -27,7 +28,10 @@ class AppConfig(DjangoAppConfig):
 
     mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 
+    current_mapper_name = None
+
     def ready(self):
+        style = color_style()
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         from edc_map import signals
         from edc_map.site_mappers import site_mappers
@@ -36,4 +40,9 @@ class AppConfig(DjangoAppConfig):
                 'Map Image folder for \'{name}\' does not exist. Got \'{folder}\'. '
                 'See {name}.AppConfig.'.format(name=self.name, folder=self.image_folder))
         site_mappers.autodiscover()
+        if self.current_mapper_name:
+            site_mappers.load_current_mapper(site_mappers.get_mapper(self.current_mapper_name))
+            sys.stdout.write(' * current mapper is {}.\n'.format(site_mappers.current_mapper.map_area))
+        else:
+            sys.stdout.write(style.WARNING(' * WARNING: current mapper not set.\n'))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
