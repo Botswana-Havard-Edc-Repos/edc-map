@@ -67,12 +67,14 @@ class MapperModelMixin(models.Model):
         verbose_name='latitude',
         max_digits=15,
         null=True,
+        blank=True,
         decimal_places=10)
 
     gps_confirmed_longitude = models.DecimalField(
         verbose_name='longitude',
         max_digits=15,
         null=True,
+        blank=True,
         decimal_places=10)
 
     gps_target_lat = models.DecimalField(
@@ -80,6 +82,7 @@ class MapperModelMixin(models.Model):
         max_digits=15,
         default=0.0,
         null=True,
+        blank=True,
         decimal_places=10)
 
     gps_target_lon = models.DecimalField(
@@ -87,28 +90,30 @@ class MapperModelMixin(models.Model):
         max_digits=15,
         default=0.0,
         null=True,
+        blank=True,
         decimal_places=10)
 
     target_radius = models.FloatField(
         default=.025,
-        help_text='km',
-        editable=False)
+        null=True,
+        blank=True,
+        help_text='km')
 
     distance_from_target = models.FloatField(
         null=True,
-        editable=True,
+        editable=False,
         help_text='distance in meters')
 
     map_area = models.CharField(
         max_length=25,
+        null=True,
         validators=[is_valid_map_area],
-        help_text='If the area name is incorrect, please contact the DMC immediately.',
-        editable=False)
+        help_text='If the area name is incorrect, please contact the DMC immediately.')
 
     location_name = models.CharField(
         max_length=25,
         null=True,
-        editable=False)
+        blank=True)
 
     confirmed = models.BooleanField(
         default=False,
@@ -118,15 +123,30 @@ class MapperModelMixin(models.Model):
     section = models.CharField(
         max_length=25,
         null=True,
-        verbose_name='Section',
-        editable=False)
+        editable=False,
+        verbose_name='Section')
 
     sub_section = models.CharField(
         max_length=25,
         null=True,
+        editable=False,
         verbose_name='Sub-section',
-        help_text=u'',
-        editable=False)
+        help_text='')
+
+    def save(self, *args, **kwargs):
+        if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
+            self.confirmed = self.get_confirmed()
+        else:
+            self.distance_from_target = None
+            self.confirmed = False
+        super().save(*args, **kwargs)
+
+    def common_clean(self):
+        """Attempt to trigger MapperError exception if gps is not valid."""
+        site_mappers.get_mapper(self.map_area)
+        if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
+            self.get_confirmed()
+        super().common_clean()
 
     @property
     def point(self):
@@ -142,14 +162,6 @@ class MapperModelMixin(models.Model):
     def target_point(self):
         """Returns a geopy point of the target gps."""
         return Point(self.gps_target_lat, self.gps_target_lon)
-
-    def save(self, *args, **kwargs):
-        if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
-            self.confirmed = self.get_confirmed()
-        else:
-            self.distance_from_target = None
-            self.confirmed = False
-        super(MapperModelMixin, self).save(*args, **kwargs)
 
     def get_confirmed(self):
         """Returns True if plot is considered "confirmed" or raises an exception."""
