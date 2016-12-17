@@ -17,15 +17,14 @@ class GeoMixin:
         return d <= radius
 
     def raise_if_not_in_radius(self, point, center_point, radius, units=None,
-                               label=None, exception_cls=None):
+                               label=None):
         """Raises an exception if point is not within radius (default units=km)."""
-        exception_cls = exception_cls or MapperError
         label = label or ''
         units = units or 'km'
         if not self.point_in_radius(point, center_point, radius, units):
             d = self.distance_between_points(point, center_point, units)
             d = round(d, 1)
-            raise exception_cls(
+            raise MapperError(
                 'GPS ({point.latitude}, {point.longitude}) is more than {radius}{units} '
                 'from {label} ({center_point.latitude}, {center_point.longitude}). '
                 'Got {distance}{units}.'.format(

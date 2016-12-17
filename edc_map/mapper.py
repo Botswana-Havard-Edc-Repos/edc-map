@@ -23,13 +23,13 @@ class Mapper(GeoMixin):
     def __init__(self):
         self.name = self.map_area or 'mapper {}'.format(self.__class__.name)
         try:
-            self.item_model = django_apps.get_model(*app_config.mapper_model)
+            self.item_model = django_apps.get_model(*app_config.mapper_model.split('.'))
             self.item_model_cls = self.item_model
             self.item_label = self.item_model._meta.verbose_name
         except LookupError as e:
             print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
         try:
-            self.survey_model = django_apps.get_model(*app_config.mapper_survey_model)
+            self.survey_model = django_apps.get_model(*app_config.mapper_survey_model.split('.'))
         except LookupError as e:
             print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
         self.load()

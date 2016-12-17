@@ -13,3 +13,7 @@ class NotRegistered(Exception):
 
 class FolderDoesNotExist(Exception):
     pass
+
+
+class MapperLocationError(Exception):
+    pass

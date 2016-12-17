@@ -17,23 +17,23 @@ class Controller(object):
 
     """ Main controller of :class:`Mapping` objects. """
 
-    def __init__(self, current_community=None):
+    def __init__(self, current_map_area=None):
         self.registry = OrderedDict()
         self.registry_by_code = OrderedDict()
         self.autodiscovered = False
         self.current_mapper = None
-        self.current_community = current_community
+        self.current_map_area = current_map_area
         try:
-            if not self.current_community:
-                self.current_community = settings.CURRENT_COMMUNITY
+            if not self.current_map_area:
+                self.current_map_area = settings.CURRENT_MAP_AREA
         except AttributeError:
             pass
 
     def __repr__(self):
-        return 'Controller({0.current_community})'.format(self)
+        return 'Controller({0.current_map_area})'.format(self)
 
     def __str__(self):
-        return '{0.current_community} {0.map_code}'.format(self)
+        return '{0.current_map_area} {0.map_code}'.format(self)
 
     def __iter__(self):
         return self.registry.itervalues()
@@ -54,25 +54,32 @@ class Controller(object):
                     mapper_cls, mapper_cls.map_area, mapper_cls.map_code))
         self.registry[mapper_cls.map_area] = mapper_cls()
         self.registry_by_code[mapper_cls.map_code] = mapper_cls()
-        if self.current_community == mapper_cls.map_area:
+        if self.current_map_area == mapper_cls.map_area:
             self.load_current_mapper(mapper_cls())
 
     def get_mapper(self, value):
         """Returns a mapper class for the given mapper name (map_area) or code (map_code)."""
-        return self.registry.get(value) or self.registry_by_code.get(value)
+        try:
+            mapper = self.registry[value]
+        except KeyError:
+            try:
+                mapper = self.registry_by_code[value]
+            except KeyError:
+                raise MapperError('Invalid mapper map_area or map_code. Got \'{}\''.format(value))
+        return mapper
 
     def load_current_mapper(self, mapper=None):
         """Loads the current mapper."""
-        self.current_mapper = mapper or self.registry.get(self.current_community)
+        self.current_mapper = mapper or self.registry.get(self.current_map_area)
         if not self.current_mapper:
             raise MapperError(
                 'Unable to load the mapper for the current community. Got {} not registered ({})'.format(
-                    self.current_community, self.registry.keys()))
-        elif self.current_mapper.map_area != self.current_community:
+                    self.current_map_area, self.registry.keys()))
+        elif self.current_mapper.map_area != self.current_map_area:
             raise MapperError(
                 'Unable to load the current mapper. Current community does not match the '
                 'mapper class. Got {0} != {1}'.format(
-                    self.current_community, self.current_mapper.map_area))
+                    self.current_map_area, self.current_mapper.map_area))
 
     def sort_by_code(self):
         """Sorts the registries by map_code."""
@@ -129,6 +136,7 @@ class Controller(object):
         module_name = module_name or 'mappers'
         sys.stdout.write(' * checking for site {} ...\n'.format(module_name))
         for app in django_apps.app_configs:
+            sys.stdout.write(' * searching {}           \r'.format(app))
             try:
                 mod = import_module(app)
                 try:

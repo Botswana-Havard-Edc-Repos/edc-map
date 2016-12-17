@@ -38,8 +38,8 @@ class TestLocationConfirmation(TestCase):
     def test_confirm_item(self):
         """Test if an item with confirmation coordinates, its action becomes confirmed."""
 
-        self.item.gps_confirm_latitude = -24.656620
-        self.item.gps_confirm_longitude = 25.923488
+        self.item.gps_confirmed_latitude = -24.656620
+        self.item.gps_confirmed_longitude = 25.923488
         self.item.save()
         self.assertEqual(self.item.action, CONFIRMED)
 
@@ -47,8 +47,8 @@ class TestLocationConfirmation(TestCase):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {
-            'gps_confirm_latitude': -24.664542,
-            'gps_confirm_longitude': 25.783037,
+            'gps_confirmed_latitude': -24.664542,
+            'gps_confirmed_longitude': 25.783037,
             'area_name': self.mapper.map_area,
             'gps_target_lat': -24.656620,
             'gps_target_lon': 25.923488}
@@ -62,8 +62,8 @@ class TestLocationConfirmation(TestCase):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {
-            'gps_confirm_latitude': -24.656630,
-            'gps_confirm_longitude': 25.921718,
+            'gps_confirmed_latitude': -24.656630,
+            'gps_confirmed_longitude': 25.921718,
             'area_name': self.mapper.map_area,
             'gps_target_lat': -24.656620,
             'gps_target_lon': 25.923488}

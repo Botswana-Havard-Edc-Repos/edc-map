@@ -5,14 +5,15 @@ from time import sleep
 from urllib.parse import urlencode
 from urllib.request import urlretrieve
 from geopy import Point
+
 from django.apps import apps as django_apps
 from django.conf import settings
 
-from .geo_mixin import GeoMixin
-from .site_mappers import site_mappers
 from .exceptions import FolderDoesNotExist
+from .geo_mixin import GeoMixin
 from .mapper import LANDMARK_NAME, LONGITUDE, LATITUDE
-from edc_map.structures import Landmark
+from .site_mappers import site_mappers
+from .structures import Landmark
 
 DISTANCE = 3
 

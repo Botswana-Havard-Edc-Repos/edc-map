@@ -4,6 +4,7 @@ from geopy import Point
 
 from .constants import CONFIRMED, UNCONFIRMED
 from .site_mappers import site_mappers
+from .validators import is_valid_map_area
 
 
 class LandmarkMixin(models.Model):
@@ -63,13 +64,13 @@ class MapperDataModelMixin(models.Model):
 
 class MapperModelMixin(models.Model):
 
-    gps_confirm_latitude = models.DecimalField(
+    gps_confirmed_latitude = models.DecimalField(
         verbose_name='latitude',
         max_digits=15,
         null=True,
         decimal_places=10)
 
-    gps_confirm_longitude = models.DecimalField(
+    gps_confirmed_longitude = models.DecimalField(
         verbose_name='longitude',
         max_digits=15,
         null=True,
@@ -101,14 +102,14 @@ class MapperModelMixin(models.Model):
 
     map_area = models.CharField(
         max_length=25,
+        validators=[is_valid_map_area],
         help_text='If the area name is incorrect, please contact the DMC immediately.',
         editable=False)
 
-    action = models.CharField(
-        max_length=25,
-        null=True,
-        default=UNCONFIRMED,
-        editable=False)
+    confirmed = models.BooleanField(
+        default=False,
+        editable=False,
+        help_text="gps target is confirmed")
 
     section = models.CharField(
         max_length=25,
@@ -125,18 +126,21 @@ class MapperModelMixin(models.Model):
 
     @property
     def point(self):
+        """Alias for confirmed_point."""
         return self.confirmed_point
 
     @property
     def confirmed_point(self):
-        return Point(self.gps_confirm_latitude, self.gps_confirm_longitude)
+        """Returns a geopy point of the confirmed gps."""
+        return Point(self.gps_confirmed_latitude, self.gps_confirmed_longitude)
 
     @property
     def target_point(self):
+        """Returns a geopy point of the target gps."""
         return Point(self.gps_target_lat, self.gps_target_lon)
 
     def save(self, *args, **kwargs):
-        if self.gps_confirm_longitude and self.gps_confirm_latitude:
+        if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
             mapper = site_mappers.get_mapper(self.map_area)
             mapper.raise_if_not_in_map_area(self.confirmed_point)
             mapper.raise_if_not_in_radius(
@@ -144,14 +148,11 @@ class MapperModelMixin(models.Model):
                 units='m', label='target location')
             self.distance_from_target = mapper.distance_between_points(
                 self.confirmed_point, self.target_point, units='m')
-        self.action = self.get_confirmation_status()
+            self.confirmed = True
+        else:
+            self.distance_from_target = None
+            self.confirmed = False
         super(MapperModelMixin, self).save(*args, **kwargs)
-
-    def get_confirmation_status(self):
-        retval = UNCONFIRMED
-        if self.gps_confirm_latitude and self.gps_confirm_longitude:
-            retval = CONFIRMED
-        return retval
 
     class Meta:
         abstract = True
