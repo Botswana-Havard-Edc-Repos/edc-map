@@ -105,7 +105,7 @@ class MapperModelMixin(models.Model):
         help_text='If the area name is incorrect, please contact the DMC immediately.',
         editable=False)
 
-    location_name = map_area = models.CharField(
+    location_name = models.CharField(
         max_length=25,
         null=True,
         editable=False)
