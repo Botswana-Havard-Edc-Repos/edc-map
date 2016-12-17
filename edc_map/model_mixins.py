@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from geopy import Point
 
-from .constants import CONFIRMED, UNCONFIRMED
 from .site_mappers import site_mappers
 from .validators import is_valid_map_area
 
@@ -106,6 +105,11 @@ class MapperModelMixin(models.Model):
         help_text='If the area name is incorrect, please contact the DMC immediately.',
         editable=False)
 
+    location_name = map_area = models.CharField(
+        max_length=25,
+        null=True,
+        editable=False)
+
     confirmed = models.BooleanField(
         default=False,
         editable=False,
@@ -141,18 +145,22 @@ class MapperModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
-            mapper = site_mappers.get_mapper(self.map_area)
-            mapper.raise_if_not_in_map_area(self.confirmed_point)
-            mapper.raise_if_not_in_radius(
-                self.confirmed_point, self.target_point, self.target_radius,
-                units='m', label='target location')
-            self.distance_from_target = mapper.distance_between_points(
-                self.confirmed_point, self.target_point, units='m')
-            self.confirmed = True
+            self.confirmed = self.get_confirmed()
         else:
             self.distance_from_target = None
             self.confirmed = False
         super(MapperModelMixin, self).save(*args, **kwargs)
+
+    def get_confirmed(self):
+        """Returns True if plot is considered "confirmed" or raises an exception."""
+        mapper = site_mappers.get_mapper(self.map_area)
+        mapper.raise_if_not_in_map_area(self.confirmed_point)
+        mapper.raise_if_not_in_radius(
+            self.confirmed_point, self.target_point, self.target_radius,
+            units='m', label='target location')
+        self.distance_from_target = mapper.distance_between_points(
+            self.confirmed_point, self.target_point, units='m')
+        return True
 
     class Meta:
         abstract = True
