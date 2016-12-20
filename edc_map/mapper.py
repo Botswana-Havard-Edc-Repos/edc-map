@@ -1,7 +1,8 @@
 from geopy import Point
 
-from .geo_mixin import GeoMixin
 from django.apps import apps as django_apps
+
+from .geo_mixin import GeoMixin
 
 LETTERS = list(map(chr, range(65, 91)))
 
