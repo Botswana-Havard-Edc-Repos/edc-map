@@ -53,5 +53,5 @@ class AppConfig(DjangoAppConfig):
             site_mappers.load_current_mapper(site_mappers.get_mapper(self.current_mapper_name))
             sys.stdout.write(' * current mapper is {}.\n'.format(site_mappers.current_mapper.map_area))
         else:
-            sys.stdout.write(style.WARNING(' * WARNING: current mapper not set.\n'))
+            sys.stdout.write(style.ERROR(' * ERROR: current mapper not set.\n'))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
