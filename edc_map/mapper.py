@@ -3,6 +3,7 @@ from geopy import Point
 from django.apps import apps as django_apps
 
 from .geo_mixin import GeoMixin
+from django.core.exceptions import ImproperlyConfigured
 
 LETTERS = list(map(chr, range(65, 91)))
 
@@ -29,6 +30,10 @@ class Mapper(GeoMixin):
             self.item_label = self.item_model._meta.verbose_name
         except LookupError as e:
             print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
+        except AttributeError:
+            raise ImproperlyConfigured(
+                'AppConfig mappper_model cannot be None. '
+                'Expected something like \'plot.plot\'. See edc_map.apps.AppConfig.')
         try:
             self.survey_model = django_apps.get_model(*app_config.mapper_survey_model.split('.'))
         except LookupError as e:
