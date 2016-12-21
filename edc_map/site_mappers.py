@@ -22,6 +22,7 @@ class Controller(object):
         self.registry_by_code = OrderedDict()
         self.autodiscovered = False
         self.current_mapper = None
+        self.current_map_code = None
         self.current_map_area = current_map_area
         try:
             if not self.current_map_area:
@@ -80,6 +81,7 @@ class Controller(object):
                 'Unable to load the current mapper. Current community does not match the '
                 'mapper class. Got {0} != {1}'.format(
                     self.current_map_area, self.current_mapper.map_area))
+        self.current_map_code = self.current_mapper.map_code
 
     def sort_by_code(self):
         """Sorts the registries by map_code."""
