@@ -13,14 +13,14 @@ class LandmarkMixin(models.Model):
     label = models.CharField(max_length=50)
 
     latitude = models.DecimalField(
-        max_digits=15,
+        max_digits=20,
         null=True,
-        decimal_places=10)
+        decimal_places=15)
 
     longitude = models.DecimalField(
-        max_digits=15,
+        max_digits=20,
         null=True,
-        decimal_places=10)
+        decimal_places=15)
 
     def __str__(self):
         return '{}: {}'.format(self.map_area, self.label)
@@ -40,14 +40,14 @@ class LandmarkMixin(models.Model):
 class MapperDataModelMixin(models.Model):
 
     center_lat = models.DecimalField(
-        max_digits=15,
+        max_digits=20,
         null=True,
-        decimal_places=10)
+        decimal_places=15)
 
     center_lon = models.DecimalField(
-        max_digits=15,
+        max_digits=20,
         null=True,
-        decimal_places=10)
+        decimal_places=15)
 
     radius = models.DecimalField(
         max_digits=10,
@@ -65,33 +65,33 @@ class MapperModelMixin(models.Model):
 
     gps_confirmed_latitude = models.DecimalField(
         verbose_name='latitude',
-        max_digits=15,
+        max_digits=20,
         null=True,
         blank=True,
-        decimal_places=10)
+        decimal_places=15)
 
     gps_confirmed_longitude = models.DecimalField(
         verbose_name='longitude',
-        max_digits=15,
+        max_digits=20,
         null=True,
         blank=True,
-        decimal_places=10)
+        decimal_places=15)
 
     gps_target_lat = models.DecimalField(
         verbose_name='target waypoint latitude',
-        max_digits=15,
+        max_digits=20,
         default=0.0,
         null=True,
         blank=True,
-        decimal_places=10)
+        decimal_places=15)
 
     gps_target_lon = models.DecimalField(
         verbose_name='target waypoint longitude',
-        max_digits=15,
+        max_digits=20,
         default=0.0,
         null=True,
         blank=True,
-        decimal_places=10)
+        decimal_places=15)
 
     target_radius = models.FloatField(
         default=.025,
