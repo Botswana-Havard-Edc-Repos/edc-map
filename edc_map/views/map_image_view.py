@@ -78,5 +78,6 @@ class MapImageView(TemplateView):
             zoom_levels=self.zoom_levels,
             json_data=json_data,
             item_label=context.get('item_label', 'Subject'),
+            item_title=context.get('item_title', 'Subject'),
             map_image_view_base_html=self.map_image_view_base_html)
         return context
