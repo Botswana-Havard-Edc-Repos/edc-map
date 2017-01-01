@@ -1,6 +1,6 @@
 import json
 import os
-
+import sys
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -8,6 +8,10 @@ from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
 from ..snapshot import Snapshot
+from edc_map.fetch_images import FetchImages
+from django.core.management.color import color_style
+
+style = color_style()
 
 
 class MapImageView(TemplateView):
@@ -19,6 +23,7 @@ class MapImageView(TemplateView):
     zoom_levels = ['16', '17', '18']
     app_label = 'edc_map'  # for django_apps AppsConfig registry, if not default
     map_image_view_base_html = 'edc_base/base.html'
+    fetch_remote_images = False
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -45,26 +50,31 @@ class MapImageView(TemplateView):
             'image_file_zoom_level_two': os.path.join(self.image_folder_url, filenames.get('17')),
             'image_file_zoom_level_three': os.path.join(self.image_folder_url, filenames.get('18'))}
 
-    def get_image_filenames2(self, filenames):
-        """Return a dictionary of filenames for the three zoom levels."""
+    def get_image_filenames2(self, snapshot):
+        """Return a dictionary of filenames for all zoom levels."""
         image_filenames = {}
         for zoom_level in self.zoom_levels:
-            image_filenames.update({
-                zoom_level: os.path.join(self.image_folder_url, filenames.get(zoom_level))})
+            path = snapshot.image_filename(zoom_level, include_path=True)
+            if not os.path.exists(path):
+                path = snapshot.image_url(zoom_level)
+            image_filenames.update({zoom_level: path})
         return image_filenames
+
+    def point(self, obj):
+        return obj.point
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
         if obj:
             snapshot = Snapshot(
-                getattr(obj, self.filename_field), point=obj.point,
+                getattr(obj, self.filename_field), point=self.point(obj),
                 map_area=self.kwargs.get('map_area'),
                 zoom_levels=self.zoom_levels)
             context.update({
-                'point': obj.point,
+                'point': self.point(obj),
                 'landmarks': snapshot.landmarks_by_label,
-                'image_filenames': self.get_image_filenames2(snapshot.image_filenames)})
+                'image_filenames': self.get_image_filenames2(snapshot)})
             context = dict(context, **self.get_image_filenames(snapshot.image_filenames))
         else:
             context.update({
