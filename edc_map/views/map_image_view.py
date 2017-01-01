@@ -18,10 +18,11 @@ class MapImageView(TemplateView):
     filename_field = 'pk'  # maybe you rather use subject_identifier, if available
     zoom_levels = ['16', '17', '18']
     app_label = 'edc_map'  # for django_apps AppsConfig registry, if not default
+    map_image_view_base_html = 'edc_base/base.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(MapImageView, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_object(self):
         """Return an instance of the item model."""
@@ -53,7 +54,7 @@ class MapImageView(TemplateView):
         return image_filenames
 
     def get_context_data(self, **kwargs):
-        context = super(MapImageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         obj = self.get_object()
         if obj:
             snapshot = Snapshot(
@@ -70,9 +71,12 @@ class MapImageView(TemplateView):
                 'point': None,
                 'landmarks': None,
                 'image_filenames': None})
-        context.update(zoom_levels=self.zoom_levels)
         json_data = json.dumps(
-            dict(zoom_levels=context['zoom_levels'], image_filenames=context['image_filenames']),
+            dict(zoom_levels=self.zoom_levels, image_filenames=context['image_filenames']),
             cls=DjangoJSONEncoder)
-        context.update(json_data=json_data)
+        context.update(
+            zoom_levels=self.zoom_levels,
+            json_data=json_data,
+            item_label=context.get('item_label', 'Subject'),
+            map_image_view_base_html=self.map_image_view_base_html)
         return context

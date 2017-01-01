@@ -4,6 +4,7 @@ from geopy import Point
 
 from .site_mappers import site_mappers
 from .validators import is_valid_map_area
+from edc_map.exceptions import MapperError
 
 
 class LandmarkMixin(models.Model):
@@ -106,8 +107,7 @@ class MapperModelMixin(models.Model):
 
     map_area = models.CharField(
         max_length=25,
-        validators=[is_valid_map_area],
-        help_text='If the area name is incorrect, please contact the DMC immediately.')
+        validators=[is_valid_map_area])
 
     location_name = models.CharField(
         max_length=25,
@@ -143,6 +143,7 @@ class MapperModelMixin(models.Model):
     def common_clean(self):
         """Attempt to trigger MapperError exception if gps is not valid."""
         site_mappers.get_mapper(self.map_area)
+        self.is_valid_target_or_raise()
         if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
             self.get_confirmed()
         super().common_clean()
@@ -151,6 +152,13 @@ class MapperModelMixin(models.Model):
     def point(self):
         """Alias for confirmed_point."""
         return self.confirmed_point
+
+    def is_valid_target_or_raise(self):
+        mapper = site_mappers.get_mapper(self.map_area)
+        try:
+            mapper.raise_if_not_in_map_area(self.target_point)
+        except MapperError as e:
+            raise MapperError('Invalid target GPS point. Got {}'.format(str(e)))
 
     @property
     def confirmed_point(self):
@@ -165,7 +173,10 @@ class MapperModelMixin(models.Model):
     def get_confirmed(self):
         """Returns True if plot is considered "confirmed" or raises an exception."""
         mapper = site_mappers.get_mapper(self.map_area)
-        mapper.raise_if_not_in_map_area(self.confirmed_point)
+        try:
+            mapper.raise_if_not_in_map_area(self.confirmed_point)
+        except MapperError as e:
+            raise MapperError('Invalid confirmation GPS point. Got {}'.format(str(e)))
         mapper.raise_if_not_in_radius(
             self.confirmed_point, self.target_point, self.target_radius,
             units='m', label='target location')
