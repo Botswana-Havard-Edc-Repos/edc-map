@@ -1,15 +1,14 @@
 import json
 import os
-import sys
+
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
+from django.core.management.color import color_style
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
 from ..snapshot import Snapshot
-from edc_map.fetch_images import FetchImages
-from django.core.management.color import color_style
 
 style = color_style()
 
