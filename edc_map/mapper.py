@@ -1,9 +1,12 @@
+import sys
+
 from geopy import Point
 
 from django.apps import apps as django_apps
 
 from .geo_mixin import GeoMixin
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management.color import color_style
 
 LETTERS = list(map(chr, range(65, 91)))
 
@@ -12,6 +15,7 @@ LONGITUDE = 1
 LATITUDE = 2
 
 app_config = django_apps.get_app_config('edc_map')
+style = color_style()
 
 
 class Mapper(GeoMixin):
@@ -29,15 +33,12 @@ class Mapper(GeoMixin):
             self.item_model_cls = self.item_model
             self.item_label = self.item_model._meta.verbose_name
         except LookupError as e:
-            print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
+            sys.stdout.write(style.WARNING(
+                '\n  Warning. Lookup error in mapper {}. Got {}\n'.format(self.name, str(e))))
         except AttributeError:
             raise ImproperlyConfigured(
                 'AppConfig mappper_model cannot be None. '
                 'Expected something like \'plot.plot\'. See edc_map.apps.AppConfig.')
-        try:
-            self.survey_model = django_apps.get_model(*app_config.mapper_survey_model.split('.'))
-        except LookupError as e:
-            print('  Warning. Lookup error in mapper {}. Got {}'.format(self.name, str(e)))
         self.load()
 
     def __repr__(self):
