@@ -1,12 +1,13 @@
 from django.conf.urls import url
 
-from .views import MapImageView
+from .views import MapImageView, DrawCluster
 
 # from .views import (kmz_file_upload, create_kmz_items, map_index)
 
 urlpatterns = [
     url(r'^(?P<map_area>\w+)/(?P<pk>[^/]+)/(?P<zoom_level>[1-9]{1})', MapImageView.as_view(), name='map_image_url'),
     url(r'^(?P<map_area>\w+)/(?P<pk>[^/]+)$', MapImageView.as_view(), name='map_image_url'),
+    url(r'^draw_cluster/', DrawCluster.as_view(), name='draw_cluster_url'),
 ]
 
 # urlpatterns = [
