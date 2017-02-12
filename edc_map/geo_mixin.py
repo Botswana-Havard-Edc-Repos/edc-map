@@ -6,8 +6,7 @@ from .exceptions import MapperError
 class GeoMixin:
 
     def polygon_contains_point(self, polygon, point):
-        """Return True if a point is inside a polygon
-        """
+        """Return True if a point is inside a polygon."""
 
         n = len(polygon)
         inside = False

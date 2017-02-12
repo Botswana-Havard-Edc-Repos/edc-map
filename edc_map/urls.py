@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 
 from edc_base.views import LogoutView, LoginView
 
+
 from .views import MapImageView, DrawClusterMixin, HomeView, SaveCluster
 from .admin_site import edc_map_admin
 

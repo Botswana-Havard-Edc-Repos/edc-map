@@ -16,11 +16,11 @@ style = color_style()
 class MapImageView(TemplateView):
 
     template_name = 'edc_map/map_image_view.html'
-    item_model = None  # model refered to by mapper / field value is passed in url
-    item_model_field = None  # e.g. pk
-    filename_field = 'pk'  # maybe you rather use subject_identifier, if available
+    item_model = None
+    item_model_field = None
+    filename_field = 'pk'
     zoom_levels = ['16', '17', '18']
-    app_label = 'edc_map'  # for django_apps AppsConfig registry, if not default
+    app_label = 'edc_map'
     map_image_view_base_html = 'edc_base/base.html'
     fetch_remote_images = False
 

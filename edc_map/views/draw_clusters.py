@@ -73,9 +73,13 @@ class DrawClusterMixin(EdcBaseViewMixin, TemplateView):
         map_area = self.kwargs.get('map_area', '')
         self.mapper = site_mappers.registry.get(map_area)
         obj_list = self.mapper.item_model.objects.filter(**{
-            self.first_item_model_field: value}).exclude(**{'{0}__in'.format(self.second_item_model_field): value_list})
+            self.first_item_model_field: value}).exclude(**{
+                '{0}__in'.format(self.second_item_model_field): value_list})
         for obj in obj_list:
-            items.append([float(obj.gps_target_lat), float(obj.gps_target_lon), obj.plot_identifier])
+            items.append(
+                [float(obj.gps_target_lat),
+                 float(obj.gps_target_lon),
+                 obj.plot_identifier])
         return items
 
     def get_context_data(self, **kwargs):

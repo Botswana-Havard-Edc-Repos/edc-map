@@ -15,7 +15,10 @@ class HouseholdAdmin(admin.ModelAdmin):
 
     list_display = ('label', 'map_area', 'created', 'modified')
 
-    list_filter = ('created', 'modified', 'label', 'map_area', 'hostname_modified')
+    list_filter = (
+        'created', 'modified',
+        'label', 'map_area',
+        'hostname_modified')
 
     search_fields = ('label', 'map_area', 'id')
 
@@ -24,4 +27,5 @@ class HouseholdAdmin(admin.ModelAdmin):
             if request.GET.get('user'):
                 kwargs["queryset"] = User.objects.filter(
                     id__exact=request.GET.get('user', 0))
-        return super(HouseholdAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(HouseholdAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs)
