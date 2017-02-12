@@ -2,8 +2,7 @@ from django.db import models
 import json
 
 from edc_base.model.models import BaseUuidModel
-from edc_map.model_mixins import MapperDataModelMixin, LandmarkMixin
-from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_map.model_mixins import MapperDataModelMixin, LandmarkMixin, MapperModelMixin
 from django.contrib.auth.models import User
 
 
@@ -26,10 +25,10 @@ class MapperData(MapperDataModelMixin, BaseUuidModel):
         app_label = 'edc_map'
 
 
-class Section(BaseUuidModel):
+class MapDivision(BaseUuidModel):
 
-    location_identifier = models.CharField(
-        verbose_name='Plot Identifier',
+    label = models.CharField(
+        verbose_name='Label',
         max_length=25,
         unique=True,
         editable=False,
@@ -39,7 +38,7 @@ class Section(BaseUuidModel):
         max_length=10,
         null=True)
 
-    user = models.OneToOneField(User, null=True)
+    user = models.ForeignKey(User, null=True)
 
     sub_section_name = models.CharField(
         max_length=10,
@@ -55,7 +54,7 @@ class Section(BaseUuidModel):
 
     def __str__(self):
         return '{0} {1} {2}'.format(
-            self.location_identifier,
+            self.label,
             self.section_name,
             self.sub_section_name)
 

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'edc_map.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_base.apps.AppConfig',
+    'tz_detect',
+    'crispy_forms',
 ]
 
 if 'test' in sys.argv:

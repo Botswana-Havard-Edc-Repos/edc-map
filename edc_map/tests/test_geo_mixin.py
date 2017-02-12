@@ -1,12 +1,12 @@
 from django.test import TestCase
 
-from ..geolocation_helper import GeolocationHelper
+from ..geo_mixin import GeoMixin
 
 
-class TestGeolocationHelper(TestCase):
+class TestGeoMixin(TestCase):
 
     def setUp(self):
-        self.geolocation_helper = GeolocationHelper()
+        self.geo_mixin = GeoMixin()
 
     def test_points_in_polygon(self):
             """Check if a point is in a polygon."""
@@ -25,7 +25,7 @@ class TestGeolocationHelper(TestCase):
                 [-24.63241, 25.89701],
                 [-24.64224, 25.88709]]
             self.assertTrue(
-                self.geolocation_helper.polygon_contains_point(
+                self.geo_mixin.polygon_contains_point(
                     polygon, gps_lat, gps_lon))
 
     def test_points_outside_polygon(self):
@@ -46,7 +46,7 @@ class TestGeolocationHelper(TestCase):
             [-24.63241, 25.89701],
             [-24.64224, 25.88709]]
         self.assertFalse(
-            self.geolocation_helper.polygon_contains_point(
+            self.geo_mixin.polygon_contains_point(
                 polygon, gps_lat, gps_lon))
 
     def test_distance_btwn_points(self):
@@ -55,6 +55,6 @@ class TestGeolocationHelper(TestCase):
         lon = 25.908847
         lat_2 = -24.644726
         lon_2 = 25.899749
-        distance = self.geolocation_helper.points_distance(
+        distance = self.geo_mixin.points_distance(
             lat, lon, lat_2, lon_2)
         self.assertEqual(distance, 1.18)

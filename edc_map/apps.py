@@ -3,6 +3,7 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+from django.apps import apps as django_apps
 from django.core.management.color import color_style
 
 from edc_base.utils import get_utcnow
@@ -14,6 +15,7 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_map'
     verbose_name = 'Edc Map'
     image_folder = os.path.join(settings.MEDIA_ROOT, 'edc_map')
+    app_label = 'edc_map'
     image_folder_url = os.path.join(settings.MEDIA_URL, 'edc_map')
     google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
     verify_point_on_save = True  # not used
@@ -23,7 +25,7 @@ class AppConfig(DjangoAppConfig):
     landmark_model = None  # ('bcpp_map', 'landmark')
 
     # model with the MapperModelMixin which has gps data fields
-    mapper_model = None  # label_lower, e.g. 'bcpp_interview.subjectlocation'
+    mapper_model = None
 
     # uses the MapperDataModelMixin. This would be a replacement for the mappers as classes
     mapp_data_model = None  # not used yet
@@ -31,6 +33,10 @@ class AppConfig(DjangoAppConfig):
     mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 
     current_mapper_name = None
+
+    @property
+    def model_name(self):
+        return 'plot'
 
     def ready(self):
         style = color_style()

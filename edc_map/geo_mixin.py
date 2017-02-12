@@ -5,6 +5,27 @@ from .exceptions import MapperError
 
 class GeoMixin:
 
+    def polygon_contains_point(self, polygon, point):
+        """Return True if a point is inside a polygon
+        """
+
+        n = len(polygon)
+        inside = False
+        latitude = point.lat
+        longitude = point.lon
+        latitude_x, latitude_y = polygon[0]
+        for i in range(n + 1):
+            latitude_x2, latitude_y2 = polygon[i % n]
+            if longitude > min(latitude_y, latitude_y2):
+                if longitude <= max(latitude_y, latitude_y2):
+                    if latitude <= max(latitude_x, latitude_x2):
+                        if latitude_y != latitude_y2:
+                            xinters = (longitude - latitude_y) * (latitude_x2 - latitude_x) / (latitude_y2 - latitude_y) + latitude_x
+                        if latitude_x == latitude_x2 or latitude <= xinters:
+                            inside = not inside
+            latitude_x, latitude_y = latitude_x2, latitude_y2
+        return inside
+
     def distance_between_points(self, point_a, point_b, units=None):
         """Return distance between two points (vincenty, default units=km)."""
         units = units or 'km'
@@ -15,6 +36,12 @@ class GeoMixin:
         units = units or 'km'
         d = self.distance_between_points(point, center_point, units)
         return d <= radius
+
+    def raise_if_not_in_polygon(self, polygon, point):
+        """Raises an exception if point not within a polygon."""
+        if not self.polygon_contains_point(polygon, point):
+            raise MapperError(
+                'GPS ({point.latitude}, {point.longitude}) is outside the expected polygon.'.format(point=point))
 
     def raise_if_not_in_radius(self, point, center_point, radius, units=None,
                                label=None):
