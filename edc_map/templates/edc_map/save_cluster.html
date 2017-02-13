@@ -13,7 +13,17 @@
 		      		<a href="{% url 'edc-map:draw_cluster_url' map_area %}?set_section=section">Divide into sections</a>
 		      	</td>
 		      	<tr>
-		      		<td><a href="{% url 'edc-map:draw_cluster_url' map_area %}?set_sub_section=sub_section">Divide into sub sections</a></td>
+		      		<td>
+		      		<form action="{% url 'edc-map:draw_cluster_url' map_area %}?set_sub_section=sub_section" method="post">
+		      			 {% csrf_token %}
+						<select id="section_name" name="section_name">
+							{% for section in sections %}
+							  <option value="{{ section }}">{{ section }}</option>
+							{% endfor %}
+						</select>
+						<input name="submitbutton" type="submit" value="Divide into sub sections" />
+					</form>
+		      		</td>
 		      	</tr>
 		 	 </table>
         </div>

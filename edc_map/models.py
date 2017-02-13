@@ -27,6 +27,7 @@ class MapperData(MapperDataModelMixin, BaseUuidModel):
 
 class MapDivision(BaseUuidModel):
 
+    # TODO make a label a list
     label = models.CharField(
         verbose_name='Label',
         max_length=25,
@@ -38,7 +39,12 @@ class MapDivision(BaseUuidModel):
         max_length=10,
         null=True)
 
-    user = models.ForeignKey(User, null=True)
+    username = models.CharField(
+        verbose_name='Label',
+        max_length=25,
+        unique=True,
+        editable=False,
+        null=True,)
 
     sub_section_name = models.CharField(
         max_length=10,
@@ -48,20 +54,15 @@ class MapDivision(BaseUuidModel):
         max_length=25,
         null=True)
 
-    section_polygon = models.TextField(null=True)
+    container_polygon = models.TextField(null=True)  #  TODO: store as a pipe dilimited value
 
-    sub_section_polygon = models.TextField(null=True)
+    in_container_polygon = models.TextField(null=True)  #  TODO: store as a pipe dilimited value
 
     def __str__(self):
         return '{0} {1} {2}'.format(
             self.label,
             self.section_name,
             self.sub_section_name)
-
-    def save(self, *args, **kwargs):
-        self.section_polygon = json.dumps(self.section_polygon)
-        self.sub_section_polygon = json.dumps(self.sub_section_polygon)
-        super().save(*args, **kwargs)
 
     @property
     def section_polygon_list(self):

@@ -5,6 +5,8 @@ from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_map.models import MapDivision
 
+from ..constants import SUB_SECTIONS, SECTIONS
+
 
 class SaveCluster(EdcBaseViewMixin, TemplateView):
 
@@ -21,13 +23,14 @@ class SaveCluster(EdcBaseViewMixin, TemplateView):
         return context
 
     def create_section(self, section_name, map_area, labels, polygon):
-        for label in labels:
-            try:
-                MapDivision.objects.get(label=label)
-            except MapDivision.DoesNotExist:
-                MapDivision.objects.create(
-                    label=label, section_name=section_name,
-                    map_area=map_area, section_polygon=polygon)
+        if labels:
+            for label in labels:
+                try:
+                    MapDivision.objects.get(label=label)
+                except MapDivision.DoesNotExist:
+                    MapDivision.objects.create(
+                        label=label, section_name=section_name,
+                        map_area=map_area, section_polygon=polygon)
 
     def get(self, request, *args, **kwargs):
         super(SaveCluster, self).get(request, *args, **kwargs)
@@ -51,6 +54,8 @@ class SaveCluster(EdcBaseViewMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         context.update(
             labels=labels,
+            sections=SECTIONS,
+            sub_sections=SUB_SECTIONS,
             section_name=section_name,
             set_division=set_division)
         return self.render_to_response(context)

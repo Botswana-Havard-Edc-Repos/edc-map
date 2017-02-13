@@ -30,6 +30,16 @@ class TestPlotMapper(Mapper):
     regions = None  # SECTIONS
     sections = None  # SUB_SECTIONS
 
+    @property
+    def sections(self):
+        """Return a list of sections."""
+        return ['A', 'B', 'C', 'D', 'E']
+
+    @property
+    def sub_sections(self):
+        """Return a list of sub sections."""
+        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
     landmarks = TEST_LANDMARKS
 
     center_lat = -25.330451

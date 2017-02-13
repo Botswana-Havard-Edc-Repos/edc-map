@@ -6,6 +6,8 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_map.models import MapDivision
 from django.contrib.auth.models import User
 
+from ..constants import SECTIONS, SUB_SECTIONS
+
 
 class HomeView(EdcBaseViewMixin, TemplateView):
 
@@ -37,6 +39,7 @@ class HomeView(EdcBaseViewMixin, TemplateView):
             polygon = polygon.split('),(')
             for poly in polygon:
                 poly = poly.split(',')
+                print(poly, '-------------------------------')
                 lat = poly[0].replace('(', '')
                 lon = poly[1].replace(')', '')
                 polygon_points.append([float(lat), float(lon)])
@@ -54,5 +57,8 @@ class HomeView(EdcBaseViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(map_area='test_community')
+        context.update(
+            map_area='test_community',
+            sections=SECTIONS,
+            sub_sections=SUB_SECTIONS)
         return context
