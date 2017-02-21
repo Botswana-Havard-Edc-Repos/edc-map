@@ -24,6 +24,7 @@ class Mapper(GeoMixin):
     center_lon = None
     landmarks = None  # format ((name, longitude, latitude), )
     map_area = None
+    identifier_field_attr = None
     radius = 5.5
 
     def __init__(self):
@@ -65,6 +66,10 @@ class Mapper(GeoMixin):
     @property
     def area_radius(self):
         return self.radius
+
+    @property
+    def identifier_field_name(self):
+        return self.identifier_field_attr
 
     def point_in_map_area(self, point):
         """Return True if point is within mapper area radius."""

@@ -1,25 +1,23 @@
 {% extends 'edc_base/base.html' %}
 
 {% load staticfiles %}
+{% load crispy_forms_tags %}
 
 {% block main %}
 <div class="container">
 
     <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">
-		    <div class="panel-heading">Map Clustering</div>
+		    <div class="panel-heading">Item Division</div>
 		    <table class="table table-hover responsive">
 		      	<tr>
-		      		<td><a href="{% url 'edc-map:draw_cluster_url' map_area %}?set_section=section">Divide into sections</a></td>
+		      		<td><a href="{% url 'edc-map:item_division_url' map_area %}?set_container=set_container">Create Containers</a></td>
+		      	</tr>
+		      	<tr>
 		      		<td>
-		      			<form action="{% url 'edc-map:draw_cluster_url' map_area %}?set_sub_section=sub_section" method="post">
-		      				 {% csrf_token %}
-							<select id="section_name" name="section_name">
-								{% for section in sections %}
-								  <option value="{{ section }}">{{ section }}</option>
-								{% endfor %}
-							</select>
-							<input name="submitbutton" type="submit" value="Divide into sub sections" />
+		      			<form id="set_inner_container" action="{% url 'edc-map:item_division_url' map_area %}?set_inner_container=set_inner_container" method="post">
+						{% csrf_token %}
+						{% crispy form %}
 						</form>
 		      		</td>
 		      	</tr>

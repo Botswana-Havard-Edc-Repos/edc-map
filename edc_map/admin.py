@@ -1,31 +1,39 @@
 from django.contrib import admin
-from django.contrib.auth.models import User
 
 from .admin_site import edc_map_admin
-from .forms import MapDivisionForm
-from .models import MapDivision
+from .forms import ContainerForm, InnerContainerForm
+from .models import Container, InnerContainer
 
 
-@admin.register(MapDivision, site=edc_map_admin)
-class HouseholdAdmin(admin.ModelAdmin):
+@admin.register(Container, site=edc_map_admin)
+class ContainerAdmin(admin.ModelAdmin):
 
-    form = MapDivisionForm
-    list_select_related = ('user', )
+    form = ContainerForm
     list_per_page = 10
 
-    list_display = ('label', 'map_area', 'created', 'modified')
+    list_display = ('container_name', 'map_area', 'created', 'modified')
 
     list_filter = (
-        'created', 'modified',
-        'label', 'map_area',
+        'created',
+        'modified',
+        'map_area',
         'hostname_modified')
 
-    search_fields = ('label', 'map_area', 'id')
+    search_fields = ('map_area', 'id')
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "user":
-            if request.GET.get('user'):
-                kwargs["queryset"] = User.objects.filter(
-                    id__exact=request.GET.get('user', 0))
-        return super(HouseholdAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs)
+
+@admin.register(InnerContainer, site=edc_map_admin)
+class InnerContainerAdmin(admin.ModelAdmin):
+
+    form = InnerContainerForm
+    list_per_page = 10
+
+    list_display = ('username', 'inner_container_name', 'created', 'modified')
+
+    list_filter = (
+        'created',
+        'modified',
+        'inner_container_name',
+        'hostname_modified')
+
+    search_fields = ('username', 'inner_container_name', 'id')

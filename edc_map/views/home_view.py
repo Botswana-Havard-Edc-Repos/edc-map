@@ -1,55 +1,42 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_map.models import MapDivision
-from django.contrib.auth.models import User
 
+from ..models import InnerContainer, Container
 from ..constants import SECTIONS, SUB_SECTIONS
+from ..forms import ContainerSelectionForm
+from ..exceptions import MapperError
 
 
-class HomeView(EdcBaseViewMixin, TemplateView):
+class HomeView(EdcBaseViewMixin, TemplateView, FormView):
 
+    form_class = ContainerSelectionForm
     app_config_name = 'edc_map'
     template_name = 'edc_map/home.html'
 
-    def update_sub_section(self, labels, sub_section_name, user, polygon):
-        map_divisions = MapDivision.objects.filter(label__in=labels)
-        for obj in map_divisions:
-            obj.sub_section_polygon = polygon
-            obj.sub_section_name = sub_section_name
-            obj.user = user
-            obj.save()
-
-    def get(self, request, *args, **kwargs):
-        super(HomeView, self).get(request, *args, **kwargs)
-        labels = request.GET.get('labels')
-        username = request.GET.get('user')
+    def create_inner_container(
+        self, labels, inner_container_name,
+            username, inner_container_boundry, container):
         try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            user = None
-        if labels:
-            labels = labels.split(',')
-        sub_section_name = request.GET.get('sub_section')
-        polygon = request.GET.get('polygon')
-        polygon_points = []
-        if polygon:
-            polygon = polygon.split('),(')
-            for poly in polygon:
-                poly = poly.split(',')
-                print(poly, '-------------------------------')
-                lat = poly[0].replace('(', '')
-                lon = poly[1].replace(')', '')
-                polygon_points.append([float(lat), float(lon)])
-        if sub_section_name and labels and polygon and user:
-            self.update_sub_section(labels, sub_section_name, user, polygon)
-        context = self.get_context_data(**kwargs)
-        context.update(
-            labels=labels,
-            sub_section_name=sub_section_name)
-        return self.render_to_response(context)
+            InnerContainer.objects.get(
+                inner_container_name=inner_container_name)
+        except InnerContainer.DoesNotExist:
+            InnerContainer.objects.create(
+                username=username,
+                inner_container_boundry=inner_container_boundry,
+                container=container,
+                inner_container_name=inner_container_name,
+                labels=labels)
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        context = self.get_context_data(**self.kwargs)
+        context['form'] = form
+        return super(HomeView, self).form_valid(form)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -57,8 +44,39 @@ class HomeView(EdcBaseViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        labels = self.request.GET.get('labels')
+        if labels:
+            labels = labels.split(',')
+        username = self.request.GET.get('username')
+        inner_container_name = self.request.GET.get('inner_container_name')
+        inner_container = self.request.GET.get('inner_container')
+        container_name = self.request.GET.get('container_name')
+        polygon_points = []
+        if inner_container:
+            inner_container = inner_container.split('|')  # Container comes as a string pipe delimited.
+            if inner_container:
+                del inner_container[-1]
+                for inner_container_point in inner_container:
+                    inner_container_point = inner_container_point.split(",")
+                    lat = float(inner_container_point[0])
+                    lon = float(inner_container_point[1])
+                    polygon_points.append([lat, lon])
+        if container_name:
+            try:
+                container = Container.objects.get(container_name=container_name)
+            except Container.DoesNotExist:
+                raise MapperError("Inner container can not exist without a container.")
+        if inner_container_name and labels and polygon_points and username:
+            self.create_inner_container(
+                labels,
+                inner_container_name,
+                username,
+                polygon_points,
+                container)
         context.update(
             map_area='test_community',
-            sections=SECTIONS,
-            sub_sections=SUB_SECTIONS)
+            labels=labels,
+            inner_container_name=inner_container_name,
+            container_names=SECTIONS,
+            inner_container_names=SUB_SECTIONS)
         return context

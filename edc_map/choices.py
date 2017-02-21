@@ -17,3 +17,8 @@ ICONS = (
     'http://thydzik.com/thydzikGoogleMap/markerlink.php?color=EF9D3F',
     'http://thydzik.com/thydzikGoogleMap/markerlink.php?color=E14E9D'
 )
+
+CONTANER_NAMES = (
+    ('A', 'A'), ('B', 'B'),
+    ('C', 'C'), ('D', 'D'),
+    ('E', 'E'))

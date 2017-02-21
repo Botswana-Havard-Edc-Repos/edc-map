@@ -17,10 +17,10 @@
     <script type="text/javascript">
     var map;
     var geocoder; 
-    var polygonArray = [];
+    var polygonArray = "";
     var pointArray = new Array();
     var itemsInPolygon = []
-    var point = new google.maps.LatLng(-24.655143, 25.924662);
+    var point = new google.maps.LatLng({{ center_lat }}, {{ center_lon }});
 
     //function called Initialize the map when loading the browser
     function initialize() {
@@ -35,7 +35,6 @@
 			pointArray.push([{{ lat }}, {{ lon }}, '{{ label }}']);
 		{% endfor %}
         var infowindow = new google.maps.InfoWindow();
-
         var marker, i;
         for (i = 0; i < pointArray.length; i++) {  
             marker = new google.maps.Marker({
@@ -54,10 +53,10 @@
         var polygonPoints=[]; 
       	
       	var color;
-        {% for sec, exisiting_polygon in exisiting_section_polygon.items %}
+        {% for sec, exisiting_container in exisiting_containers.items %}
       		var color = polygonColor("{{ sec }}");
         	var polygonPoints=[]; 
-        	{% for point in exisiting_polygon %}
+        	{% for point in exisiting_container %}
 	        	polygonPoints.push(new google.maps.LatLng({{point.0}}, {{point.1}}));
         	{% endfor %}
         	// Construct the polygon.
@@ -110,7 +109,9 @@
           drawingManager.setMap(map)
           google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
         	    $('#save_map_selection').removeAttr('disabled');
-        	    polygon.getPath().forEach(function(latLng){polygonArray.push(latLng.toString());})
+        	    polygon.getPath().forEach(function(latLng){
+        	    	polygonArray = polygonArray + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
+        	    	})
         	    /*
                  * Save polygon, call the 'polygon.containsLatLon' function then send identifiers within the polygon
                  *  to a 'save_map_selection' view in views.py
@@ -124,12 +125,11 @@
                 	    		itemsInPolygon.push('{{ label }}');
                   	     	}
             	        {% endfor %}
-            	    	//TODO save points in a polygon to a section
-            	    	{% if set_section %}
-            	    		window.location.replace("{% url 'edc-map:save_cluster_url' map_area %}?labels=" + itemsInPolygon + "&polygon=" + polygonArray + "&section_name=" + document.getElementById("section_name").value);
+            	    	{% if set_container %}
+            	    		window.location.replace("{% url 'edc-map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
             	    	{% endif %}
-            	    	{% if set_sub_section %}
-        	    			window.location.replace("{% url 'edc-map:home_url' %}?labels=" + itemsInPolygon + "&polygon=" + polygonArray + "&sub_section=" + document.getElementById("sub_section").value + "&user=" + document.getElementById("user").value);
+            	    	{% if set_inner_container %}
+        	    			window.location.replace("{% url 'edc-map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&username=" + document.getElementById("username").value);
         	    		{% endif %}
             	    {% endif %}
                 });
@@ -169,35 +169,35 @@
 	<div id="map"></div>
 	<table align="center">
 	   	<tr valign="middle">
-	   		{% if set_section %}
+	   		{% if set_container %}
 		   		<td>
-		   			<b>Select Section Name:</b>
-					<select id="section_name" name="section_name">
-					{% for section in sections %}
-					  <option value="{{ section }}">{{ section }}</option>
+		   			<b>Select Container Name:</b>
+					<select id="container_name" name="container_name">
+					{% for container_name in container_names %}
+					  <option value="{{ container_name }}">{{ container_name }}</option>
 					{% endfor %}
 					</select>
 		   		</td>
 		   	{% endif %}
-		   	{% if set_sub_section %}
+		   	{% if set_inner_container %}
 		   		<td>
-		   			<b>Select sub Section Name:</b>
-					<select id="sub_section" name="sub_section">
-					{% for sub_section in sub_sections %}
-					  <option value="{{ sub_section }}">{{ sub_section }}</option>
+		   			<b>Select Inner Container Name:</b>
+					<select id="inner_container_name" name="inner_container_name">
+					{% for inner_container_name in inner_container_names %}
+					  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
 					{% endfor %}
 					</select>
 		   		</td>
 		   		<td>
 		   			<b>Select user:</b>
-					<select id="user" name="user">
-					{% for user in ra_user %}
-					  <option value="{{ user }}">{{ user }}</option>
+					<select id="username" name="username">
+					{% for username in ra_user %}
+					  <option value="{{ username }}">{{ username }}</option>
 					{% endfor %}
 					</select>
 		   		</td>
 		   	{% endif %}
-		   	<td><button id="save_map_selection" disabled="disabled">Save cluster</button> </td>
+		   	<td><button id="save_map_selection" disabled="disabled">Save</button> </td>
 		</tr>
      </table>
   </body>
