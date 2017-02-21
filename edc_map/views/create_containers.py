@@ -9,6 +9,7 @@ from ..constants import SUB_SECTIONS, SECTIONS
 from ..forms import ContainerSelectionForm
 from ..models import Container
 from ..site_mappers import site_mappers
+from ..models import InnerContainer
 
 
 class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
@@ -21,14 +22,14 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def items(self, container_name=None):
+    def items(self, name=None):
         """Return  queryset of the item model.
         """
         value = self.kwargs.get(self.first_item_model_field, '')
         labels = []
-        if container_name:
+        if name:
             try:
-                container = Container.objects.get(container_name=container_name)
+                container = Container.objects.get(name=name)
                 labels = container.identifier_labels
             except Container.DoesNotExist:
                 pass
@@ -52,11 +53,11 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
     def form_valid(self, form):
         set_inner_container = self.request.GET.get('set_inner_container')
         if form.is_valid():
-            container_name = form.cleaned_data['container_name']
+            name = form.cleaned_data['container_name']
         context = self.get_context_data(**self.kwargs)
         context.update(
             form=form,
-            items=self.items(container_name),
+            items=self.items(name),
             set_inner_container=set_inner_container)
         return self.render_to_response(context)
 
@@ -66,11 +67,11 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
         set_container = self.request.GET.get('set_container')
         if labels:
             labels = labels.split(',')
-        container_name = self.request.GET.get('container_name')
-        container_boundry = self.request.GET.get('container')
+        name = self.request.GET.get('container_name')
+        boundry = self.request.GET.get('container')
         map_area = self.kwargs.get('map_area')
         polygon_points = []
-        container_boundry = container_boundry.split('|')  # Container comes as a string pipe delimited.
+        container_boundry = boundry.split('|')  # Container comes as a string pipe delimited.
         if container_boundry:
             del container_boundry[-1]
             for container_point in container_boundry:
@@ -78,22 +79,22 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
                 lat = float(container_point[0])
                 lon = float(container_point[1])
                 polygon_points.append([lat, lon])
-        if container_name and map_area and polygon_points:
-            self.create_container(container_name, map_area, labels, polygon_points)
+        if name and map_area and polygon_points:
+            self.create_container(name, map_area, labels, polygon_points)
         context.update(
             map_area='test_community',
             labels=labels,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            container_name=container_name,
+            container_name=name,
             set_container=set_container)
         return context
 
-    def create_container(self, container_name, map_area, labels, container_boundry):
+    def create_container(self, name, map_area, labels, boundry):
         if labels:
             try:
-                Container.objects.get(container_name=container_name)
+                Container.objects.get(name=name)
             except Container.DoesNotExist:
                 Container.objects.create(
-                    labels=labels, container_name=container_name,
-                    map_area=map_area, container_boundry=container_boundry)
+                    labels=labels, name=name,
+                    map_area=map_area, boundry=boundry)

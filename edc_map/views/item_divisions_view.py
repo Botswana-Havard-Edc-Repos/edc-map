@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -5,7 +6,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 
 from ..constants import SUB_SECTIONS, SECTIONS
 from ..forms import ContainerSelectionForm
-from ..models import Container
+from ..models import Container, InnerContainer
 from ..site_mappers import site_mappers
 
 
@@ -17,10 +18,10 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
     first_item_model_field = 'map_area'
     identifier_field_attr = 'plot_identifier'
 
-    def divided_item_labels(self, container_name):
+    def divided_item_labels(self, name):
         try:
             item_labels = Container.objects.get(
-                container_name=container_name).identifier_labels
+                name=name).identifier_labels
         except Container.DoesNotExist:
             item_labels = []
         return item_labels
@@ -31,50 +32,65 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         """
         containers = {}
         for container in Container.objects.all():
-            container_name = container.container_name
-            container = container.container_points
-            if not containers.get(container_name):
-                containers[container_name] = container
+            name = container.name
+            points = container.points
+            if not containers.get(name):
+                containers[name] = points
         return containers
 
     @property
     def ra_user(self):
-        return ['ckgathi', 'tuser']
+        usernames = []
+        for user in User.objects.filter(groups__name__in=['RA']):
+            usernames.append(user.username)
+        return usernames
 
     def form_valid(self, form):
         set_inner_container = self.request.GET.get('set_inner_container')
-        container_name = None
         if form.is_valid():
-            container_name = form.cleaned_data['container_name']
+            name = form.cleaned_data['container_name']
         context = self.get_context_data(**self.kwargs)
         context.update(
             form=form,
-            items=self.items(container_name),
-            container_name=container_name,
+            items=self.items(name),
+            container_name=name,
             set_inner_container=set_inner_container)
         return self.render_to_response(context)
 
-    def items(self, container_name=None):
+    def inner_container_labels(self, container_name):
+        labels = []
+        try:
+            inner_containers = InnerContainer.objects.filter(container__name=container_name)
+            for inner_container in inner_containers:
+                labels = labels + inner_container.identifier_labels
+        except InnerContainer.DoesNotExist:
+            pass
+        return labels
+
+    def items(self, name=None):
         """Return  queryset of the item model.
         """
         value = self.kwargs.get(self.first_item_model_field, '')
         labels = []
-        if container_name:
+        if name:
             try:
-                item_division = Container.objects.get(container_name=container_name)
-                labels = item_division.identifier_labels
+                container = Container.objects.get(name=name)
+                labels = container.identifier_labels
             except Container.DoesNotExist:
                 pass
         items = []
+        exclude_labels = self.inner_container_labels(name)
         map_area = self.kwargs.get('map_area', '')
         mapper = site_mappers.registry.get(map_area)
         if labels:
             qs_list = mapper.item_model.objects.filter(**{
                 self.first_item_model_field: value,
-                '{0}__in'.format(self.identifier_field_attr): labels})
+                '{0}__in'.format(self.identifier_field_attr): labels}).exclude(**{
+                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
         else:
             qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value})
+                self.first_item_model_field: value}).exclude(**{
+                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
         for obj in qs_list:
             items.append(
                 [float(obj.gps_target_lat),
@@ -85,6 +101,7 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
     def get_context_data(self, **kwargs):
         context = super(ItemDivisionsView, self).get_context_data(**kwargs)
         set_innner_container = self.request.GET.get('set_innner_container')
+        print(self.ra_user, '_______________________________________')
         set_container = self.request.GET.get('set_container')
         map_area = self.kwargs.get('map_area', '')
         mapper = site_mappers.registry.get(map_area)

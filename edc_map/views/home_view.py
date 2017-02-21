@@ -18,17 +18,17 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
     template_name = 'edc_map/home.html'
 
     def create_inner_container(
-        self, labels, inner_container_name,
-            username, inner_container_boundry, container):
+        self, labels, name,
+            username, boundry, container):
         try:
             InnerContainer.objects.get(
-                inner_container_name=inner_container_name)
+                name=name)
         except InnerContainer.DoesNotExist:
             InnerContainer.objects.create(
                 username=username,
-                inner_container_boundry=inner_container_boundry,
+                boundry=boundry,
                 container=container,
-                inner_container_name=inner_container_name,
+                name=name,
                 labels=labels)
 
     def form_valid(self, form):
@@ -50,7 +50,7 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
         username = self.request.GET.get('username')
         inner_container_name = self.request.GET.get('inner_container_name')
         inner_container = self.request.GET.get('inner_container')
-        container_name = self.request.GET.get('container_name')
+        name = self.request.GET.get('container_name')
         polygon_points = []
         if inner_container:
             inner_container = inner_container.split('|')  # Container comes as a string pipe delimited.
@@ -61,9 +61,9 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
                     lat = float(inner_container_point[0])
                     lon = float(inner_container_point[1])
                     polygon_points.append([lat, lon])
-        if container_name:
+        if name:
             try:
-                container = Container.objects.get(container_name=container_name)
+                container = Container.objects.get(name=name)
             except Container.DoesNotExist:
                 raise MapperError("Inner container can not exist without a container.")
         if inner_container_name and labels and polygon_points and username:

@@ -53,7 +53,7 @@ class Container(BaseUuidModel):
 
     labels = ListField(null=True)
 
-    container_name = models.CharField(
+    name = models.CharField(
         max_length=10,
         null=True)
 
@@ -61,12 +61,12 @@ class Container(BaseUuidModel):
         max_length=25,
         null=True)
 
-    container_boundry = ListField(null=True)
+    boundry = ListField(null=True)
 
     def __str__(self):
         return '{0} {1}'.format(
             self.map_area,
-            self.container_name,)
+            self.name,)
 
     @property
     def identifier_labels(self):
@@ -76,22 +76,22 @@ class Container(BaseUuidModel):
         return None
 
     @property
-    def container_points(self):
+    def points(self):
         """Returns a list of polygon points."""
-        if self.container_boundry:
-            return ast.literal_eval(self.container_boundry)
+        if self.boundry:
+            return ast.literal_eval(self.boundry)
         return None
 
     class Meta:
         app_label = 'edc_map'
-        unique_together = ("container_name", "map_area")
+        unique_together = ("name", "map_area")
 
 
 class InnerContainer(BaseUuidModel):
 
     labels = ListField(null=True)
 
-    container = models.ForeignKey(Container, null=True)
+    container = models.ForeignKey(Container)
 
     username = models.CharField(
         verbose_name='Username',
@@ -99,17 +99,17 @@ class InnerContainer(BaseUuidModel):
         unique=True,
         null=True,)
 
-    inner_container_name = models.CharField(
+    name = models.CharField(
         max_length=10,
         null=True)
 
-    inner_container_boundry = ListField(null=True)
+    boundry = ListField(null=True)
 
     def __str__(self):
         return '{0} {1} {2}'.format(
             self.username,
-            self.container.container_name,
-            self.inner_container_name)
+            self.container.name,
+            self.name)
 
     @property
     def identifier_labels(self):
@@ -119,12 +119,12 @@ class InnerContainer(BaseUuidModel):
         return None
 
     @property
-    def inner_container_points(self):
+    def points(self):
         """Returns a list of polygon points."""
-        if self.inner_container_boundry:
-            return ast.literal_eval(self.inner_container_boundry)
+        if self.boundry:
+            return ast.literal_eval(self.boundry)
         return None
 
     class Meta:
         app_label = 'edc_map'
-        unique_together = ("username", "inner_container_name")
+        unique_together = ("username", "name")

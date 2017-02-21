@@ -11,7 +11,7 @@ class ContainerAdmin(admin.ModelAdmin):
     form = ContainerForm
     list_per_page = 10
 
-    list_display = ('container_name', 'map_area', 'created', 'modified')
+    list_display = ('name', 'map_area', 'created', 'modified')
 
     list_filter = (
         'created',
@@ -28,12 +28,12 @@ class InnerContainerAdmin(admin.ModelAdmin):
     form = InnerContainerForm
     list_per_page = 10
 
-    list_display = ('username', 'inner_container_name', 'created', 'modified')
+    list_display = ('username', 'name', 'created', 'modified')
 
     list_filter = (
         'created',
         'modified',
-        'inner_container_name',
+        'name',
         'hostname_modified')
 
-    search_fields = ('username', 'inner_container_name', 'id')
+    search_fields = ('username', 'name', 'id')
