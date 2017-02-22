@@ -9,7 +9,6 @@ from ..constants import SUB_SECTIONS, SECTIONS
 from ..forms import ContainerSelectionForm
 from ..models import Container
 from ..site_mappers import site_mappers
-from ..models import InnerContainer
 
 
 class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
