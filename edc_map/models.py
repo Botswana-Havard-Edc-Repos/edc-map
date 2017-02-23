@@ -1,5 +1,7 @@
-from django.db import models
 import ast
+
+from django.db import models
+from django.db.models.deletion import PROTECT
 
 from edc_base.model.models import BaseUuidModel
 from edc_map.model_mixins import MapperDataModelMixin, LandmarkMixin
@@ -91,7 +93,7 @@ class InnerContainer(BaseUuidModel):
 
     labels = ListField(null=True)
 
-    container = models.ForeignKey(Container)
+    container = models.ForeignKey(Container, on_delete=PROTECT)
 
     username = models.CharField(
         verbose_name='Username',

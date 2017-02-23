@@ -11,11 +11,11 @@
 		    <div class="panel-heading">Item Division</div>
 		    <table class="table table-hover responsive">
 		      	<tr>
-		      		<td><a href="{% url 'edc-map:item_division_url' map_area %}?set_container=set_container">Create Containers</a></td>
+		      		<td><a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container">Create Containers</a></td>
 		      	</tr>
 		      	<tr>
 		      		<td>
-		      			<form id="set_inner_container" action="{% url 'edc-map:item_division_url' map_area %}?set_inner_container=set_inner_container" method="post">
+		      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container" method="post">
 						{% csrf_token %}
 						{% crispy form %}
 						</form>
@@ -49,7 +49,7 @@
         <div class="panel panel-default">
         <div class="panel-heading">Administration</div>
         <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'edc-map:edc_map_admin:index' %}">Mapping Admin</a></li>
+        <li><a href="{% url 'edc_map:edc_map_admin:index' %}">Mapping Admin</a></li>
         </ul>
         </div>
     </div>

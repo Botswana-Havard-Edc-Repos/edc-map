@@ -11,11 +11,11 @@
 		    <div class="panel-heading">Map Clustering</div>
 		    <table class="table table-hover responsive">
 		    	<td>
-		      		<a href="{% url 'edc-map:item_division_url' map_area %}?set_container=set_container">Create Containers</a>
+		      		<a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container">Create Containers</a>
 		      	</td>
 		      	<tr>
 		      		<td>
-		      			<form id="set_inner_container" action="{% url 'edc-map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
+		      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
 						{% csrf_token %}
 						{% crispy form %}
 						</form>
