@@ -30,7 +30,7 @@
 		    	Container {{container_name}}
 		    {% endif %}
 		    {% if inner_container_name %}
-		    	Inner Container {{ inner_container_name }}
+		    	Inner Container {{ inner_container_name }} total items: {{labels|length}}
 		    </div>
 		    <table class="table table-hover responsive">
 		    {% for label in labels %}
