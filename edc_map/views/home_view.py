@@ -77,6 +77,7 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
             map_area='test_community',
             labels=labels,
             inner_container_name=inner_container_name,
+            container_name=name,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS)
         return context

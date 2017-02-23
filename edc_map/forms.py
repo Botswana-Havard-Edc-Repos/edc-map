@@ -31,5 +31,5 @@ class ContainerSelectionForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'container_name',  # field1 will appear first in HTML
-            Submit('submit', u'Submit', css_class='btn btn-success'),
+            Submit('submit', u'Submit', css_class='btn-default'),
         )
