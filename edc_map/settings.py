@@ -150,4 +150,4 @@ STATIC_URL = '/static/'
 # edc-map
 GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
 GPS_DEVICE = '/Volumes/GARMIN/'
-GPX_TEMPLATE = os.path.join(BASE_DIR, 'gpx/template.gpx')
+GPX_TEMPLATE = os.path.join(STATIC_ROOT, 'edc_map/gpx/template.gpx')
