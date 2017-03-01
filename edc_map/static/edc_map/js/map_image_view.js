@@ -21,7 +21,10 @@ function mapImageViewReady(jsonData) {
             var imageId = 'id-image-map-' + zoomLevel;
             var buttonId = 'id-button-zoom-' + zoomLevel;
             // set the image src for each image 
-            makeImgTag( 'div-image-maps-container', imageId, imageFilename );
+            var imageFilenamelist = imageFilename.split('/');
+            var image1 = imageFilenamelist[imageFilenamelist.length - 1];
+            var imageFiletest = '/static/edc_map/'+ image1;
+            makeImgTag( 'div-image-maps-container', imageId, imageFiletest );
             // make and append Zoom buttons
             makeDefaultButtonTag( 'div-zoom-buttons-container', buttonId, 'Zoom ' + zoomLevel );
             // set click function for each Zoom button
