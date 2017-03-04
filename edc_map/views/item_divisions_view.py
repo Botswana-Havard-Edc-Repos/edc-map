@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -39,11 +39,9 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         return containers
 
     @property
-    def ra_user(self):
-        usernames = []
-        for user in User.objects.filter(groups__name__in=['RA']):
-            usernames.append(user.username)
-        return usernames
+    def devices_names(self):
+        app_config = django_apps.get_app_config('edc_device')
+        return app_config.client_hostname_list
 
     def form_valid(self, form):
         type_container = self.request.GET.get('set_inner_container')
@@ -87,7 +85,7 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         map_area = self.kwargs.get('map_area', '')
         mapper = site_mappers.registry.get(map_area)
         qs_list = []
-        if labels and container_type == 'set_container':
+        if container_type == 'set_container':
             qs_list = mapper.item_model.objects.filter(**{
                 self.first_item_model_field: value}).exclude(**{
                     '{0}__in'.format(self.identifier_field_attr): labels})
@@ -117,6 +115,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
             set_inner_container=set_inner_container,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            ra_user=self.ra_user,
+            devices_names=self.devices_names,
             exisiting_containers=self.exisiting_containers)
         return context

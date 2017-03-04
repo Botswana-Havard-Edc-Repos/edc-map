@@ -49,6 +49,13 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
                  getattr(obj, self.identifier_field_attr)])
         return items
 
+    @property
+    def labels(self):
+        labels = self.request.GET.get('labels', [])
+        if labels:
+            labels = labels.split(',')
+        return labels
+
     def form_valid(self, form):
         set_inner_container = self.request.GET.get('set_inner_container')
         if form.is_valid():
@@ -62,27 +69,28 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        labels = self.request.GET.get('labels', '')
         set_container = self.request.GET.get('set_container')
-        if labels:
-            labels = labels.split(',')
         name = self.request.GET.get('container_name')
         boundry = self.request.GET.get('container')
         map_area = self.kwargs.get('map_area')
         polygon_points = []
-        container_boundry = boundry.split('|')  # Container comes as a string pipe delimited.
-        if container_boundry:
-            del container_boundry[-1]
-            for container_point in container_boundry:
-                container_point = container_point.split(",")
-                lat = float(container_point[0])
-                lon = float(container_point[1])
-                polygon_points.append([lat, lon])
+        if boundry:
+            container_boundry = boundry.split('|')  # Container comes as a string pipe delimited.
+            if container_boundry:
+                del container_boundry[-1]
+                for container_point in container_boundry:
+                    container_point = container_point.split(",")
+                    lat = float(container_point[0])
+                    lon = float(container_point[1])
+                    polygon_points.append([lat, lon])
+        labels = self.request.GET.get('labels', [])
+        if labels:
+            labels = labels.split(',')
         if name and map_area and polygon_points:
             self.create_container(name, map_area, labels, polygon_points)
         context.update(
-            map_area='test_community',
-            labels=labels,
+            map_area=map_area,
+            labels=self.labels,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
             container_name=name,
