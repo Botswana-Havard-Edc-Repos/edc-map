@@ -3,7 +3,6 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from django.apps import apps as django_apps
 from django.core.management.color import color_style
 
 from edc_base.utils import get_utcnow
