@@ -24,46 +24,38 @@
     <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">
 		    <div class="panel-heading"><h4>Create Section</h4></div>
-		    <table class="table table-hover responsive">
-		      	<tr>
-		      		<td><a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container" role="button" class="btn btn-primary">Create Containers</a></td>
-		      	</tr>
-		 	 </table>
+			    <div class="panel-body">
+				     <a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container" role="button" class="btn btn-primary">Create Containers</a>
+			 	 </div>
         </div>
      </div>
      <div id="div-home-right" class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-warning">
         <div class="panel-heading">Administration</div>
-        <ul class="nav nav-pills nav-stacked">
-        <li><a href="#">Mapping</a></li>
-        </ul>
+	        <div class="panel-body">
+		        <ul class="nav nav-pills nav-stacked">
+		        <li><a role="button" class="btn btn-sm btn-default btn-block" href="{% url 'edc_map:edc_map_admin:index' %}">Map Admin</a></li>
+		        </ul>
+	        </div>
         </div>
     </div>
      <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">
 		    <div class="panel-heading"><h4>Create Sub-Section</h4></div>
-		    <table class="table table-hover responsive">
-		      	<tr>
-		      		<td>
-		      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
-						{% csrf_token %}
-						{% crispy form %}
-						</form>
-		      		</td>
-		      	</tr>
-		 	 </table>
+		    <div class="panel-body">
+      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
+					{% csrf_token %}
+					{% crispy form %}
+				</form>
+			</div>
         </div>
     </div>
     <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">
 		    <div class="panel-heading"><h4>Push items to GPS Device</h4></div>
-		    <table class="table table-hover responsive">
-		      	<tr>
-		      		<td>
-		      		<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
-		      		</td>
-		      	</tr>
-		 	 </table>
+		    <div class="panel-body">
+		      	<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
+			</div>
         </div>
     </div>
     {% if labels %}
