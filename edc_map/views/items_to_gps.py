@@ -1,4 +1,5 @@
 import os
+import socket
 
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -28,9 +29,10 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         plot_identifier_list = []
         items = None
         mapper = site_mappers.registry.get(map_area)
+        device_name = socket.gethostname()
         try:
             plot_identifier_list = InnerContainer.objects.get(
-                username=self.request.user.username).identifier_labels
+                device_name=device_name).identifier_labels
         except InnerContainer.DoesNotExist:
             plot_identifier_list = []
         if plot_identifier_list:
@@ -46,7 +48,6 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         gps_device = django_apps.get_app_config(self.app_label).gps_device
         gps_file_name = django_apps.get_app_config(self.app_label).gps_file_name
         gpx_template = django_apps.get_app_config(self.app_label).gpx_template
-        print(items, 'The items, _+_+_+_+_+_+_+_+_++_')
         if items:
             if os.path.exists(gps_device):
                 if os.path.exists(gps_file_name):

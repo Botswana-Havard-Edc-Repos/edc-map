@@ -182,7 +182,7 @@ class MapperModelMixin(models.Model):
                 'Invalid confirmation GPS point. Got {}'.format(str(e)))
         mapper.raise_if_not_in_radius(
             self.confirmed_point, self.target_point, self.target_radius,
-            units='m', label='target location')
+            units='km', label='target location')
         self.distance_from_target = mapper.distance_between_points(
             self.confirmed_point, self.target_point, units='m')
         return True

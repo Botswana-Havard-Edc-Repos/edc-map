@@ -129,7 +129,7 @@
             	    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
             	    	{% endif %}
             	    	{% if set_inner_container %}
-        	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&username=" + document.getElementById("username").value);
+        	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_name=" + document.getElementById("device_name").value);
         	    		{% endif %}
             	    {% endif %}
                 });
@@ -190,9 +190,9 @@
 		   		</td>
 		   		<td>
 		   			<b>Select user:</b>
-					<select id="username" name="username">
-					{% for username in ra_user %}
-					  <option value="{{ username }}">{{ username }}</option>
+					<select id="device_name" name="device_name">
+					{% for device_name in devices_names %}
+					  <option value="{{ device_name }}">{{ device_name }}</option>
 					{% endfor %}
 					</select>
 		   		</td>

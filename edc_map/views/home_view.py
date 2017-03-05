@@ -18,14 +18,13 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
     template_name = 'edc_map/home.html'
 
     def create_inner_container(
-        self, labels, name,
-            username, boundry, container):
+            self, labels, name, device_name, boundry, container):
         try:
             InnerContainer.objects.get(
                 name=name)
         except InnerContainer.DoesNotExist:
             InnerContainer.objects.create(
-                username=username,
+                device_name=device_name,
                 boundry=boundry,
                 container=container,
                 name=name,
@@ -42,16 +41,24 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        labels = self.request.GET.get('labels')
+    @property
+    def labels(self):
+        """Returns a patients queryset after pagination."""
+        labels = self.request.GET.get('labels', [])
         if labels:
             labels = labels.split(',')
-        username = self.request.GET.get('username')
+        return labels
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        device_name = self.request.GET.get('device_name')
         inner_container_name = self.request.GET.get('inner_container_name')
         inner_container = self.request.GET.get('inner_container')
         name = self.request.GET.get('container_name')
         polygon_points = []
+        labels = self.request.GET.get('labels', [])
+        if labels:
+            labels = labels.split(',')
         if inner_container:
             inner_container = inner_container.split('|')  # Container comes as a string pipe delimited.
             if inner_container:
@@ -66,17 +73,18 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
                 container = Container.objects.get(name=name)
             except Container.DoesNotExist:
                 raise MapperError("Inner container can not exist without a container.")
-        if inner_container_name and labels and polygon_points and username:
+        if inner_container_name and labels and polygon_points and device_name:
             self.create_inner_container(
                 labels,
                 inner_container_name,
-                username,
+                device_name,
                 polygon_points,
                 container)
         context.update(
             map_area='test_community',
-            labels=labels,
+            labels=self.labels,
             inner_container_name=inner_container_name,
+            container_name=name,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS)
         return context

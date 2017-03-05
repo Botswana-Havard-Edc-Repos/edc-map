@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -39,22 +39,20 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         return containers
 
     @property
-    def ra_user(self):
-        usernames = []
-        for user in User.objects.filter(groups__name__in=['RA']):
-            usernames.append(user.username)
-        return usernames
+    def devices_names(self):
+        app_config = django_apps.get_app_config('edc_device')
+        return app_config.client_hostname_list
 
     def form_valid(self, form):
-        set_inner_container = self.request.GET.get('set_inner_container')
+        type_container = self.request.GET.get('set_inner_container')
         if form.is_valid():
             name = form.cleaned_data['container_name']
         context = self.get_context_data(**self.kwargs)
         context.update(
             form=form,
-            items=self.items(name),
+            items=self.items(name, type_container),
             container_name=name,
-            set_inner_container=set_inner_container)
+            set_inner_container=type_container)
         return self.render_to_response(context)
 
     def inner_container_labels(self, container_name):
@@ -67,29 +65,34 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
             pass
         return labels
 
-    def items(self, name=None):
+    def items(self, name=None, container_type=None):
         """Return  queryset of the item model.
         """
         value = self.kwargs.get(self.first_item_model_field, '')
         labels = []
-        if name:
-            try:
-                container = Container.objects.get(name=name)
-                labels = container.identifier_labels
-            except Container.DoesNotExist:
-                pass
+        containers = Container.objects.all().exclude(name=name)
+        for container in containers:
+            labels += container.identifier_labels
+        container = None
+        current_container_labels = []
+        try:
+            container = Container.objects.get(name=name)
+            current_container_labels = container.identifier_labels
+        except Container.DoesNotExist:
+            pass
         items = []
         exclude_labels = self.inner_container_labels(name)
         map_area = self.kwargs.get('map_area', '')
         mapper = site_mappers.registry.get(map_area)
-        if labels:
-            qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value,
-                '{0}__in'.format(self.identifier_field_attr): labels}).exclude(**{
-                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
-        else:
+        qs_list = []
+        if container_type == 'set_container':
             qs_list = mapper.item_model.objects.filter(**{
                 self.first_item_model_field: value}).exclude(**{
+                    '{0}__in'.format(self.identifier_field_attr): labels})
+        elif container_type == 'set_inner_container' and container:
+            qs_list = mapper.item_model.objects.filter(**{
+                self.first_item_model_field: value,
+                '{0}__in'.format(self.identifier_field_attr): current_container_labels}).exclude(**{
                     '{0}__in'.format(self.identifier_field_attr): exclude_labels})
         for obj in qs_list:
             items.append(
@@ -100,19 +103,18 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ItemDivisionsView, self).get_context_data(**kwargs)
-        set_innner_container = self.request.GET.get('set_innner_container')
-        print(self.ra_user, '_______________________________________')
+        set_inner_container = self.request.GET.get('set_inner_container')
         set_container = self.request.GET.get('set_container')
         map_area = self.kwargs.get('map_area', '')
         mapper = site_mappers.registry.get(map_area)
         context.update(
-            items=self.items(),
+            items=self.items(container_type=set_container),
             set_container=set_container,
             center_lat=mapper.center_lat,
             center_lon=mapper.center_lon,
-            set_innner_container=set_innner_container,
+            set_inner_container=set_inner_container,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            ra_user=self.ra_user,
+            devices_names=self.devices_names,
             exisiting_containers=self.exisiting_containers)
         return context

@@ -95,8 +95,8 @@ class InnerContainer(BaseUuidModel):
 
     container = models.ForeignKey(Container, on_delete=PROTECT)
 
-    username = models.CharField(
-        verbose_name='Username',
+    device_name = models.CharField(
+        verbose_name='Device name',
         max_length=25,
         unique=True,
         null=True,)
@@ -109,7 +109,7 @@ class InnerContainer(BaseUuidModel):
 
     def __str__(self):
         return '{0} {1} {2}'.format(
-            self.username,
+            self.device_name,
             self.container.name,
             self.name)
 
@@ -129,4 +129,4 @@ class InnerContainer(BaseUuidModel):
 
     class Meta:
         app_label = 'edc_map'
-        unique_together = ("username", "name")
+        unique_together = ("device_name", "name")
