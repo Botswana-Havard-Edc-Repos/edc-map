@@ -46,6 +46,7 @@ before_script:
   - flake8 edc_map
   - mysql -e 'create database edc;'
   - mysql -e 'create database edc_lab;'
+  - mkdir media
 
 script: 
   - coverage run --source=edc_map manage.py test

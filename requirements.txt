@@ -1,4 +1,12 @@
-edc-device==0.1.3
+Django
+django_extensions==1.6.1
+factory-boy==2.6.0
+fake-factory==0.5.3
 geopy==1.11.0
-python-dateutil==2.4.2
-Unipath==1.1
+python-dateutil
+Unipath
+GitPython
+pycrypto
+git+https://github.com/erikvw/django-crypto-fields@develop#egg=django_crypto_fields
+git+https://github.com/erikvw/django-revision@develop#egg=django_revision
+git+https://github.com/erikvw/edc-base@develop#egg=edc_base

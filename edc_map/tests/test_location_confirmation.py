@@ -28,7 +28,7 @@ class TestLocationConfirmation(TestCase):
 
     def setUp(self):
         self.mapper = TestItemMapper()
-        self.item = TestModel.objects.create(gps_target_lat=24.124, gps_target_lon=22.343, area_name=self.mapper.map_area, distance_from_target=25.12)
+        self.item = TestModel.objects.create(gps_target_lat=-24.656620, gps_target_lon=25.923488, area_name=self.mapper.map_area, distance_from_target=25.12)
 
     def test_unconfirm_item(self):
         """Test if a plot has no confirmation coordinates, its action is unconfirmed."""
@@ -38,37 +38,37 @@ class TestLocationConfirmation(TestCase):
     def test_confirm_item(self):
         """Test if an item with confirmation coordinates, its action becomes confirmed."""
 
-        self.item.gps_confirm_latitude = 24.124
-        self.item.gps_confirm_longitude = 22.343
+        self.item.gps_confirmed_latitude = -24.656620
+        self.item.gps_confirmed_longitude = 25.923488
         self.item.save()
         self.assertEqual(self.item.action, CONFIRMED)
 
-    def test_location_in_map_area(self):
+    def test_point_in_map_area(self):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {
-            'gps_confirm_latitude': -24.666,
-            'gps_confirm_longitude': 23.343,
+            'gps_confirmed_latitude': -24.664542,
+            'gps_confirmed_longitude': 25.783037,
             'area_name': self.mapper.map_area,
-            'gps_target_lat': 24.124,
-            'gps_target_lon': 22.343}
+            'gps_target_lat': -24.656620,
+            'gps_target_lon': 25.923488}
         with self.assertRaises(MapperError) as context:
             TestModelFactory(**data)
         self.assertIn(
-            'The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.51597m',
+            'The location (GPS -24.664542 25.783037) does not fall within area of \'test_area\'.Got 14244.29755501753m',
             str(context.exception))
 
-    def test_location_in_target(self):
+    def test_point_in_radius(self):
         """Test if an item is outside a map area raises a mapper error."""
 
         data = {
-            'gps_confirm_latitude': -24.666,
-            'gps_confirm_longitude': 23.343,
+            'gps_confirmed_latitude': -24.656630,
+            'gps_confirmed_longitude': 25.921718,
             'area_name': self.mapper.map_area,
-            'gps_target_lat': 24.124,
-            'gps_target_lon': 22.343}
+            'gps_target_lat': -24.656620,
+            'gps_target_lon': 25.923488}
         with self.assertRaises(MapperError) as context:
             TestModelFactory(**data)
         self.assertIn(
-            'The location (GPS -24.666 23.343) does not fall within area of \'test_area\'.Got 5399157.51597m',
+            'GPS -24.65663 25.921718 is more than 25.0 meters from the target location -24.65662/25.923488. Got 179.17846793158006m.',
             str(context.exception))

@@ -14,8 +14,8 @@ class TestItemMapperDup(Mapper):
     regions = []
     sections = []
     landmarks = []
-    gps_center_lat = -25.011111
-    gps_center_lon = 25.741111
+    center_lat = -25.011111
+    center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
     target_gps_lon_field_attr = 'gps_target_lon'
@@ -29,8 +29,8 @@ class TestItemMapper1(Mapper):
     regions = []
     sections = []
     landmarks = []
-    gps_center_lat = -25.011111
-    gps_center_lon = 25.741111
+    center_lat = -25.011111
+    center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
 
@@ -43,8 +43,8 @@ class TestItemMapper2(Mapper):
     regions = []
     sections = []
     landmarks = []
-    gps_center_lat = -25.011111
-    gps_center_lon = 25.741111
+    center_lat = -25.011111
+    center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
 
@@ -57,8 +57,8 @@ class TestItemMapper3(Mapper):
     regions = []
     sections = []
     landmarks = []
-    gps_center_lat = -25.011111
-    gps_center_lon = 25.741111
+    center_lat = -25.011111
+    center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
 

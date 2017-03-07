@@ -11,7 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='edc-map',
-    version='0.1.0',
+    version='0.2.1',
     author=u'Botswana-Harvard AIDS Institute',
     author_email='ckgathi@bhp.org.bw, ew2789@gmail.com',
     packages=find_packages(),
@@ -22,6 +22,10 @@ setup(
     long_description=README,
     zip_safe=False,
     keywords='django edc gps survey',
+    install_requires=[
+        'geopy==1.11.0',
+        'aiohttp',
+    ],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',

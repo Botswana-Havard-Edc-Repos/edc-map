@@ -1,0 +1,204 @@
+{% extends 'edc_base/base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+  <head>
+  	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<meta http-equiv="content" content="text/html; charset=UTF-8" />
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyDtDT8oMKum1AObKpgTTWox4wSgc4O_QU8&libraries=geometry,drawing"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <style type="text/css">
+      html, body, #map { height: 550px; width: 800px; margin: 50px; padding: 0px}
+    </style>
+    {% block extra-scripts %}
+	{{ block.super }}
+	<script type="text/javascript" charset="utf8" src="{% static 'edc_map/js/clusturing_map.js' %}"></script>
+	{% endblock extra-scripts %}
+    <script type="text/javascript">
+    var map;
+    var geocoder; 
+    var polygonArray = "";
+    var pointArray = new Array();
+    var itemsInPolygon = []
+    var point = new google.maps.LatLng({{ center_lat }}, {{ center_lon }});
+
+    //function called Initialize the map when loading the browser
+    function initialize() {
+        //create map object
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: point,
+            mapTypeId: google.maps.MapTypeId.SATELLITE
+        });
+        
+        {% for lat, lon, label in items %}
+			pointArray.push([{{ lat }}, {{ lon }}, '{{ label }}']);
+		{% endfor %}
+        var infowindow = new google.maps.InfoWindow();
+        var marker, i;
+        for (i = 0; i < pointArray.length; i++) {  
+            marker = new google.maps.Marker({
+              position: new google.maps.LatLng(pointArray[i][0], pointArray[i][1]),
+              map: map
+            });
+
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+              return function() {
+                infowindow.setContent(pointArray[i][2]);
+                infowindow.open(map, marker);
+              }
+            })(marker, i));
+        }
+      //Polygon points
+        var polygonPoints=[]; 
+      	
+      	var color;
+        {% for sec, exisiting_container in exisiting_containers.items %}
+      		var color = polygonColor("{{ sec }}");
+        	var polygonPoints=[]; 
+        	{% for point in exisiting_container %}
+	        	polygonPoints.push(new google.maps.LatLng({{point.0}}, {{point.1}}));
+        	{% endfor %}
+        	// Construct the polygon.
+            var bermudaTriangle = new google.maps.Polygon({
+              paths: polygonPoints,
+              strokeColor: '#FF0000',
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: color,
+              fillOpacity: 0.35
+            });
+            bermudaTriangle.setMap(map);
+        {% endfor %}
+        
+        var drawingManager = new google.maps.drawing.DrawingManager({
+            drawingMode: google.maps.drawing.OverlayType.POLYGON,
+            drawingControl: true,
+            drawingControlOptions: {
+              position: google.maps.ControlPosition.TOP_CENTER,
+              drawingModes: [
+                google.maps.drawing.OverlayType.MARKER,
+                google.maps.drawing.OverlayType.CIRCLE,
+                google.maps.drawing.OverlayType.POLYGON,
+                google.maps.drawing.OverlayType.POLYLINE,
+                google.maps.drawing.OverlayType.RECTANGLE
+              ]
+            },
+            markerOptions: {
+              icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+            },
+            circleOptions: {
+              fillColor: '#ffff00',
+              fillOpacity: 1,
+              strokeWeight: 5,
+              clickable: false,
+              editable: true,
+              zIndex: 1
+            },
+            polygonOptions: {
+              fillColor: '#BCDCF9',
+              fillOpacity: 0.5,
+              strokeWeight: 2,
+              strokeColor: '#57ACF9',
+              clickable: false,
+              editable: false,
+              zIndex: 1
+            }
+          });
+          console.log(drawingManager)
+          drawingManager.setMap(map)
+          google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+        	    $('#save_map_selection').removeAttr('disabled');
+        	    polygon.getPath().forEach(function(latLng){
+        	    	polygonArray = polygonArray + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
+        	    	})
+        	    /*
+                 * Save polygon, call the 'polygon.containsLatLon' function then send identifiers within the polygon
+                 *  to a 'save_map_selection' view in views.py
+                 */
+                $('#save_map_selection').click(function() {
+                    {% if items %}
+            	        //check in the payload to see which points are withing a polygon then push their identifiers into an array
+            	        {% for lat, lon, label in items %}
+            	            var point = new google.maps.LatLng({{ lat }}, {{ lon }});
+            	          	if (google.maps.geometry.poly.containsLocation(point, polygon)){
+                	    		itemsInPolygon.push('{{ label }}');
+                  	     	}
+            	        {% endfor %}
+            	    	{% if set_container %}
+            	    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
+            	    	{% endif %}
+            	    	{% if set_inner_container %}
+        	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_name=" + document.getElementById("device_name").value);
+        	    		{% endif %}
+            	    {% endif %}
+                });
+        	  });
+          
+    } //initialze
+    google.maps.event.addDomListener(window, "load", initialize);
+   
+    function polygonColor(section) {
+        if( section == "A" ){
+        	var color = "#8A2BE2";
+        }
+        else if( section == "B" ){
+        	var color = "#FFD700";
+        }
+     
+        else if( section == "C" ){
+        	var color = "#FA8072";
+        }
+     
+        else if( section == "D" ){
+        	var color = "#DDA0DD";
+         }
+        
+        else if( section == "E" ){
+        	var color = "#7B68EE";
+        }
+        else {
+        	var color = "#FF0000";
+        }
+    	return color;
+    }
+    </script>
+  </head>
+  {{ block.super }}
+  <body onload="initialize()">
+	<div id="map"></div>
+	<table align="center">
+	   	<tr valign="middle">
+	   		{% if set_container %}
+		   		<td>
+		   			<b>Select Container Name:</b>
+					<select id="container_name" name="container_name">
+					{% for container_name in container_names %}
+					  <option value="{{ container_name }}">{{ container_name }}</option>
+					{% endfor %}
+					</select>
+		   		</td>
+		   	{% endif %}
+		   	{% if set_inner_container %}
+		   		<td>
+		   			<b>Select Inner Container Name:</b>
+					<select id="inner_container_name" name="inner_container_name">
+					{% for inner_container_name in inner_container_names %}
+					  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
+					{% endfor %}
+					</select>
+		   		</td>
+		   		<td>
+		   			<b>Select user:</b>
+					<select id="device_name" name="device_name">
+					{% for device_name in devices_names %}
+					  <option value="{{ device_name }}">{{ device_name }}</option>
+					{% endfor %}
+					</select>
+		   		</td>
+		   	{% endif %}
+		   	<td><button id="save_map_selection" disabled="disabled">Save</button> </td>
+		</tr>
+     </table>
+  </body>
+{% endblock main %}

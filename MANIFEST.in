@@ -1,0 +1,6 @@
+include AUTHORS CHANGES README.md LICENCE
+recursive-include docs *
+recursive-include edc_map/templates *
+recursive-include edc_map/static *
+recursive-exclude edc_example/*
+recursive-exclude etc/*

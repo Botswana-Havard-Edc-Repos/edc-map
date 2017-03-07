@@ -1,0 +1,24 @@
+{% extends 'edc_base/base.html' %}
+
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="container">
+
+    <div id="div-home-right" class="col-md-8">
+         <div class="panel panel-default">
+		    <div class="panel-heading">Mapper Items To GPS</div>
+		    	{{message}}
+		    <table class="table table-hover responsive">
+		      	<tr>
+		      		{% for label in labels %}
+		      			<td>{{ label }}</td>
+		      		{% endfor %}
+		      	</tr>
+		 	 </table>
+        </div>
+    </div>
+
+</div>
+{% endblock main %}
