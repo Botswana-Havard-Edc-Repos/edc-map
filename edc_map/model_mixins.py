@@ -142,7 +142,8 @@ class MapperModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def common_clean(self):
-        """Attempt to trigger MapperError exception if gps is not valid."""
+        """Attempt to trigger MapperError exception if gps is not valid.
+        """
         site_mappers.get_mapper(self.map_area)
         self.is_valid_target_or_raise()
         if self.gps_confirmed_longitude and self.gps_confirmed_latitude:
@@ -151,7 +152,8 @@ class MapperModelMixin(models.Model):
 
     @property
     def point(self):
-        """Alias for confirmed_point."""
+        """Alias for confirmed_point.
+        """
         return self.confirmed_point
 
     def is_valid_target_or_raise(self):
@@ -164,16 +166,20 @@ class MapperModelMixin(models.Model):
 
     @property
     def confirmed_point(self):
-        """Returns a geopy point of the confirmed gps."""
+        """Returns a geopy point of the confirmed gps.
+        """
         return Point(self.gps_confirmed_latitude, self.gps_confirmed_longitude)
 
     @property
     def target_point(self):
-        """Returns a geopy point of the target gps."""
+        """Returns a geopy point of the target gps.
+        """
         return Point(self.gps_target_lat, self.gps_target_lon)
 
     def get_confirmed(self):
-        """Returns True if plot is considered "confirmed" or raises an exception."""
+        """Returns True if plot is considered "confirmed" or raises
+        an exception.
+        """
         mapper = site_mappers.get_mapper(self.map_area)
         try:
             mapper.raise_if_not_in_map_area(self.confirmed_point)
@@ -192,9 +198,12 @@ class MapperModelMixin(models.Model):
 
 
 class CustomRadiusMixin(models.Model):
-    """A model completed by the user to allow a plot\'s GPS target radius to be changed.
+    """A model completed by the user to allow a plot\'s GPS
+    target radius to be changed.
 
-    An instance is auto created once the criteria is met. See method plot.increase_plot_radius."""
+    An instance is auto created once the criteria is met.
+    See method plot.increase_plot_radius.
+    """
     identifier = models.CharField(max_length=50, unique=True)
 
     radius = models.FloatField(
