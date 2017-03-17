@@ -36,9 +36,6 @@ class Command(BaseCommand):
                 if not os.path.exists(s.image_filename(zoom_level, include_path=True)):
                     download_items.append(
                         (s.image_url(zoom_level), s.image_filename(zoom_level, include_path=True)))
-                    print('---------------------------------------------------------------------')
-                    print(s.image_url(zoom_level))
-                    print('=======================================================================')
         if len(download_items) > 0:
             self.stdout.write(
                 self.style.NOTICE('  * fetching {} download items.'.format(len(download_items))))

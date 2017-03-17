@@ -23,7 +23,7 @@ function mapImageViewReady(jsonData) {
             // set the image src for each image 
             var imageFilenamelist = imageFilename.split('/');
             var image1 = imageFilenamelist[imageFilenamelist.length - 1];
-            var imageFiletest = '/static/edc_map/'+ image1;
+            var imageFiletest = '/media/edc_map/'+ image1;
             makeImgTag( 'div-image-maps-container', imageId, imageFiletest );
             // make and append Zoom buttons
             makeDefaultButtonTag( 'div-zoom-buttons-container', buttonId, 'Zoom ' + zoomLevel );
