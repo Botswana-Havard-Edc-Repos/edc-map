@@ -29,10 +29,10 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         plot_identifier_list = []
         items = None
         mapper = site_mappers.registry.get(map_area)
-        device_name = socket.gethostname()
+        device_id = socket.gethostname()[-2:]
         try:
             plot_identifier_list = InnerContainer.objects.get(
-                device_name=device_name).identifier_labels
+                device_id=device_id).identifier_labels
         except InnerContainer.DoesNotExist:
             plot_identifier_list = []
         if plot_identifier_list:

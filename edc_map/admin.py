@@ -28,7 +28,7 @@ class InnerContainerAdmin(admin.ModelAdmin):
     form = InnerContainerForm
     list_per_page = 10
 
-    list_display = ('device_name', 'name', 'created', 'modified')
+    list_display = ('device_id', 'name', 'created', 'modified')
 
     list_filter = (
         'created',
@@ -36,4 +36,4 @@ class InnerContainerAdmin(admin.ModelAdmin):
         'name',
         'hostname_modified')
 
-    search_fields = ('device_name', 'name', 'id')
+    search_fields = ('device_id', 'name', 'id')

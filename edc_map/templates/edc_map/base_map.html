@@ -49,6 +49,9 @@
               }
             })(marker, i));
         }
+        
+        
+        
       //Polygon points
         var polygonPoints=[]; 
       	
@@ -66,74 +69,355 @@
               strokeOpacity: 0.8,
               strokeWeight: 2,
               fillColor: color,
-              fillOpacity: 0.35
+              fillOpacity: 0.35,
+              clickable: false,
+              editable: false,
+              zIndex: 1
             });
             bermudaTriangle.setMap(map);
         {% endfor %}
         
-        var drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-              position: google.maps.ControlPosition.TOP_CENTER,
-              drawingModes: [
-                google.maps.drawing.OverlayType.MARKER,
-                google.maps.drawing.OverlayType.CIRCLE,
-                google.maps.drawing.OverlayType.POLYGON,
-                google.maps.drawing.OverlayType.POLYLINE,
-                google.maps.drawing.OverlayType.RECTANGLE
-              ]
-            },
-            markerOptions: {
-              icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
-            },
-            circleOptions: {
-              fillColor: '#ffff00',
-              fillOpacity: 1,
-              strokeWeight: 5,
-              clickable: false,
-              editable: true,
-              zIndex: 1
-            },
-            polygonOptions: {
-              fillColor: '#BCDCF9',
-              fillOpacity: 0.5,
-              strokeWeight: 2,
-              strokeColor: '#57ACF9',
-              clickable: false,
-              editable: false,
-              zIndex: 1
+        
+        /*Create polygon by clicking on the map or drawing by hand on the map
+        *
+        */
+       //Initialise a line with its properties
+       var line = new google.maps.Polyline({
+                    strokeColor: '#0000FF',
+                    strokeOpacity: 0.5,
+                    strokeWeight: 5,
+                    });
+                    line.setMap(map);
+
+        //create a polygon object
+        var polygon = new google.maps.Polygon({
+            strokeColor: '#0000FF',
+            strokeOpacity: 0.5,
+            strokeWeight: 5,
+            fillColor: '#FF0000',
+            fillOpacity: 0.2,
+            clickable: false,
+            editable: false,
+            zIndex: 1
+        });
+            polygon.setMap(map);
+
+        var handlers = [],
+            markers = [];
+
+        var bind_handler = function(target, event, handler) {
+            var id = google.maps.event.addListener(target, event, handler);
+            handlers.push(id);
+            return id;
+        }
+
+        var unbind_all = function() {
+            while (handlers.length > 0) {
+                google.maps.event.removeListener(handlers.pop());
             }
-          });
-          console.log(drawingManager)
-          drawingManager.setMap(map)
-          google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
-        	    $('#save_map_selection').removeAttr('disabled');
-        	    polygon.getPath().forEach(function(latLng){
-        	    	polygonArray = polygonArray + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
-        	    	})
-        	    /*
-                 * Save polygon, call the 'polygon.containsLatLon' function then send identifiers within the polygon
-                 *  to a 'save_map_selection' view in views.py
-                 */
-                $('#save_map_selection').click(function() {
-                    {% if items %}
-            	        //check in the payload to see which points are withing a polygon then push their identifiers into an array
-            	        {% for lat, lon, label in items %}
-            	            var point = new google.maps.LatLng({{ lat }}, {{ lon }});
-            	          	if (google.maps.geometry.poly.containsLocation(point, polygon)){
-                	    		itemsInPolygon.push('{{ label }}');
-                  	     	}
-            	        {% endfor %}
-            	    	{% if set_container %}
-            	    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
-            	    	{% endif %}
-            	    	{% if set_inner_container %}
-        	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_name=" + document.getElementById("device_name").value);
-        	    		{% endif %}
-            	    {% endif %}
+        }
+        
+        //Clear the polygon on the map
+        var clear = function() {
+
+            $('#save_map_selection').attr('disabled', true);
+
+            unbind_all();
+
+            var path = line.getPath();
+            while (path.length > 0) {
+                path.pop();
+            }
+            var poly_path = polygon.getPath();
+            while (poly_path.length > 0) {
+                poly_path.pop();
+            }
+            while (markers.length > 0) {
+                marker = markers.pop();
+                marker.setMap(null);
+                marker = null;
+            }
+
+        };
+
+        //add a marker to the polygon line
+        var load = function() {
+
+            var path = polygon.getPath()
+            for (i in mapdata) {
+                coords = mapdata[i];
+                point = new google.maps.LatLng(coords.lat, coords.lng);
+                path.push(point);
+                marker = new google.maps.Marker({
+                    position: point,
+                    draggable: true,
+                    map: map
                 });
-        	  });
+                markers.push(marker);
+            }
+
+        };
+
+        //draw a polygon function
+        var draw_mode = function() {
+
+            var path = line.getPath(),
+                firstmarker = null,
+                newpoint = null;
+
+            //have a marker (and the path) follow the mouse
+            bind_handler(map, 'mousemove', function(event) {
+                if (newpoint) path.pop();
+                newpoint = event.latLng;
+                path.push(newpoint);
+            });
+
+            //right click to add a point. add this handler to the line as well
+            var add_point = function(event) {
+                if (newpoint) path.pop();
+                path.push(event.latLng);
+                newpoint = null;
+
+                var marker = new google.maps.Marker({
+                    position: event.latLng,
+                    map: map
+                });
+                markers.push(marker);
+
+                if (!firstmarker) {
+                    firstmarker = marker;
+        
+                    //right click on the first marker to close the loop
+                    bind_handler(firstmarker, 'rightclick', function(event) {
+                        if (newpoint) path.pop();
+                        if (path.length < 3) return;
+            
+                        var poly_path = polygon.getPath(),
+                            markers_r = [];
+            
+                        while (path.length > 0) {
+                            poly_path.push(path.pop());
+                            markers_r.push(markers.pop());
+                        }
+                        markers = markers_r;
+            
+                        edit_mode();
+                    });
+        
+                    //snap the line to the first marker if you hover over it
+                    bind_handler(firstmarker, 'mouseover', function(event) {
+                        if (newpoint) path.pop();
+                        if (path.length < 3) return;
+            
+                        newpoint = firstmarker.getPosition();
+                        path.push(newpoint);
+                    });
+        
+                }
+            };
+            bind_handler(map, 'rightclick', add_point);
+            bind_handler(line, 'rightclick', add_point);
+            
+            
+            /*
+            Check if the exist a point in a polygon
+            *
+            */
+
+            // Poygon getBounds extension - google-maps-extensions
+            if (!google.maps.Polygon.prototype.getBounds) { 
+              google.maps.Polygon.prototype.getBounds = function(latLng) {
+                var bounds = new google.maps.LatLngBounds();
+                var poly_path = polygon.getPaths();
+                var path;
+
+                for (var p = 0; p < poly_path.getLength(); p++) {
+                  path = poly_path.getAt(p);
+                  for (var i = 0; i < path.getLength(); i++) {
+                    bounds.extend(path.getAt(i));
+                  }
+                }
+                
+                return bounds;
+              }
+            }
+
+            // Polygon containsLatLng - method to determine if a latLng is within a polygon
+            google.maps.Polygon.prototype.containsLatLng = function(latLng) {
+              // Exclude points outside of bounds as there is no way they are in the poly
+              var bounds = this.getBounds();
+
+              if(bounds != null && !bounds.contains(latLng)) {
+                return false;
+              }
+
+              /* Raycast point in polygon method
+               *  test how many times a ray, starting from the point and going ANY fixed direction, intersects the edges of the polygon. 
+               *  If the point in question is not on the boundary of the polygon, 
+               *  the number of intersections is an even number if the point is outside, and it is odd if inside.
+               */
+              var inPoly = false;
+              
+
+              var numPaths = polygon.getPaths().getLength();
+              for(var p = 0; p < numPaths; p++) {
+                var path = this.getPaths().getAt(p);
+                var numPoints = path.getLength();
+                var j = numPoints-1;
+
+                for(var i=0; i < numPoints; i++) {
+                  var vertex1 = path.getAt(i);
+                  var vertex2 = path.getAt(j);
+
+                  if (vertex1.lng() < latLng.lng() && vertex2.lng() >= latLng.lng() || vertex2.lng() < latLng.lng() && vertex1.lng() >= latLng.lng()) {
+                    if (vertex1.lat() + (latLng.lng() - vertex1.lng()) / (vertex2.lng() - vertex1.lng()) * (vertex2.lat() - vertex1.lat()) < latLng.lat()) {
+                      inPoly = !inPoly;
+                    }
+                  }
+
+                  j = i;
+                }
+              }
+
+              return inPoly;
+            }
+
+        };
+        
+        /*
+         * Edit the polygon bonds, drags a line, moves a marker and removes a marker on the polygon line
+         */
+        var edit_mode = function() {
+
+            unbind_all();
+
+            var path = polygon.getPath();
+
+            $.each(markers, function(i, marker) {
+                marker.setDraggable(true);
+
+                //drag
+                bind_handler(marker, 'drag', function() {
+                    path.setAt(i, marker.getPosition());
+                });
+        
+                //right click on a point to remove
+                bind_handler(marker, 'rightclick', function() {
+                    if(path.length <= 3) return;
+        
+                    path.removeAt(i);
+                    markers.splice(i, 0);
+                    marker.setMap(null);
+        
+                    edit_mode();
+                });
+            });
+
+            //right click between two points to add another point
+            var add_point_between = function(event) {
+                var newpoint = event.latLng;
+
+                var is_between = function (newpoint, point_a, point_b) {
+                    //default sort() doesn't work on negative numbers, I guess
+                    var lat = newpoint.lat(),
+                        lng = newpoint.lng(),
+                        lats = [point_a.lat(), point_b.lat()].sort(function(a, b) { return a - b; });
+                        lngs = [point_a.lng(), point_b.lng()].sort(function(a, b) { return a - b; });
+            
+                    if(lat < lats[0] || lat > lats[1] || lng < lngs[0] || lng > lngs[1]) return false;
+        
+                    //TODO check slope
+        
+                    return true;
+                }
+
+                var point_a = path.getAt(path.length-1),
+                    point_b,
+                    index = null;
+        
+                path.forEach(function(point, i) {
+                    if(index !== null) return;
+                    point_b = point;
+                    if(is_between(newpoint, point_a, point_b)) index = i;
+                    point_a = point;
+                });
+
+                if(index === null) return;
+
+                //insert the point between the two points
+                path.insertAt(index, event.latLng);
+                new_marker = new google.maps.Marker({
+                    position: newpoint,
+                    draggable: true,
+                    map: map
+                });
+                markers.splice(index, 0, new_marker)
+
+                edit_mode();
+            };
+            bind_handler(map, 'rightclick', add_point_between);
+            bind_handler(polygon, 'rightclick', add_point_between);
+
+            $('#save_map_selection').removeAttr('disabled');
+
+        }
+
+        var mapdata = null; //TODO
+        if (!mapdata) {
+            draw_mode();
+        } else {
+            load();
+            edit_mode();
+            $('#revert_map').removeAttr('disabled');
+        }
+
+        /*
+         * Save polygon, call the 'polygon.containsLatLon' function then send identifiers within the polygon
+         *  to a 'save_map_selection' view in views.py
+         */
+        $('#save_map_selection').click(function() {
+            var path = polygon.getPath(),
+                new_mapdata = [];
+
+            path.forEach(function(point, i) {
+                new_mapdata.push({lat: point.lat(), lng: point.lng()});
+            });
+            mapdata = new_mapdata;
+            //TODO save mapdata permanently
+            polygon.getPath().forEach(function(latLng){
+       	    	polygonArray = polygonArray + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
+       	    	})
+       	    {% if items %}
+		        //check in the payload to see which points are withing a polygon then push their identifiers into an array
+		        {% for lat, lon, label in items %}
+		            var point = new google.maps.LatLng({{ lat }}, {{ lon }});
+		          	if (google.maps.geometry.poly.containsLocation(point, polygon)){
+	    	    		itemsInPolygon.push('{{ label }}');
+	      	     	}
+		        {% endfor %}
+		    	{% if set_container %}
+		    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
+		    	{% endif %}
+		    	{% if set_inner_container %}
+	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_id=" + document.getElementById("device_id").value);
+	    		{% endif %}
+	    	{% endif %}
+        });
+        
+
+    	$('#revert_map').removeAttr('disabled');
+    	//go back to the saved polygon
+    	$('#revert_map').click(function() {
+    		clear();
+    		load();
+    		edit_mode();
+    	});
+
+    	//clear the polygon
+    	$('#clear_map').click(function() {
+    		clear();
+    		draw_mode();
+    	});
           
     } //initialze
     google.maps.event.addDomListener(window, "load", initialize);
@@ -167,38 +451,31 @@
   {{ block.super }}
   <body onload="initialize()">
 	<div id="map"></div>
-	<table align="center">
-	   	<tr valign="middle">
-	   		{% if set_container %}
-		   		<td>
-		   			<b>Select Container Name:</b>
-					<select id="container_name" name="container_name">
-					{% for container_name in container_names %}
-					  <option value="{{ container_name }}">{{ container_name }}</option>
-					{% endfor %}
-					</select>
-		   		</td>
-		   	{% endif %}
-		   	{% if set_inner_container %}
-		   		<td>
-		   			<b>Select Inner Container Name:</b>
-					<select id="inner_container_name" name="inner_container_name">
-					{% for inner_container_name in inner_container_names %}
-					  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
-					{% endfor %}
-					</select>
-		   		</td>
-		   		<td>
-		   			<b>Select user:</b>
-					<select id="device_name" name="device_name">
-					{% for device_name in devices_names %}
-					  <option value="{{ device_name }}">{{ device_name }}</option>
-					{% endfor %}
-					</select>
-		   		</td>
-		   	{% endif %}
-		   	<td><button id="save_map_selection" disabled="disabled">Save</button> </td>
-		</tr>
-     </table>
+	<div align="center">
+   		{% if set_container %}
+	   			<b>Select Container Name: </b>
+				<select id="container_name" name="container_name" style="width: 50px;">
+				{% for container_name in container_names %}
+				  <option value="{{ container_name }}">{{ container_name }}</option>
+				{% endfor %}
+				</select>
+	   	{% endif %}
+	   	{% if set_inner_container %}
+	   			<b>Select Inner Container Name:</b>
+				<select id="inner_container_name" name="inner_container_name">
+				{% for inner_container_name in inner_container_names %}
+				  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
+				{% endfor %}
+				</select>
+	   			<b>Select Device Id:</b>
+				<select id="device_id" name="device_id">
+				{% for device_id in device_ids %}
+				  <option value="{{ device_id }}">{{ device_id }}</option>
+				{% endfor %}
+				</select>
+	   	{% endif %}
+	   		<button type="button" class="btn btn-default btn-default-spacing" id="save_map_selection" disabled="disabled">Save</button>
+			<button type="button" class="btn btn-default btn-default-spacing" id="clear_map">Clear</button>
+	</div>
   </body>
 {% endblock main %}

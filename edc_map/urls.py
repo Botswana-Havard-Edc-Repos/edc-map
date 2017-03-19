@@ -2,7 +2,8 @@ from django.conf.urls import url, include
 
 from .admin_site import edc_map_admin
 from .views import (
-    MapImageView, ItemDivisionsView, HomeView, CreateContainers, ItemsToGps)
+    MapImageView, ItemDivisionsView, HomeView, CreateContainers, ItemsToGps,
+    ItemCilentAllocationView)
 
 app_name = 'edc_map'
 
@@ -20,5 +21,7 @@ urlpatterns = [
         CreateContainers.as_view(), name='save_container_url'),
     url(r'^items_to_gps/(?P<map_area>\w+)/$',
         ItemsToGps.as_view(), name='items_to_gps_url'),
+    url(r'^item_client_allocation/$',
+        ItemCilentAllocationView.as_view(), name='item_client_allocation_url'),
     url(r'^', HomeView.as_view(), name='home_url'),
 ]

@@ -34,5 +34,5 @@ class ContainerSelectionForm(forms.Form):
         self.helper.field_class = 'col-lg-2'
         self.helper.layout = Layout(
             'container_name',  # field1 will appear first in HTML
-            Submit('submit', u'Submit', css_class='btn-default'),
+            Submit('submit', u'Submit', css_class='btn btn-default'),
         )
