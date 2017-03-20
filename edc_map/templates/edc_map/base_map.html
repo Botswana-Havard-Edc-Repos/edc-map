@@ -63,7 +63,7 @@
 	        	polygonPoints.push(new google.maps.LatLng({{point.0}}, {{point.1}}));
         	{% endfor %}
         	// Construct the polygon.
-            var bermudaTriangle = new google.maps.Polygon({
+            var existingPolygons = new google.maps.Polygon({
               paths: polygonPoints,
               strokeColor: '#FF0000',
               strokeOpacity: 0.8,
@@ -74,7 +74,7 @@
               editable: false,
               zIndex: 1
             });
-            bermudaTriangle.setMap(map);
+            existingPolygons.setMap(map);
         {% endfor %}
         
         
@@ -144,12 +144,14 @@
         var load = function() {
 
             var path = polygon.getPath()
+            var image = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
             for (i in mapdata) {
                 coords = mapdata[i];
                 point = new google.maps.LatLng(coords.lat, coords.lng);
                 path.push(point);
                 marker = new google.maps.Marker({
                     position: point,
+                    icon: image,
                     draggable: true,
                     map: map
                 });
@@ -173,6 +175,7 @@
             });
 
             //right click to add a point. add this handler to the line as well
+            var image = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
             var add_point = function(event) {
                 if (newpoint) path.pop();
                 path.push(event.latLng);
@@ -180,7 +183,8 @@
 
                 var marker = new google.maps.Marker({
                     position: event.latLng,
-                    map: map
+                    map: map,
+                    icon: image,
                 });
                 markers.push(marker);
 
@@ -346,10 +350,12 @@
 
                 //insert the point between the two points
                 path.insertAt(index, event.latLng);
+                var image = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
                 new_marker = new google.maps.Marker({
                     position: newpoint,
                     draggable: true,
-                    map: map
+                    map: map,
+                    icon: image,
                 });
                 markers.splice(index, 0, new_marker)
 
