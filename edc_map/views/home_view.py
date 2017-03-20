@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -5,26 +6,63 @@ from django.views.generic.edit import FormView
 
 from edc_base.view_mixins import EdcBaseViewMixin
 
-from ..models import InnerContainer, Container
 from ..constants import SECTIONS, SUB_SECTIONS
-from ..forms import ContainerSelectionForm
 from ..exceptions import MapperError
+from ..forms import ContainerSelectionForm
+from ..models import InnerContainer, Container
+from ..site_mappers import site_mappers
 
 
 class HomeView(EdcBaseViewMixin, TemplateView, FormView):
 
     form_class = ContainerSelectionForm
     app_config_name = 'edc_map'
+    first_item_model_field = 'map_area'
+    identifier_field_attr = 'plot_identifier'
     template_name = 'edc_map/home.html'
 
+    @property
+    def current_community(self):
+        app_config = django_apps.get_app_config('edc_device')
+        return app_config.site_name
+
+    @property
+    def containers_items(self):
+        items_list = []
+        for container in Container.objects.filter(
+                map_area=site_mappers.current_map_area):
+            items_list += container.identifier_labels
+        return items_list
+
+    @property
+    def inner_containers_items(self):
+        items_list = []
+        for inner_container in InnerContainer.objects.filter(
+                container__map_area=site_mappers.current_map_area):
+            items_list += inner_container.identifier_labels
+        return items_list
+
+    @property
+    def items_not_contained(self):
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        qs_list = mapper.item_model.objects.filter(**{
+            self.first_item_model_field: site_mappers.current_map_area}).exclude(**{
+                '{0}__in'.format(self.identifier_field_attr): self.containers_items})
+        return qs_list.count()
+
+    @property
+    def containers_items_not_ininner_contained(self):
+        return list(set(self.containers_items) -
+                    set(self.inner_containers_items))
+
     def create_inner_container(
-            self, labels, name, device_name, boundry, container):
+            self, labels, name, device_id, boundry, container):
         try:
             InnerContainer.objects.get(
                 name=name)
         except InnerContainer.DoesNotExist:
             InnerContainer.objects.create(
-                device_name=device_name,
+                device_id=device_id,
                 boundry=boundry,
                 container=container,
                 name=name,
@@ -51,7 +89,7 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        device_name = self.request.GET.get('device_name')
+        device_id = self.request.GET.get('device_id')
         inner_container_name = self.request.GET.get('inner_container_name')
         inner_container = self.request.GET.get('inner_container')
         name = self.request.GET.get('container_name')
@@ -73,18 +111,23 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
                 container = Container.objects.get(name=name)
             except Container.DoesNotExist:
                 raise MapperError("Inner container can not exist without a container.")
-        if inner_container_name and labels and polygon_points and device_name:
+        if inner_container_name and labels and polygon_points and device_id:
             self.create_inner_container(
                 labels,
                 inner_container_name,
-                device_name,
+                device_id,
                 polygon_points,
                 container)
         context.update(
-            map_area='test_community',
+            map_area=site_mappers.current_map_area,
             labels=self.labels,
             inner_container_name=inner_container_name,
             container_name=name,
             container_names=SECTIONS,
-            inner_container_names=SUB_SECTIONS)
+            inner_container_names=SUB_SECTIONS,
+            total_containers_items=len(self.containers_items),
+            total_inner_containers_items=len(self.inner_containers_items),
+            total_items_not_contained=self.items_not_contained,
+            total_containers_items_not_ininner_contained=len(
+                self.containers_items_not_ininner_contained))
         return context

@@ -1,4 +1,7 @@
-from django.apps import apps as django_apps
+import configparser
+import os
+
+from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -39,9 +42,10 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         return containers
 
     @property
-    def devices_names(self):
-        app_config = django_apps.get_app_config('edc_device')
-        return app_config.client_hostname_list
+    def device_ids(self):
+        config = configparser.ConfigParser()
+        config.read(os.path.join(settings.ETC_DIR, settings.CONFIG_FILE))
+        return config['deployment'].get('device_ids').split(',')
 
     def form_valid(self, form):
         type_container = self.request.GET.get('set_inner_container')
@@ -115,6 +119,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
             set_inner_container=set_inner_container,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            devices_names=self.devices_names,
+            device_ids=self.device_ids,
             exisiting_containers=self.exisiting_containers)
         return context

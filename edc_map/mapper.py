@@ -55,8 +55,8 @@ class Mapper(GeoMixin):
     def __dict__(self):
         return {
             'map_area': self.map_area,
-            'gps_center_lat': self.gps_center_lat,
-            'gps_center_lon': self.gps_center_lon,
+            'center_lat': self.center_lat,
+            'center_lon': self.center_lon,
             'radius': self.radius}
 
     @property
