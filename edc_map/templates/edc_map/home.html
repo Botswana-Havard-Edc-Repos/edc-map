@@ -20,7 +20,7 @@
 
 {% block main %}
 <div class="container">
-
+	<div class="raw">
     <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">
 		    <div class="panel-heading"><h4>Create Section</h4></div>
@@ -28,6 +28,60 @@
 				     <a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container" role="button" class="btn btn-primary">Create Containers</a>
 			 	 </div>
         </div>
+        <div class="panel panel-default">
+		    <div class="panel-heading"><h4>Create Sub-Section</h4></div>
+		    <div class="panel-body">
+      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
+					{% csrf_token %}
+					{% crispy form %}
+				</form>
+			</div>
+        </div>
+
+		<div class="panel panel-default">
+		    <div class="panel-heading"><h4>Push items to GPS Device</h4></div>
+		    <div class="panel-body">
+		      	<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
+			</div>
+        </div>
+
+		{% if labels %}
+			<div class="panel panel-default">
+			    <div class="panel-heading"><h4>{{map_area}}, 
+			    {% if container_name %}
+			    	Container {{container_name}}
+			    {% endif %}
+			    {% if inner_container_name %}
+			    	Inner Container {{ inner_container_name }} total items: {{labels|length}}
+			    {% endif %}</h4>
+			    </div>
+			    <table id="item-identifiers" class="table table-striped table-bordered" cellspacing="0" width="100%">
+			        <thead>
+			            <tr>
+			                <th>Labels</th>
+							<th>Container</th>
+							<th>Inner Container</th>
+			            </tr>
+			        </thead>
+			        <tfoot>
+			            <tr>
+			                <th>Labels</th>
+			                <th>Container</th>
+							<th>Inner Container</th>
+			            </tr>
+			        </tfoot>
+			        <tbody>
+						{% for label in labels %}
+					      	<tr>
+					      		<td>{{label}}</td>
+					      		<td>{{container_name}}</td>
+					      		<td>{{ inner_container_name }}</td>
+					      	</tr>
+			      		{% endfor %}
+			        </tbody>
+			    </table>
+	    	</div>
+	    {% endif %}
      </div>
      <div id="div-home-right" class="col-md-4">
         <div class="panel panel-warning">
@@ -39,77 +93,30 @@
 		        </ul>
 	        </div>
         </div>
-    </div>
-     <div id="div-home-right" class="col-md-8">
-         <div class="panel panel-default">
-		    <div class="panel-heading"><h4>Create Sub-Section</h4></div>
-		    <div class="panel-body">
-      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
-					{% csrf_token %}
-					{% crispy form %}
-				</form>
-			</div>
-        </div>
-    </div>
-    <div id="div-home-right" class="col-md-4">
         <div class="panel panel-warning">
         <div class="panel-heading">Statistics</div>
 	        <div class="panel-body"> 
-		        <ul class="nav nav-pills nav-stacked">
-			        <li><b>Items in Containers: {{total_containers_items}}</b></li>
-			        <li><b>Items in Inner Containers: {{total_inner_containers_items}}</b></li>
-			        <li><b>Items not in Contained at all: {{total_items_not_contained}}</b></li>
-			        <li><b>Items not in Inner Containers: {{total_containers_items_not_ininner_contained}}</b></li>
-		        </ul>
+	        	<ul class="list-group">
+				  <li class="list-group-item">
+				    <span class="badge badge-error">{{sectioning_statistics.0}}</span>
+				   Items in Containers:
+				  </li>
+				  <li class="list-group-item">
+				    <span class="badge badge-success">{{sectioning_statistics.1}}</span>
+				   Items in Inner Containers:
+				  </li>
+				  <li class="list-group-item">
+				  <span class="badge badge-success">{{sectioning_statistics.2}}</span>
+				  	Items not in Contained at all:
+				  </li>
+				  <li class="list-group-item">
+				  <span class="badge badge-success">{{sectioning_statistics.3}}</span>
+				  	Items not in Inner Containers:
+				  </li>
+				 </ul>
 	        </div>
         </div>
     </div>
-    <div id="div-home-right" class="col-md-8">
-         <div class="panel panel-default">
-		    <div class="panel-heading"><h4>Push items to GPS Device</h4></div>
-		    <div class="panel-body">
-		      	<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
-			</div>
-        </div>
-    </div>
-    {% if labels %}
-    	<div id="div-home-right" class="col-md-8">
-         <div class="panel panel-default">
-		    <div class="panel-heading"><h4>{{map_area}}, 
-		    {% if container_name %}
-		    	Container {{container_name}}
-		    {% endif %}
-		    {% if inner_container_name %}
-		    	Inner Container {{ inner_container_name }} total items: {{labels|length}}
-		    {% endif %}</h4>
-		    </div>
-		    <table id="item-identifiers" class="table table-striped table-bordered" cellspacing="0" width="100%">
-		        <thead>
-		            <tr>
-		                <th>Labels</th>
-						<th>Container</th>
-						<th>Inner Container</th>
-		            </tr>
-		        </thead>
-		        <tfoot>
-		            <tr>
-		                <th>Labels</th>
-		                <th>Container</th>
-						<th>Inner Container</th>
-		            </tr>
-		        </tfoot>
-		        <tbody>
-					{% for label in labels %}
-				      	<tr>
-				      		<td>{{label}}</td>
-				      		<td>{{container_name}}</td>
-				      		<td>{{ inner_container_name }}</td>
-				      	</tr>
-		      		{% endfor %}
-		        </tbody>
-		    </table>
-    	</div>
-        </div>
-    {% endif %}    
+    </div>    
 </div>
 {% endblock main %}

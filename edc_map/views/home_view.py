@@ -22,9 +22,38 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
     template_name = 'edc_map/home.html'
 
     @property
-    def current_community(self):
-        app_config = django_apps.get_app_config('edc_device')
-        return app_config.site_name
+    def sectioning_statistics(self):
+        """Return statistics of sectioning items."""
+
+        contained_items = []
+        for container in Container.objects.filter(
+                map_area=site_mappers.current_map_area):
+            contained_items.extend(container.identifier_labels)
+        total_container_items = len(contained_items)
+
+        #  Items in inner containers.
+        inner_contained_items = []
+        for inner_container in InnerContainer.objects.filter(
+                container__map_area=site_mappers.current_map_area):
+            inner_contained_items.extend(inner_container.identifier_labels)
+        total_inner_contained_items = len(inner_contained_items)
+
+        #  Items not in any container.
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        total_items_not_contained = mapper.item_model.objects.filter(**{
+            'map_area': site_mappers.current_map_area}).exclude(**{
+                '{0}__in'.format(
+                    self.identifier_field_attr): contained_items}).count()
+
+        #  Items in a container but not in any inner container.
+        items_not_in_inner_container = list(
+            set(contained_items) - set(inner_contained_items))
+
+        return [
+            total_container_items,
+            total_inner_contained_items,
+            total_items_not_contained,
+            len(items_not_in_inner_container)]
 
     @property
     def containers_items(self):
@@ -39,7 +68,7 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
         items_list = []
         for inner_container in InnerContainer.objects.filter(
                 container__map_area=site_mappers.current_map_area):
-            items_list += inner_container.identifier_labels
+            items_list.extend(inner_container.identifier_labels)
         return items_list
 
     @property
@@ -59,13 +88,14 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
             self, labels, name, device_id, boundry, container):
         try:
             InnerContainer.objects.get(
-                name=name)
+                name=name, map_area=site_mappers.current_map_area)
         except InnerContainer.DoesNotExist:
             InnerContainer.objects.create(
                 device_id=device_id,
                 boundry=boundry,
                 container=container,
                 name=name,
+                map_area=site_mappers.current_map_area,
                 labels=labels)
 
     def form_valid(self, form):
@@ -125,9 +155,5 @@ class HomeView(EdcBaseViewMixin, TemplateView, FormView):
             container_name=name,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            total_containers_items=len(self.containers_items),
-            total_inner_containers_items=len(self.inner_containers_items),
-            total_items_not_contained=self.items_not_contained,
-            total_containers_items_not_ininner_contained=len(
-                self.containers_items_not_ininner_contained))
+            sectioning_statistics=self.sectioning_statistics)
         return context

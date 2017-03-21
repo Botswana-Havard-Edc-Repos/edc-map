@@ -26,34 +26,9 @@ class MapperData(MapperDataModelMixin, BaseUuidModel):
         app_label = 'edc_map'
 
 
-class ListField(models.TextField):
-
-    def __init__(self, *args, **kwargs):
-        super(ListField, self).__init__(*args, **kwargs)
-
-    def to_python(self, value):
-        if not value:
-            value = []
-
-        if isinstance(value, list):
-            return value
-
-        return ast.literal_eval(value)
-
-    def get_prep_value(self, value):
-        if value is None:
-            return value
-
-        return str(value)
-
-    def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(value)
-
-
 class Container(BaseUuidModel):
 
-    labels = ListField(null=True)
+    labels = models.TextField(null=True)
 
     name = models.CharField(
         max_length=10,
@@ -63,7 +38,7 @@ class Container(BaseUuidModel):
         max_length=25,
         null=True)
 
-    boundry = ListField(null=True)
+    boundry = models.TextField(null=True)
 
     def __str__(self):
         return '{0} {1}'.format(
@@ -91,27 +66,31 @@ class Container(BaseUuidModel):
 
 class InnerContainer(BaseUuidModel):
 
-    labels = ListField(null=True)
+    labels = models.TextField(null=True)
 
     container = models.ForeignKey(Container, on_delete=PROTECT)
 
     device_id = models.CharField(
         verbose_name='Device Id',
         max_length=25,
-        unique=True,
         null=True,)
+
+    map_area = models.CharField(
+        max_length=25,
+        null=True)
 
     name = models.CharField(
         max_length=10,
         null=True)
 
-    boundry = ListField(null=True)
+    boundry = models.TextField(null=True)
 
     def __str__(self):
-        return '{0} {1} {2}'.format(
+        return '{0} {1} {2}, {3}'.format(
             self.device_id,
             self.container.name,
-            self.name)
+            self.name,
+            self.map_area)
 
     @property
     def identifier_labels(self):
@@ -129,4 +108,4 @@ class InnerContainer(BaseUuidModel):
 
     class Meta:
         app_label = 'edc_map'
-        unique_together = ("device_id", "name")
+        unique_together = ("device_id", "name", "map_area")
