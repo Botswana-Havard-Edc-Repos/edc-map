@@ -11,8 +11,6 @@ from ..site_mappers import site_mappers
 class ItemCilentAllocationView(EdcBaseViewMixin, TemplateView):
 
     app_config_name = 'edc_map'
-    first_item_model_field = 'map_area'
-    identifier_field_attr = 'plot_identifier'
     template_name = 'edc_map/item_client_allocation.html'
 
     @property

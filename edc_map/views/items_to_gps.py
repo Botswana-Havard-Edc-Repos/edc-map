@@ -17,7 +17,6 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
     """Create a .gpx file to store coordinates in the GPS receiver.
     """
     template_name = 'edc_map/items_to_gps.html'
-    identifier_field_attr = 'plot_identifier'
     app_label = 'edc_map'
 
     @method_decorator(login_required)
@@ -38,12 +37,13 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         if plot_identifier_list:
             items = mapper.item_model.objects.filter(**{
                 '{0}__in'.format(
-                    self.identifier_field_attr): plot_identifier_list})
+                    mapper.identifier_field_attr): plot_identifier_list})
         return items
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         message = None
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
         items = self.items(site_mappers.current_map_area)
         gps_device = django_apps.get_app_config(self.app_label).gps_device
         gps_file_name = django_apps.get_app_config(self.app_label).gps_file_name
@@ -64,7 +64,7 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
                 wf.write(line)
                 for item in items:
                     identifier_name = str(
-                        getattr(item, self.identifier_field_attr))
+                        getattr(item, mapper.identifier_field_attr))
                     lat = item.gps_target_lat
                     lon = item.gps_target_lon
                     ele = 0.0

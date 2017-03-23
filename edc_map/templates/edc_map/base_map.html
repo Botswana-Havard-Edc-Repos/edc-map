@@ -17,7 +17,7 @@
     <script type="text/javascript">
     var map;
     var geocoder; 
-    var polygonArray = "";
+    var boundry = "";
     var pointArray = new Array();
     var itemsInPolygon = []
     var point = new google.maps.LatLng({{ center_lat }}, {{ center_lon }});
@@ -391,21 +391,21 @@
             mapdata = new_mapdata;
             //TODO save mapdata permanently
             polygon.getPath().forEach(function(latLng){
-       	    	polygonArray = polygonArray + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
+            	boundry = boundry + latLng.lat().toString() + "," + latLng.lng().toString() + "|";
        	    	})
        	    {% if items %}
 		        //check in the payload to see which points are withing a polygon then push their identifiers into an array
 		        {% for lat, lon, label in items %}
 		            var point = new google.maps.LatLng({{ lat }}, {{ lon }});
 		          	if (google.maps.geometry.poly.containsLocation(point, polygon)){
-	    	    		itemsInPolygon.push('{{ label }}');
+	    	    		itemsInPolygon += ',{{ label }}';
 	      	     	}
 		        {% endfor %}
 		    	{% if set_container %}
-		    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&container=" + polygonArray + "&container_name=" + document.getElementById("container_name").value);
+		    		window.location.replace("{% url 'edc_map:save_container_url' map_area %}?labels=" + itemsInPolygon + "&boundry=" + boundry + "&container_name=" + document.getElementById("container_name").value);
 		    	{% endif %}
 		    	{% if set_inner_container %}
-	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&inner_container=" + polygonArray + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_id=" + document.getElementById("device_id").value);
+	    			window.location.replace("{% url 'edc_map:home_url' %}?labels=" + itemsInPolygon + "&boundry=" + boundry + "&container_name={{container_name}}" + "&inner_container_name=" + document.getElementById("inner_container_name").value + "&device_id=" + document.getElementById("device_id").value);
 	    		{% endif %}
 	    	{% endif %}
         });

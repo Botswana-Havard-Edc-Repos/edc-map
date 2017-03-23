@@ -20,6 +20,15 @@
 
 {% block main %}
 <div class="container">
+<div class="alert alert-warning alert-dismissable fade in">
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+</div>
 	<div class="raw">
     <div id="div-home-right" class="col-md-8">
          <div class="panel panel-default">

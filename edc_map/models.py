@@ -47,17 +47,24 @@ class Container(BaseUuidModel):
 
     @property
     def identifier_labels(self):
-        """Returns a list of item labels."""
+        """Returns identifier labels as a python list.
+        """
         if self.labels:
-            return ast.literal_eval(self.labels)
-        return None
+            return self.labels.split(',')
+        return []
 
     @property
     def points(self):
         """Returns a list of polygon points."""
+        points_list = []
         if self.boundry:
-            return ast.literal_eval(self.boundry)
-        return None
+            points = self.boundry.split('|')
+            del points[-1]
+            for point in points:
+                point = point.split(',')
+                points_list.append(point)
+            return points_list
+        return points_list
 
     class Meta:
         app_label = 'edc_map'
@@ -94,18 +101,25 @@ class InnerContainer(BaseUuidModel):
 
     @property
     def identifier_labels(self):
-        """Returns a list of item labels."""
+        """Returns identifier labels as a python list.
+        """
         if self.labels:
-            return ast.literal_eval(self.labels)
-        return None
+            return self.labels.split(',')
+        return []
 
     @property
     def points(self):
         """Returns a list of polygon points."""
+        points_list = []
         if self.boundry:
-            return ast.literal_eval(self.boundry)
-        return None
+            points = self.boundry.split('|')
+            del points[-1]
+            for point in points:
+                point = point.split(',')
+                points_list.append(point)
+            return points_list
+        return points_list
 
     class Meta:
         app_label = 'edc_map'
-        unique_together = ("device_id", "name", "map_area")
+        unique_together = ("device_id", "name", "map_area", "container")

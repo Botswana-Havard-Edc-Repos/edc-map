@@ -18,7 +18,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
     form_class = ContainerSelectionForm
     template_name = 'edc_map/base_map.html'
     draw_cluster_view_base_html = 'edc_base/base.html'
-    identifier_field_attr = 'plot_identifier'
 
     def divided_item_labels(self, name):
         try:
@@ -90,18 +89,18 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         if container_type == 'set_container':  # QuerySet  to create a container
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area}).exclude(**{
-                    '{0}__in'.format(self.identifier_field_attr): labels})
+                    '{0}__in'.format(mapper.identifier_field_attr): labels})
         elif container_type == 'set_inner_container' and container:
             #  QuerySet  to create an Inner container.
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area,
-                '{0}__in'.format(self.identifier_field_attr): contained_labels}).exclude(**{
-                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
+                '{0}__in'.format(mapper.identifier_field_attr): contained_labels}).exclude(**{
+                    '{0}__in'.format(mapper.identifier_field_attr): exclude_labels})
         for obj in qs:
             items.append(
                 [float(obj.gps_target_lat),
                  float(obj.gps_target_lon),
-                 getattr(obj, self.identifier_field_attr)])
+                 getattr(obj, mapper.identifier_field_attr)])
         return items
 
     def get_context_data(self, **kwargs):
@@ -109,6 +108,9 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         set_inner_container = self.request.GET.get('set_inner_container')
         set_container = self.request.GET.get('set_container')
         mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        print(')))))))))))))))))))))))))))))))))))))))))))))))))))')
+        print(self.exisiting_containers)
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         context.update(
             items=self.items(container_type=set_container),
             set_container=set_container,
