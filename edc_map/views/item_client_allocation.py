@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -12,28 +11,25 @@ from ..site_mappers import site_mappers
 class ItemCilentAllocationView(EdcBaseViewMixin, TemplateView):
 
     app_config_name = 'edc_map'
-    first_item_model_field = 'map_area'
-    identifier_field_attr = 'plot_identifier'
     template_name = 'edc_map/item_client_allocation.html'
-
-    @property
-    def current_community(self):
-        app_config = django_apps.get_app_config('edc_device')
-        return app_config.site_name
 
     @property
     def containers(self):
         container_data = []
-        containers = Container.objects.filter(map_area=self.current_community)
+        containers = Container.objects.filter(
+            map_area=site_mappers.current_map_area)
         for container in containers:
-            container_data.append([container.name, len(container.identifier_labels)])
+            container_data.append(
+                [container.name, len(container.identifier_labels)])
 
     @property
     def inner_containers(self):
         container_data = []
-        inner_containers = InnerContainer.objects.filter(map_area=self.current_community)
+        inner_containers = InnerContainer.objects.filter(
+            map_area=site_mappers.current_map_area)
         for inner_container in inner_containers:
-            container_data.append([inner_container.name, len(inner_container.identifier_labels)])
+            container_data.append(
+                [inner_container.name, len(inner_container.identifier_labels)])
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

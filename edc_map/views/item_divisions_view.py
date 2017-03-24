@@ -18,8 +18,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
     form_class = ContainerSelectionForm
     template_name = 'edc_map/base_map.html'
     draw_cluster_view_base_html = 'edc_base/base.html'
-    first_item_model_field = 'map_area'
-    identifier_field_attr = 'plot_identifier'
 
     def divided_item_labels(self, name):
         try:
@@ -31,15 +29,10 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
 
     @property
     def exisiting_containers(self):
-        """Return a list of exisiting polygon.
+        """Return a dictionary of exisiting polygon.
         """
-        containers = {}
-        for container in Container.objects.all():
-            name = container.name
-            points = container.points
-            if not containers.get(name):
-                containers[name] = points
-        return containers
+        return {obj.name: obj.points for obj in Container.objects.filter(
+            map_area=site_mappers.current_map_area)}
 
     @property
     def device_ids(self):
@@ -59,58 +52,65 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
             set_inner_container=type_container)
         return self.render_to_response(context)
 
-    def inner_container_labels(self, container_name):
+    def inner_container_labels(self, name):
+        """Return a list of labels for a given container.
+        """
         labels = []
-        try:
-            inner_containers = InnerContainer.objects.filter(container__name=container_name)
+        inner_containers = InnerContainer.objects.filter(container__name=name)
+        if inner_containers:
             for inner_container in inner_containers:
-                labels = labels + inner_container.identifier_labels
-        except InnerContainer.DoesNotExist:
-            pass
+                labels.extend(inner_container.identifier_labels)
         return labels
+
+    def contained_labels(self, name):
+        """Return a list of labels for container given.
+        """
+        current_contained_labels = []
+        try:
+            container = Container.objects.get(name=name)
+            current_contained_labels = container.identifier_labels
+        except Container.DoesNotExist:
+            pass
+        return current_contained_labels
 
     def items(self, name=None, container_type=None):
         """Return  queryset of the item model.
         """
-        value = self.kwargs.get(self.first_item_model_field, '')
-        labels = []
-        containers = Container.objects.all().exclude(name=name)
+        labels = []  # Labels to exclude when creating a container.
+        containers = Container.objects.all()
         for container in containers:
-            labels += container.identifier_labels
-        container = None
-        current_container_labels = []
-        try:
-            container = Container.objects.get(name=name)
-            current_container_labels = container.identifier_labels
-        except Container.DoesNotExist:
-            pass
+            labels.extend(container.identifier_labels)
+        contained_labels = self.contained_labels(name)
+
         items = []
         exclude_labels = self.inner_container_labels(name)
-        map_area = self.kwargs.get('map_area', '')
-        mapper = site_mappers.registry.get(map_area)
-        qs_list = []
-        if container_type == 'set_container':
-            qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value}).exclude(**{
-                    '{0}__in'.format(self.identifier_field_attr): labels})
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        qs = []
+        if container_type == 'set_container':  # QuerySet  to create a container
+            qs = mapper.item_model.objects.filter(**{
+                'map_area': site_mappers.current_map_area}).exclude(**{
+                    '{0}__in'.format(mapper.identifier_field_attr): labels})
         elif container_type == 'set_inner_container' and container:
-            qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value,
-                '{0}__in'.format(self.identifier_field_attr): current_container_labels}).exclude(**{
-                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
-        for obj in qs_list:
+            #  QuerySet  to create an Inner container.
+            qs = mapper.item_model.objects.filter(**{
+                'map_area': site_mappers.current_map_area,
+                '{0}__in'.format(mapper.identifier_field_attr): contained_labels}).exclude(**{
+                    '{0}__in'.format(mapper.identifier_field_attr): exclude_labels})
+        for obj in qs:
             items.append(
                 [float(obj.gps_target_lat),
                  float(obj.gps_target_lon),
-                 getattr(obj, self.identifier_field_attr)])
+                 getattr(obj, mapper.identifier_field_attr)])
         return items
 
     def get_context_data(self, **kwargs):
         context = super(ItemDivisionsView, self).get_context_data(**kwargs)
         set_inner_container = self.request.GET.get('set_inner_container')
         set_container = self.request.GET.get('set_container')
-        map_area = self.kwargs.get('map_area', '')
-        mapper = site_mappers.registry.get(map_area)
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        print(')))))))))))))))))))))))))))))))))))))))))))))))))))')
+        print(self.exisiting_containers)
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         context.update(
             items=self.items(container_type=set_container),
             set_container=set_container,

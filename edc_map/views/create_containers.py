@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -9,9 +10,10 @@ from ..constants import SUB_SECTIONS, SECTIONS
 from ..forms import ContainerSelectionForm
 from ..models import Container
 from ..site_mappers import site_mappers
+from .statistics_view_mixin import StatisticsViewMixin
 
 
-class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
+class CreateContainers(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
 
     form_class = ContainerSelectionForm
     app_config_name = 'edc_map'
@@ -24,7 +26,6 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
     def items(self, name=None):
         """Return  queryset of the item model.
         """
-        value = self.kwargs.get(self.first_item_model_field, '')
         labels = []
         if name:
             try:
@@ -33,28 +34,21 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
             except Container.DoesNotExist:
                 pass
         items = []
-        map_area = self.kwargs.get('map_area', '')
-        mapper = site_mappers.registry.get(map_area)
+        mapper = site_mappers.registry.get(site_mappers.current_map_area)
+        qs = []
         if labels:
-            qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value,
+            qs = mapper.item_model.objects.filter(**{
+                'map_area': site_mappers.current_map_area,
                 '{0}__in'.format(self.identifier_field_attr): labels})
         else:
-            qs_list = mapper.item_model.objects.filter(**{
-                self.first_item_model_field: value})
-        for obj in qs_list:
+            qs = mapper.item_model.objects.filter(**{
+                'map_area': site_mappers.current_map_area})
+        for obj in qs:
             items.append(
                 [float(obj.gps_target_lat),
                  float(obj.gps_target_lon),
                  getattr(obj, self.identifier_field_attr)])
         return items
-
-    @property
-    def labels(self):
-        labels = self.request.GET.get('labels', [])
-        if labels:
-            labels = labels.split(',')
-        return labels
 
     def form_valid(self, form):
         set_inner_container = self.request.GET.get('set_inner_container')
@@ -71,37 +65,39 @@ class CreateContainers(EdcBaseViewMixin, TemplateView, FormView):
         context = super().get_context_data(**kwargs)
         set_container = self.request.GET.get('set_container')
         name = self.request.GET.get('container_name')
-        boundry = self.request.GET.get('container')
-        map_area = self.kwargs.get('map_area')
-        polygon_points = []
-        if boundry:
-            container_boundry = boundry.split('|')  # Container comes as a string pipe delimited.
-            if container_boundry:
-                del container_boundry[-1]
-                for container_point in container_boundry:
-                    container_point = container_point.split(",")
-                    lat = float(container_point[0])
-                    lon = float(container_point[1])
-                    polygon_points.append([lat, lon])
-        labels = self.request.GET.get('labels', [])
-        if labels:
+        boundry = self.request.GET.get('boundry')
+        labels = self.request.GET.get('labels', '')
+        container_created = False
+        if name and boundry:
+            container_created = self.create_container(name, labels, boundry)
+        if labels and container_created:
             labels = labels.split(',')
-        if name and map_area and polygon_points:
-            self.create_container(name, map_area, labels, polygon_points)
+        elif labels and not container_created:
+            labels = []
         context.update(
-            map_area=map_area,
-            labels=self.labels,
+            map_area=site_mappers.current_map_area,
+            labels=labels,
+            container_created=container_created,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
             container_name=name,
-            set_container=set_container)
+            set_container=set_container,
+            sectioning_statistics=self.sectioning_statistics)
         return context
 
-    def create_container(self, name, map_area, labels, boundry):
+    def create_container(self, name, labels, boundry):
+        container_created = False
         if labels:
             try:
-                Container.objects.get(name=name)
+                Container.objects.get(
+                    name=name, map_area=site_mappers.current_map_area)
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    'The Container {0} already exists in {1}'.format(name, site_mappers.current_map_area))
             except Container.DoesNotExist:
                 Container.objects.create(
                     labels=labels, name=name,
-                    map_area=map_area, boundry=boundry)
+                    map_area=site_mappers.current_map_area, boundry=boundry)
+                container_created = True
+        return container_created
