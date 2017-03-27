@@ -1,6 +1,7 @@
 import configparser
 import os
 
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
@@ -11,9 +12,10 @@ from ..constants import SUB_SECTIONS, SECTIONS
 from ..forms import ContainerSelectionForm
 from ..models import Container, InnerContainer
 from ..site_mappers import site_mappers
+from .statistics_view_mixin import StatisticsViewMixin
 
 
-class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
+class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
 
     form_class = ContainerSelectionForm
     template_name = 'edc_map/base_map.html'
@@ -38,7 +40,7 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
     def device_ids(self):
         config = configparser.ConfigParser()
         config.read(os.path.join(settings.ETC_DIR, settings.CONFIG_FILE))
-        return config['deployment'].get('device_ids').split(',')
+        return sorted(config['deployment'].get('device_ids').split(','))
 
     def form_valid(self, form):
         type_container = self.request.GET.get('set_inner_container')
@@ -89,18 +91,18 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         if container_type == 'set_container':  # QuerySet  to create a container
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area}).exclude(**{
-                    '{0}__in'.format(mapper.identifier_field_attr): labels})
+                    '{0}__in'.format(self.identifier_field_attr): labels})
         elif container_type == 'set_inner_container' and container:
             #  QuerySet  to create an Inner container.
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area,
-                '{0}__in'.format(mapper.identifier_field_attr): contained_labels}).exclude(**{
-                    '{0}__in'.format(mapper.identifier_field_attr): exclude_labels})
+                '{0}__in'.format(self.identifier_field_attr): contained_labels}).exclude(**{
+                    '{0}__in'.format(self.identifier_field_attr): exclude_labels})
         for obj in qs:
             items.append(
                 [float(obj.gps_target_lat),
                  float(obj.gps_target_lon),
-                 getattr(obj, mapper.identifier_field_attr)])
+                 getattr(obj, self.identifier_field_attr)])
         return items
 
     def get_context_data(self, **kwargs):
@@ -108,9 +110,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
         set_inner_container = self.request.GET.get('set_inner_container')
         set_container = self.request.GET.get('set_container')
         mapper = site_mappers.registry.get(site_mappers.current_map_area)
-        print(')))))))))))))))))))))))))))))))))))))))))))))))))))')
-        print(self.exisiting_containers)
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         context.update(
             items=self.items(container_type=set_container),
             set_container=set_container,
@@ -120,5 +119,6 @@ class ItemDivisionsView(EdcBaseViewMixin, TemplateView, FormView):
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
             device_ids=self.device_ids,
-            exisiting_containers=self.exisiting_containers)
+            exisiting_containers=self.exisiting_containers,
+            sectioning_statistics=self.sectioning_statistics)
         return context

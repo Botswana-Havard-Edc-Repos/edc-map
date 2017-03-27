@@ -1,19 +1,17 @@
 {% extends 'edc_base/base.html' %}
-{% load staticfiles %}
 
-{% block main %}
-  <head>
-  	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-	<meta http-equiv="content" content="text/html; charset=UTF-8" />
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyDtDT8oMKum1AObKpgTTWox4wSgc4O_QU8&libraries=geometry,drawing"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <style type="text/css">
-      html, body, #map { height: 550px; width: 800px; margin: 50px; padding: 0px}
-    </style>
-    {% block extra-scripts %}
+{% load staticfiles %}
+{% block extra-scripts %}
 	{{ block.super }}
-	<script type="text/javascript" charset="utf8" src="{% static 'edc_map/js/clusturing_map.js' %}"></script>
-	{% endblock extra-scripts %}
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyDtDT8oMKum1AObKpgTTWox4wSgc4O_QU8&libraries=geometry,drawing"></script>
+     <style type="text/css">
+          #map {
+        	height: 450px;
+        	width: 670px;
+        	margin: 5px;
+        	padding: 0px
+      	   }
+     </style>
     <script type="text/javascript">
     var map;
     var geocoder; 
@@ -453,35 +451,46 @@
     	return color;
     }
     </script>
-  </head>
+{% endblock extra-scripts %}
+{% block main %}
   {{ block.super }}
-  <body onload="initialize()">
-	<div id="map"></div>
-	<div align="center">
-   		{% if set_container %}
-	   			<b>Select Container Name: </b>
-				<select id="container_name" name="container_name" style="width: 50px;">
-				{% for container_name in container_names %}
-				  <option value="{{ container_name }}">{{ container_name }}</option>
-				{% endfor %}
-				</select>
-	   	{% endif %}
-	   	{% if set_inner_container %}
-	   			<b>Select Inner Container Name:</b>
-				<select id="inner_container_name" name="inner_container_name">
-				{% for inner_container_name in inner_container_names %}
-				  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
-				{% endfor %}
-				</select>
-	   			<b>Select Device Id:</b>
-				<select id="device_id" name="device_id">
-				{% for device_id in device_ids %}
-				  <option value="{{ device_id }}">{{ device_id }}</option>
-				{% endfor %}
-				</select>
-	   	{% endif %}
-	   		<button type="button" class="btn btn-default btn-default-spacing" id="save_map_selection" disabled="disabled">Save</button>
-			<button type="button" class="btn btn-default btn-default-spacing" id="clear_map">Clear</button>
-	</div>
-  </body>
+  <div class="container">
+  <div class="raw">
+    	<div id="div-home-right" class="col-md-8">
+    	<div class="panel panel-default">
+		    <div class="panel-heading"><h4>Map</h4></div>
+			    <div class="panel-body">
+			<div id="map"></div>
+			<div align="center">
+		   		{% if set_container %}
+			   			<b>Select Container Name: </b>
+						<select id="container_name" name="container_name" style="width: 50px;">
+						{% for container_name in container_names %}
+						  <option value="{{ container_name }}">{{ container_name }}</option>
+						{% endfor %}
+						</select>
+			   	{% endif %}
+			   	{% if set_inner_container %}
+			   			<b>Select Inner Container Name:</b>
+						<select id="inner_container_name" name="inner_container_name">
+						{% for inner_container_name in inner_container_names %}
+						  <option value="{{ inner_container_name }}">{{ inner_container_name }}</option>
+						{% endfor %}
+						</select>
+			   			<b>Select Device Id:</b>
+						<select id="device_id" name="device_id">
+						{% for device_id in device_ids %}
+						  <option value="{{ device_id }}">{{ device_id }}</option>
+						{% endfor %}
+						</select>
+			   	{% endif %}
+			   		<button type="button" class="btn btn-default btn-default-spacing" id="save_map_selection" disabled="disabled">Save</button>
+					<button type="button" class="btn btn-default btn-default-spacing" id="clear_map">Clear</button>
+			</div>
+			</div>
+        </div>
+		</div>
+			{% include 'edc_map/admin_stats.html' %}
+    </div>
+</div>
 {% endblock main %}

@@ -1,8 +1,73 @@
 {% extends 'edc_base/base.html' %}
 
+{% load staticfiles %}
+{% block extra-scripts %}
+	{{ block.super }}
+	<style>
+		table {
+		    font-family: arial, sans-serif;
+		    border-collapse: collapse;
+		    width: 100%;
+		}
+		
+		td, th {
+		    border: 1px solid #dddddd;
+		    text-align: left;
+		    padding: 8px;
+		}
+		
+		tr:nth-child(even) {
+		    background-color: #dddddd;
+		}
+	</style>
+{% endblock extra-scripts %}
 
 {% block main %}
-<div class="container">
-   	#  TODO
-</div>
+	<div class="container">
+		<div class="raw">
+    	<div id="div-home-right" class="col-md-8">
+    	<div class="panel panel-default">
+		    <div class="panel-heading"><h4>Containers</h4></div>
+			    <div class="panel-body">
+				<table>
+					<tr>
+						<th>Containers name</th>
+						<th>Total items contained</th>
+					</tr>
+					{% for name, total_items in cotainer_data.items %}
+					  <tr>
+					    <td>{{name}}</td>
+					    <td>{{total_items}}</td>
+					  </tr>
+					{% endfor %}
+				</table>
+			</div>
+        </div>
+        
+        <div class="panel panel-default">
+		    <div class="panel-heading"><h4>Inner Containers</h4></div>
+			    <div class="panel-body">
+				<table>
+					<tr>
+						<th>Device ID</th>
+						<th>Container name</th>
+						<th>Inner Containers name</th>
+						<th>Total items contained</th>
+					</tr>
+					{% for inner_cotainer in inner_cotainer_data %}
+					  <tr>
+					  	<td>{{inner_cotainer.0}}</td>
+					  	<td>{{inner_cotainer.1}}</td>
+					    <td>{{inner_cotainer.2}}</td>
+					    <td>{{inner_cotainer.3}}</td>
+					  </tr>
+					{% endfor %}
+				</table>
+			</div>
+        </div>
+        
+		</div>
+			{% include 'edc_map/admin_stats.html' %}
+    	</div>
+	</div>
 {% endblock main %}

@@ -1,0 +1,35 @@
+<div id="div-home-right" class="col-md-4">
+       <div class="panel panel-warning">
+       <div class="panel-heading">Administration</div>
+        <div class="panel-body">
+	        <ul class="nav nav-pills nav-stacked">
+	        <li><a role="button" class="btn btn-sm btn-default btn-block" href="{% url 'edc_map:edc_map_admin:index' %}">Map Admin</a></li>
+	        <li><a role="button" class="btn btn-sm btn-default btn-block" href="{% url 'edc_map:item_client_allocation_url' %}">Item Allocations</a></li>
+	        <li><a role="button" class="btn btn-sm btn-default btn-block" href="{% url 'edc_map:home_url' %}">Map Home</a></li>
+	        </ul>
+        </div>
+       </div>
+       <div class="panel panel-warning">
+       <div class="panel-heading">Statistics</div>
+        <div class="panel-body"> 
+        	<ul class="list-group">
+			  <li class="list-group-item">
+			    <span class="badge badge-error">{{sectioning_statistics.0}}</span>
+			   Items in Containers:
+			  </li>
+			  <li class="list-group-item">
+			    <span class="badge badge-success">{{sectioning_statistics.1}}</span>
+			   Items in Inner Containers:
+			  </li>
+			  <li class="list-group-item">
+			  <span class="badge badge-success">{{sectioning_statistics.2}}</span>
+			  	Items not in Contained at all:
+			  </li>
+			  <li class="list-group-item">
+			  <span class="badge badge-success">{{sectioning_statistics.3}}</span>
+			  	Items not in Inner Containers:
+			  </li>
+			 </ul>
+        </div>
+       </div>
+   </div>
