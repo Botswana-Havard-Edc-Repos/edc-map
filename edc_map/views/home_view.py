@@ -25,7 +25,9 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
         inner_container_created = False
         try:
             InnerContainer.objects.get(
-                name=name, map_area=site_mappers.current_map_area)
+                name=name,
+                map_area=site_mappers.current_map_area,
+                container=container)
             messages.add_message(
                 self.request,
                 messages.WARNING,
@@ -35,14 +37,24 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
                     container.name,
                     site_mappers.current_map_area))
         except InnerContainer.DoesNotExist:
-            InnerContainer.objects.create(
-                device_id=device_id,
-                boundry=boundry,
-                container=container,
-                name=name,
-                map_area=site_mappers.current_map_area,
-                labels=labels)
-            inner_container_created = True
+            try:
+                InnerContainer.objects.get(map_area=site_mappers.current_map_area, device_id=device_id)
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    'The Device {0} has already been allocated items in {1}, '
+                    'select a diffrent device.'.format(
+                        device_id,
+                        site_mappers.current_map_area))
+            except InnerContainer.DoesNotExist:
+                InnerContainer.objects.create(
+                    device_id=device_id,
+                    boundry=boundry,
+                    container=container,
+                    name=name,
+                    map_area=site_mappers.current_map_area,
+                    labels=labels)
+                inner_container_created = True
         return inner_container_created
 
     def form_valid(self, form):

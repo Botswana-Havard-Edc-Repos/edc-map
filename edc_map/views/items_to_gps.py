@@ -23,6 +23,11 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    @property
+    def identifier_field_attr(self):
+        app_config = django_apps.get_app_config('edc_map')
+        return app_config.identifier_field_attr
+
     def items(self, map_area):
         """Return a list of items."""
         plot_identifier_list = []
@@ -37,7 +42,7 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         if plot_identifier_list:
             items = mapper.item_model.objects.filter(**{
                 '{0}__in'.format(
-                    mapper.identifier_field_attr): plot_identifier_list})
+                    self.identifier_field_attr): plot_identifier_list})
         return items
 
     def get_context_data(self, **kwargs):
@@ -64,7 +69,7 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
                 wf.write(line)
                 for item in items:
                     identifier_name = str(
-                        getattr(item, mapper.identifier_field_attr))
+                        getattr(item, self.identifier_field_attr))
                     lat = item.gps_target_lat
                     lon = item.gps_target_lon
                     ele = 0.0

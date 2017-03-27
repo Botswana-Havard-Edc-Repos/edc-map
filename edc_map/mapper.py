@@ -24,7 +24,6 @@ class Mapper(GeoMixin):
     center_lon = None
     landmarks = None  # format ((name, longitude, latitude), )
     map_area = None
-    identifier_field_attr = None
     radius = 5.5
 
     def __init__(self):

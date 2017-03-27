@@ -5,8 +5,6 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
 
-from edc_base.utils import get_utcnow
-
 from .exceptions import FolderDoesNotExist
 
 
@@ -33,6 +31,8 @@ class AppConfig(DjangoAppConfig):
     # uses the MapperDataModelMixin. This would be a replacement for the
     # mappers as classes
     mapp_data_model = None  # not used yet
+
+    identifier_field_attr = None  # Identifier attribute used to query items.
 
     mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 

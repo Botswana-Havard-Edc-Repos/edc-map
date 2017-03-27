@@ -1,8 +1,15 @@
+from django.apps import apps as django_apps
+
 from ..models import Container, InnerContainer
 from ..site_mappers import site_mappers
 
 
 class StatisticsViewMixin:
+
+    @property
+    def identifier_field_attr(self):
+        app_config = django_apps.get_app_config('edc_map')
+        return app_config.identifier_field_attr
 
     @property
     def sectioning_statistics(self):
@@ -26,7 +33,7 @@ class StatisticsViewMixin:
         total_items_not_contained = mapper.item_model.objects.filter(**{
             'map_area': site_mappers.current_map_area}).exclude(**{
                 '{0}__in'.format(
-                    mapper.identifier_field_attr): contained_items}).count()
+                    self.identifier_field_attr): contained_items}).count()
 
         #  Items in a container but not in any inner container.
         items_not_in_inner_container = list(
