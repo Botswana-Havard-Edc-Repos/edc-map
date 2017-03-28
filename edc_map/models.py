@@ -50,7 +50,9 @@ class Container(BaseUuidModel):
         """Returns identifier labels as a python list.
         """
         if self.labels:
-            return self.labels.split(',')
+            labels = self.labels.split(',')
+            labels.pop(0)
+            return labels
         return []
 
     @property
@@ -104,7 +106,9 @@ class InnerContainer(BaseUuidModel):
         """Returns identifier labels as a python list.
         """
         if self.labels:
-            return self.labels.split(',')
+            labels = self.labels.split(',')
+            labels.pop(0)
+            return labels
         return []
 
     @property
