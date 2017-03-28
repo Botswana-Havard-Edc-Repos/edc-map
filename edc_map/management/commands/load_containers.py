@@ -34,10 +34,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(
-            self.style.NOTICE('Preparing load containers ...'))
+            self.style.NOTICE('Preparing to load containers ...'))
         file_path = options['file_path']
         model = options['model']
-        model_class = django_apps.get_model(model.split(','))
+        app_label, model_name = model.split(',')
+        model_class = django_apps.get_model(app_label, model_name)
         upload_container(file_path, model_class)
         self.stdout.write(
             self.style.SUCCESS('Done.'))
