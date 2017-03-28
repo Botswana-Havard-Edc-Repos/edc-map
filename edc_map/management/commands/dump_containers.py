@@ -33,6 +33,6 @@ class Command(BaseCommand):
         container_filename = file_path + map_area + 'container.json'
         inner_container_filename = file_path + map_area + 'inner_container.json'
         files = [container_filename, inner_container_filename]
-        dump_container_data_to_json(files)
+        dump_container_data_to_json(files, map_area)
         self.stdout.write(
             self.style.SUCCESS('Done.'))
