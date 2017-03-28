@@ -49,7 +49,7 @@ class GeoMixin:
         units = units or 'km'
         if not self.point_in_radius(point, center_point, radius, units):
             d = self.distance_between_points(point, center_point, units)
-            d = round(d, 1)
+            d = round(d, 2)
             raise MapperError(
                 'GPS ({point.latitude}, {point.longitude}) is more than {radius}{units} '
                 'from {label} ({center_point.latitude}, {center_point.longitude}). '
