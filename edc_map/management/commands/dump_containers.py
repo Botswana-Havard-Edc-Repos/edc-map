@@ -1,4 +1,20 @@
+from django.core import serializers
 from django.core.management.base import BaseCommand
+
+from ...models import Container, InnerContainer
+
+
+def dump_container_data_to_json(self, file_names, map_area):
+    """Dump containers to json.
+    """
+    container_type = [Container, InnerContainer]
+
+    for obj, obj_file in zip(container_type, file_names):
+        with open(obj_file, 'a') as outfile:
+            container_objects = obj.objects.filter(map_area=map_area)
+            json_txt = serializers.serialize(
+                "json", container_objects)
+            outfile.write(json_txt)
 
 
 class Command(BaseCommand):
