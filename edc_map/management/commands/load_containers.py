@@ -37,7 +37,7 @@ class Command(BaseCommand):
             self.style.NOTICE('Preparing to load containers ...'))
         file_path = options['file_path']
         model = options['model']
-        app_label, model_name = model.split(',')
+        app_label, model_name = model.split('.')
         model_class = django_apps.get_model(app_label, model_name)
         upload_container(file_path, model_class)
         self.stdout.write(
