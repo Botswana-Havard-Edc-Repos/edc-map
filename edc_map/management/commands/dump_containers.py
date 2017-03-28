@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from ...models import Container, InnerContainer
 
 
-def dump_container_data_to_json(self, file_names, map_area):
+def dump_container_data_to_json(file_names, map_area):
     """Dump containers to json.
     """
     container_type = [Container, InnerContainer]
