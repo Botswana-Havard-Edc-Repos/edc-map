@@ -59,7 +59,9 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         """Return a list of labels for a given container.
         """
         labels = []
-        inner_containers = InnerContainer.objects.filter(container__name=name)
+        inner_containers = InnerContainer.objects.filter(
+            container__name=name,
+            map_area=site_mappers.current_map_area)
         if inner_containers:
             for inner_container in inner_containers:
                 labels.extend(inner_container.identifier_labels)
@@ -81,7 +83,8 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         """Return  queryset of the item model.
         """
         labels = []  # Labels to exclude when creating a container.
-        containers = Container.objects.all()
+        containers = Container.objects.filter(
+            map_area=site_mappers.current_map_area)
         for container in containers:
             labels.extend(container.identifier_labels)
         contained_labels = self.contained_labels(name)

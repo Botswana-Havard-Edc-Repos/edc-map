@@ -78,7 +78,9 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
         create_container_form = CreateContainerForm()
         if name:
             try:
-                container = Container.objects.get(name=name)
+                container = Container.objects.get(
+                    name=name,
+                    map_area=site_mappers.current_map_area)
             except Container.DoesNotExist:
                 raise MapperError(
                     "Inner container can not exist without a container.")
