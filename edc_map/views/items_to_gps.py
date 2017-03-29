@@ -1,5 +1,4 @@
 import os
-import socket
 
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -28,27 +27,31 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
         app_config = django_apps.get_app_config('edc_map')
         return app_config.identifier_field_attr
 
+    @property
+    def item_identifiers(self):
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        device_id = edc_device_app_config.device_id
+        try:
+            inner_containers = InnerContainer.objects.get(
+                map_area=site_mappers.current_map_area, device_id=device_id)
+            return inner_containers.identifier_labels
+        except InnerContainer.DoesNotExist:
+            return []
+        return []
+
     def items(self, map_area):
         """Return a list of items."""
-        plot_identifier_list = []
-        items = None
+        qs = None
         mapper = site_mappers.registry.get(map_area)
-        device_id = socket.gethostname()[-2:]
-        try:
-            plot_identifier_list = InnerContainer.objects.get(
-                device_id=device_id).identifier_labels
-        except InnerContainer.DoesNotExist:
-            plot_identifier_list = []
-        if plot_identifier_list:
-            items = mapper.item_model.objects.filter(**{
-                '{0}__in'.format(
-                    self.identifier_field_attr): plot_identifier_list})
-        return items
+        if self.item_identifiers:
+            qs = mapper.item_model.objects.filter(**{
+                'map_area': site_mappers.current_map_area,
+                '{0}__in'.format(self.identifier_field_attr): self.item_identifiers})
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         message = None
-        mapper = site_mappers.registry.get(site_mappers.current_map_area)
         items = self.items(site_mappers.current_map_area)
         gps_device = django_apps.get_app_config(self.app_label).gps_device
         gps_file_name = django_apps.get_app_config(self.app_label).gps_file_name
