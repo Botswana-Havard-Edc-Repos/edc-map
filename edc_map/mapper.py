@@ -66,10 +66,6 @@ class Mapper(GeoMixin):
     def area_radius(self):
         return self.radius
 
-    @property
-    def identifier_field_name(self):
-        return self.identifier_field_attr
-
     def point_in_map_area(self, point):
         """Return True if point is within mapper area radius."""
         return self.point_in_radius(

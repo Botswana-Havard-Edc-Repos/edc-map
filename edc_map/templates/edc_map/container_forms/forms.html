@@ -1,0 +1,28 @@
+{% load crispy_forms_tags %}
+
+<div class="panel panel-default">
+    <div class="panel-heading"><h2>Create Section</h2></div>
+    <table class="table table-hover responsive">
+    	<tr><td>
+      		<form id="set_container" action="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container" method="post">
+				{% csrf_token %}
+				{% crispy create_container_form %}
+			</form>
+      	</td></tr>
+ 	</table>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Create Sub-Section</div>
+    <div class="panel-body">
+    	<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
+			{% csrf_token %}
+			{% crispy form %}
+		</form>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading"><h4>Push items to GPS Device</h4></div>
+	<div class="panel-body">
+		<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
+	</div>
+</div>

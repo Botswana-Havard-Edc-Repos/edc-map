@@ -34,6 +34,8 @@ class AppConfig(DjangoAppConfig):
 
     identifier_field_attr = None  # Identifier attribute used to query items.
 
+    extra_filter_field_attr = None  # Extra filter boolean attribute name.
+
     mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 
     current_mapper_name = None

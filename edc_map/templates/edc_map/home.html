@@ -29,28 +29,8 @@
 		</div>
 		<div class="raw">
 	    <div id="div-home-right" class="col-md-8">
-         <div class="panel panel-default">
-		    <div class="panel-heading"><h4>Create Section</h4></div>
-			    <div class="panel-body">
-				     <a href="{% url 'edc_map:item_division_url' map_area %}?set_container=set_container" role="button" class="btn btn-primary">Create Containers</a>
-			 	 </div>
-        </div>
-        <div class="panel panel-default">
-		    <div class="panel-heading"><h4>Create Sub-Section</h4></div>
-		    <div class="panel-body">
-      			<form id="set_inner_container" action="{% url 'edc_map:item_division_url' map_area %}?set_inner_container=set_inner_container&container_name={{container_name}}" method="post">
-					{% csrf_token %}
-					{% crispy form %}
-				</form>
-			</div>
-        </div>
 
-		<div class="panel panel-default">
-		    <div class="panel-heading"><h4>Push items to GPS Device</h4></div>
-		    <div class="panel-body">
-		      	<a href="{% url 'edc_map:items_to_gps_url' map_area %}" role="button" class="btn btn-primary">Load items to GPS</a>
-			</div>
-        </div>
+	    {% include 'edc_map/container_forms/forms.html' %}
 
 		{% if labels %}
 			<div class="panel panel-default">
