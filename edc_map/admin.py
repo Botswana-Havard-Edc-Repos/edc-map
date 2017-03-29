@@ -36,6 +36,7 @@ class ContainerAdmin(ModelAdminMixin):
         'created',
         'modified',
         'map_area',
+        'map_area',
         'hostname_modified')
 
     search_fields = ('map_area', 'id')
@@ -52,6 +53,8 @@ class InnerContainerAdmin(ModelAdminMixin):
     list_filter = (
         'created',
         'modified',
+        'map_area',
+        'container__name',
         'name',
         'hostname_modified')
 

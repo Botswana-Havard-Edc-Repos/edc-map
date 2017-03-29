@@ -69,7 +69,8 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         """
         current_contained_labels = []
         try:
-            container = Container.objects.get(name=name)
+            container = Container.objects.get(
+                name=name, map_area=site_mappers.current_map_area)
             current_contained_labels = container.identifier_labels
         except Container.DoesNotExist:
             pass
