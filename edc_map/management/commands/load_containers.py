@@ -29,7 +29,7 @@ class Command(BaseCommand):
     help = 'Create items from a kmz google file with latitude and longitude.'
 
     def add_arguments(self, parser):
-        parser.add_argument('file_path', type=str, help='filepath')
+        parser.add_argument('file_path', type=str, help='file_path')
         parser.add_argument('model', type=str, help='app_name.model')
 
     def handle(self, *args, **options):

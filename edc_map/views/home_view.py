@@ -8,7 +8,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 
 from ..constants import SECTIONS, SUB_SECTIONS
 from ..exceptions import MapperError
-from ..forms import ContainerSelectionForm
+from ..forms import ContainerSelectionForm, CreateContainerForm
 from ..models import InnerContainer, Container
 from ..site_mappers import site_mappers
 from .statistics_view_mixin import StatisticsViewMixin
@@ -75,9 +75,12 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
         boundry = self.request.GET.get('boundry')
         name = self.request.GET.get('container_name')
         labels = self.request.GET.get('labels', '')
+        create_container_form = CreateContainerForm()
         if name:
             try:
-                container = Container.objects.get(name=name)
+                container = Container.objects.get(
+                    name=name,
+                    map_area=site_mappers.current_map_area)
             except Container.DoesNotExist:
                 raise MapperError(
                     "Inner container can not exist without a container.")
@@ -96,6 +99,7 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
         context.update(
             map_area=site_mappers.current_map_area,
             labels=labels,
+            create_container_form=create_container_form,
             inner_container_name=inner_container_name,
             container_name=name,
             container_names=SECTIONS,

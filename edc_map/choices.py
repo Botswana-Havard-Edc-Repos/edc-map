@@ -22,3 +22,10 @@ CONTANER_NAMES = (
     ('A', 'A'), ('B', 'B'),
     ('C', 'C'), ('D', 'D'),
     ('E', 'E'))
+
+
+EXTRA_FILTER_OPTIONS = (
+    ('Yes', 'Yes'),
+    ('No', 'No'),
+    ('All', 'All')
+)

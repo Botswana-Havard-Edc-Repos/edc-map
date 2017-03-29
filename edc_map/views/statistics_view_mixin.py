@@ -12,6 +12,11 @@ class StatisticsViewMixin:
         return app_config.identifier_field_attr
 
     @property
+    def extra_filter_field_attr(self):
+        app_config = django_apps.get_app_config('edc_map')
+        return app_config.extra_filter_field_attr
+
+    @property
     def sectioning_statistics(self):
         """Return statistics of sectioning items."""
 
