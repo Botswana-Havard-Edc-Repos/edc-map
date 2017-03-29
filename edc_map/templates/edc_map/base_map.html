@@ -171,7 +171,6 @@
                 newpoint = event.latLng;
                 path.push(newpoint);
             });
-
             //right click to add a point. add this handler to the line as well
             var image = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
             var add_point = function(event) {
@@ -294,7 +293,6 @@
             unbind_all();
 
             var path = polygon.getPath();
-
             $.each(markers, function(i, marker) {
                 marker.setDraggable(true);
 
@@ -361,7 +359,20 @@
             };
             bind_handler(map, 'rightclick', add_point_between);
             bind_handler(polygon, 'rightclick', add_point_between);
-
+            
+            var res = 0;
+            {% if items %}
+	        //check in the payload to see which points are withing a polygon then push their identifiers into an array
+	        {% for lat, lon, label in items %}
+	            var point = new google.maps.LatLng({{ lat }}, {{ lon }});
+	          	if (google.maps.geometry.poly.containsLocation(point, polygon)){
+    	    		res += 1;
+      	     	}
+	        {% endfor %}
+	        {% endif %}
+            
+            $('#result').text(res);
+            
             $('#save_map_selection').removeAttr('disabled');
 
         }
@@ -458,7 +469,10 @@
   <div class="raw">
     	<div id="div-home-right" class="col-md-8">
     	<div class="panel panel-default">
-		    <div class="panel-heading"><h4>Map</h4></div>
+		    <div class="panel-heading">
+				Items in the boundary: <span id='result' class="badge badge-error">0
+				</span>
+		    </div>
 			    <div class="panel-body">
 			<div id="map"></div>
 			<div align="center">
