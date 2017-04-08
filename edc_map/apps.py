@@ -12,6 +12,7 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_map'
     verbose_name = 'Edc Map'
     base_template_name = 'edc_base/base.html'
+    media_root = os.path(settings.MEDIA_ROOT)
     image_folder = os.path.join(settings.MEDIA_ROOT, 'edc_map')
     app_label = 'edc_map'
     image_folder_url = os.path.join(settings.MEDIA_URL, 'edc_map')
@@ -53,11 +54,10 @@ class AppConfig(DjangoAppConfig):
             ' * using survey model {}\n'.format(self.mapper_survey_model))
         from edc_map.signals import grep_google_map_image_on_post_save
         from edc_map.site_mappers import site_mappers
+        if not os.path.exists(self.media_root):
+            os.system('mkdir {}'.format(self.media_root))
         if not os.path.exists(self.image_folder):
-            raise FolderDoesNotExist(
-                'Map Image folder for \'{name}\' does not exist. Got \'{folder}\'. '
-                'See {name}.AppConfig.'.format(
-                    name=self.name, folder=self.image_folder))
+            os.system('mkdir {}'.format(self.image_folder))
         site_mappers.autodiscover()
         if not self.current_mapper_name:
             try:
