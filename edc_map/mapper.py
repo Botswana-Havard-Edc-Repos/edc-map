@@ -29,7 +29,8 @@ class Mapper(GeoMixin):
     def __init__(self):
         self.name = self.map_area or 'mapper {}'.format(self.__class__.name)
         try:
-            self.item_model = django_apps.get_model(*app_config.mapper_model.split('.'))
+            self.item_model = django_apps.get_model(
+                *app_config.mapper_model.split('.'))
             self.item_model_cls = self.item_model
             self.item_label = self.item_model._meta.verbose_name
         except LookupError as e:
