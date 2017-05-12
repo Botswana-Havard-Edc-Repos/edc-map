@@ -151,3 +151,4 @@ STATIC_URL = '/static/'
 GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
 GPS_DEVICE = '/Volumes/GARMIN/'
 GPX_TEMPLATE = os.path.join(STATIC_ROOT, 'edc_map/gpx/template.gpx')
+DEVICE_IDS = config['deployment'].get('device_ids').split(',')
