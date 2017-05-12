@@ -21,7 +21,7 @@ class AppConfig(DjangoAppConfig):
     google_api_key = 'AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o'
     verify_point_on_save = True  # not used
     zoom_levels = ['16', '17', '18']
-    device_ids = settings.DEVICE_IDS
+    device_ids = settings.DEVICE_ID
 
     # model that uses the landmark model mixin
     landmark_model = None  # ('bcpp_map', 'landmark')
