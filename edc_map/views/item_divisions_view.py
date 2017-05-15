@@ -1,6 +1,3 @@
-import configparser
-import os
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.views.generic.base import TemplateView
@@ -39,9 +36,8 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
 
     @property
     def device_ids(self):
-        config = configparser.ConfigParser()
-        config.read(os.path.join(settings.ETC_DIR, settings.CONFIG_FILE))
-        return sorted(config['deployment'].get('device_ids').split(','))
+        app_config = django_apps.get_app_config('edc_map')
+        return app_config.device_ids
 
     def form_valid(self, form):
         if form.is_valid():
@@ -90,6 +86,25 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         contained_labels = self.contained_labels(name)
 
         items = []
+
+        from bcpp_subject.models import SubjectConsent, SubjectLocator
+        consents = SubjectConsent.objects.filter(household_member__household_structure__household__plot__map_area=site_mappers.current_map_area)
+        subject_identifiers = []
+        for consent in consents:
+            subject_identifiers.append(consent.subject_identifier)
+
+        locators = SubjectLocator.objects.filter(may_follow_up='Yes', subject_identifier__in=subject_identifiers)
+        follow_up_subject_identifiers = []
+
+        for locator in locators:
+            follow_up_subject_identifiers.append(locator.subject_identifier)
+
+        follow_up_consents = SubjectConsent.objects.filter(subject_identifier__in=follow_up_subject_identifiers)
+
+        qs_identifiers = []
+        for consent in follow_up_consents:
+            qs_identifiers.append(consent.household_member.household_structure.household.plot.plot_identifier)
+        qs_identifiers = list(set(qs_identifiers))
         exclude_labels = self.inner_container_labels(name)
         mapper = site_mappers.registry.get(site_mappers.current_map_area)
         qs = []
@@ -102,8 +117,8 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         if container_type == 'set_container':  # QuerySet  to create a container
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area,
-                '{0}__in'.format(self.extra_filter_field_attr): extra_filter_field_value}).exclude(**{'{0}__in'.format(self.identifier_field_attr): labels})
-        elif container_type == 'set_inner_container' and container:
+                '{0}__in'.format(self.identifier_field_attr): qs_identifiers}).exclude(**{'{0}__in'.format(self.identifier_field_attr): labels})
+        elif container_type == 'set_inner_container' and containers:
             #  QuerySet  to create an Inner container.
             qs = mapper.item_model.objects.filter(**{
                 'map_area': site_mappers.current_map_area,
