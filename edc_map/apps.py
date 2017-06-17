@@ -5,6 +5,8 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
 
+from .exceptions import SiteMapperError, MapperLocationError
+
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_map'
@@ -28,15 +30,9 @@ class AppConfig(DjangoAppConfig):
     # model with the MapperModelMixin which has gps data fields
     mapper_model = None
 
-    # uses the MapperDataModelMixin. This would be a replacement for the
-    # mappers as classes
-    mapp_data_model = None  # not used yet
-
     identifier_field_attr = None  # Identifier attribute used to query items.
 
     extra_filter_field_attr = None  # Extra filter boolean attribute name.
-
-    mapper_survey_model = None  # ('bcpp_interview', 'survey'), is this used??
 
     current_mapper_name = None
 
@@ -53,29 +49,22 @@ class AppConfig(DjangoAppConfig):
         return [d.strip() for d in (device_ids or '').split(',')]
 
     def ready(self):
+        from edc_map.signals import grep_google_map_image_on_post_save
+        from edc_map.site_mappers import site_mappers
         style = color_style()
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         sys.stdout.write(
             ' * using mapper model {}\n'.format(self.mapper_model))
-        sys.stdout.write(
-            ' * using survey model {}\n'.format(self.mapper_survey_model))
-        from edc_map.signals import grep_google_map_image_on_post_save
-        from edc_map.site_mappers import site_mappers
         if not os.path.exists(self.image_folder):
             os.makedirs(self.image_folder)
         site_mappers.autodiscover()
-        if not self.current_mapper_name:
-            try:
-                self.current_mapper_name = settings.CURRENT_MAP_AREA
-            except AttributeError:
-                pass
-        if self.current_mapper_name:
-            site_mappers.load_current_mapper(
-                site_mappers.get_mapper(self.current_mapper_name))
+        try:
+            site_mappers.current_map_area
+        except SiteMapperError as e:
             sys.stdout.write(
-                ' * current mapper is {}.\n'.format(
-                    site_mappers.current_mapper.map_area))
+                style.ERROR(f' * ERROR: Got {e}.\n'))
         else:
             sys.stdout.write(
-                style.ERROR(' * ERROR: current mapper not set.\n'))
+                ' * current mapper is {}.\n'.format(
+                    site_mappers.current_map_area))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
