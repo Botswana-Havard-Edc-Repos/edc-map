@@ -184,8 +184,7 @@ class MapperModelMixin(models.Model):
         try:
             mapper.raise_if_not_in_map_area(self.confirmed_point)
         except MapperError as e:
-            raise MapperError(
-                'Invalid confirmation GPS point. Got {}'.format(str(e)))
+            raise MapperError(f'Invalid confirmation GPS point. Got {e}')
         mapper.raise_if_not_in_radius(
             self.confirmed_point, self.target_point, self.target_radius,
             units='km', label='target location')

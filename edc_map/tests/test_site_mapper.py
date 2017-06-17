@@ -2,9 +2,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from edc_map.classes import Controller, site_mappers
-from edc_map.exceptions import MapperError, AlreadyRegistered
-from edc_map.classes.mapper import Mapper
+from ..exceptions import MapperError, AlreadyRegistered
+from ..mapper import Mapper
+from ..site_mappers import SiteMappers, site_mappers
 
 
 class TestItemMapperDup(Mapper):
@@ -33,6 +33,8 @@ class TestItemMapper1(Mapper):
     center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
+    mapper_model = 'edc_map.testmodel'
+
 
 site_mappers.register(TestItemMapper1)
 
@@ -47,6 +49,8 @@ class TestItemMapper2(Mapper):
     center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
+    mapper_model = 'edc_map.testmodel'
+
 
 site_mappers.register(TestItemMapper2)
 
@@ -61,11 +65,13 @@ class TestItemMapper3(Mapper):
     center_lon = 25.741111
     radius = 5.5
     location_boundary = ()
+    mapper_model = 'edc_map.testmodel'
+
 
 site_mappers.register(TestItemMapper3)
 
 
-class TestController(TestCase):
+class TestSiteMappers(TestCase):
 
     def setUp(self):
         site_mappers.autodiscover()
@@ -74,52 +80,62 @@ class TestController(TestCase):
         TestItemMapperDup.map_code = '99'
 
     @override_settings(CURRENT_COMMUNITY='test_community2')
-    def test_controller_loads_current_mapper_from_settings(self):
-        test_site_mappers = Controller()
+    def test_site_mappers_loads_current_mapper_from_settings(self):
+        test_site_mappers = SiteMappers()
         test_site_mappers.register(TestItemMapper3)
         test_site_mappers.register(TestItemMapper2)
         test_site_mappers.register(TestItemMapper1)
-        self.assertEqual(test_site_mappers.current_mapper.map_code, TestItemMapper2.map_code)
+        self.assertEqual(
+            test_site_mappers.current_mapper.map_code, TestItemMapper2.map_code)
 
     @override_settings(CURRENT_COMMUNITY='test_community1')
-    def test_controller_loads_current_mapper_on_register(self):
-        test_site_mappers = Controller(current_community=self.current_community)
+    def test_site_mappers_loads_current_mapper_on_register(self):
+        test_site_mappers = SiteMappers(
+            current_community=self.current_community)
         test_site_mappers.register(TestItemMapper1)
-        self.assertEqual(test_site_mappers.current_mapper.map_area, settings.CURRENT_COMMUNITY)
+        self.assertEqual(test_site_mappers.current_mapper.map_area,
+                         settings.CURRENT_COMMUNITY)
 
-    def test_controller_raises_on_wrong_current_mapper(self):
-        test_site_mappers = Controller(current_community=self.current_community)
+    def test_site_mappers_raises_on_wrong_current_mapper(self):
+        test_site_mappers = SiteMappers(
+            current_community=self.current_community)
         test_site_mappers.register(TestItemMapper2)
-        self.assertRaises(MapperError, test_site_mappers.load_current_mapper, TestItemMapper2)
-        mappers = Controller(current_community='test_community2')
+        self.assertRaises(
+            MapperError, test_site_mappers.load_current_mapper, TestItemMapper2)
+        mappers = SiteMappers(current_community='test_community2')
         mappers.load_current_mapper(TestItemMapper2)
 
     @override_settings(CURRENT_COMMUNITY='test_community1')
-    def test_controller_detects_duplication(self):
-        test_site_mappers = Controller()
+    def test_site_mappers_detects_duplication(self):
+        test_site_mappers = SiteMappers()
         test_site_mappers.register(TestItemMapper3)
         test_site_mappers.register(TestItemMapper2)
         test_site_mappers.register(TestItemMapper1)
-        self.assertRaises(AlreadyRegistered, test_site_mappers.register, TestItemMapperDup)
+        self.assertRaises(AlreadyRegistered,
+                          test_site_mappers.register, TestItemMapperDup)
         TestItemMapperDup.map_area = 'test_community1'
         TestItemMapperDup.map_code = '10'
-        self.assertRaises(AlreadyRegistered, test_site_mappers.register, TestItemMapperDup)
+        self.assertRaises(AlreadyRegistered,
+                          test_site_mappers.register, TestItemMapperDup)
 
     @override_settings(CURRENT_COMMUNITY='test_community1')
-    def test_controller_detects_nones(self):
-        test_site_mappers = Controller()
+    def test_site_mappers_detects_nones(self):
+        test_site_mappers = SiteMappers()
         TestItemMapperDup.map_area = None
         TestItemMapperDup.map_code = '10'
-        self.assertRaises(MapperError, test_site_mappers.register, TestItemMapperDup)
+        self.assertRaises(
+            MapperError, test_site_mappers.register, TestItemMapperDup)
         TestItemMapperDup.map_area = 'test_community1'
         TestItemMapperDup.map_code = None
-        self.assertRaises(MapperError, test_site_mappers.register, TestItemMapperDup)
+        self.assertRaises(
+            MapperError, test_site_mappers.register, TestItemMapperDup)
         TestItemMapperDup.map_area = None
         TestItemMapperDup.map_code = None
-        self.assertRaises(MapperError, test_site_mappers.register, TestItemMapperDup)
+        self.assertRaises(
+            MapperError, test_site_mappers.register, TestItemMapperDup)
 
     @override_settings(CURRENT_COMMUNITY='test_area')
-    def test_controller_autodiscover(self):
+    def test_site_mappers_autodiscover(self):
         site_mappers.autodiscover('tests.registered_mappers')
         self.assertIn(TestItemMapper1().map_area, site_mappers.map_areas)
         self.assertIn(TestItemMapper1().map_code, site_mappers.map_codes)

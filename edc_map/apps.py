@@ -5,8 +5,6 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
 
-from .exceptions import SiteMapperError, MapperLocationError
-
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_map'
@@ -50,7 +48,7 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from edc_map.signals import grep_google_map_image_on_post_save
-        from edc_map.site_mappers import site_mappers
+        from edc_map.site_mappers import site_mappers, SiteMapperError
         style = color_style()
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         sys.stdout.write(

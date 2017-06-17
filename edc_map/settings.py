@@ -152,3 +152,18 @@ GPS_FILE_NAME = '/Volumes/GARMIN/GPX/temp.gpx'
 GPS_DEVICE = '/Volumes/GARMIN/'
 GPX_TEMPLATE = os.path.join(STATIC_ROOT, 'edc_map/gpx/template.gpx')
 EDC_MAP_DEVICE_IDS = None
+
+CURRENT_MAP_AREA = 'test_community'
+
+if 'test' in sys.argv:
+
+    class DisableMigrations:
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
