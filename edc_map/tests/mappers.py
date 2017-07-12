@@ -1,7 +1,7 @@
 from ..mapper import Mapper
 
 
-class TestItemMapper(Mapper):
+class TestMapper(Mapper):
 
     map_area = 'test_community'
     map_code = '01'

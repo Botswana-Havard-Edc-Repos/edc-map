@@ -4,14 +4,14 @@ from django.conf import settings
 from django.test import TestCase
 
 from ..snapshot import Snapshot
-from .mappers import TestItemMapper
+from .mappers import TestMapper
 from .models import TestModel
 
 
 class TestSnapshot(TestCase):
 
     def setUp(self):
-        self.mapper = TestItemMapper()
+        self.mapper = TestMapper()
         self.test_model = TestModel.objects.create(
             gps_target_lat=24.124,
             gps_target_lon=22.343,
