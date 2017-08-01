@@ -1,29 +1,28 @@
 import os
 
+from django.conf import settings
 from django.test import TestCase
 
-from ..models import MapperMixin
-from edc_map.mappers import TestItemMapper
-from django.conf import settings
-from ..classes.snapshot import Snapshot
-
-
-class TestModel(MapperMixin):
-
-    class Meta:
-        app_label = 'edc_map'
+from ..snapshot import Snapshot
+from .mappers import TestMapper
+from .models import TestModel
 
 
 class TestSnapshot(TestCase):
 
     def setUp(self):
-        self.mapper = TestItemMapper()
-        self.item = TestModel.objects.create(gps_target_lat=24.124, gps_target_lon=22.343, area_name=self.mapper.map_area, distance_from_target=25.12)
-        self.coordinates = self.mapper.get_coordinates(self.item)
+        self.mapper = TestMapper()
+        self.test_model = TestModel.objects.create(
+            gps_target_lat=24.124,
+            gps_target_lon=22.343,
+            map_area=self.mapper.map_area,
+            distance_from_target=25.12)
+        self.coordinates = self.mapper.get_coordinates(self.test_model)
         self.snapshot = Snapshot()
 
     def test_coordinates(self):
-        """Check if coordinates are returned for an existing item."""
+        """Check if coordinates are returned for an existing item.
+        """
 
         self.assertEqual(self.coordinates, ['24.124', '22.343'])
 

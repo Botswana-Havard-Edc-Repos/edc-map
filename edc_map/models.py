@@ -1,5 +1,3 @@
-import ast
-
 from django.db import models
 from django.db.models.deletion import PROTECT
 
@@ -107,7 +105,8 @@ class InnerContainer(BaseUuidModel):
         """
         if self.labels:
             labels = self.labels.split(',')
-            labels.pop(0)
+            # clean up list
+            labels = [x for x in labels if x]
             return labels
         return []
 

@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -33,11 +32,6 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         """
         return {obj.name: obj.points for obj in Container.objects.filter(
             map_area=site_mappers.current_map_area)}
-
-    @property
-    def device_ids(self):
-        app_config = django_apps.get_app_config('edc_map')
-        return app_config.device_ids
 
     def form_valid(self, form):
         if form.is_valid():
@@ -88,22 +82,26 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
         items = []
 
         from bcpp_subject.models import SubjectConsent, SubjectLocator
-        consents = SubjectConsent.objects.filter(household_member__household_structure__household__plot__map_area=site_mappers.current_map_area)
+        consents = SubjectConsent.objects.filter(
+            household_member__household_structure__household__plot__map_area=site_mappers.current_map_area)
         subject_identifiers = []
         for consent in consents:
             subject_identifiers.append(consent.subject_identifier)
 
-        locators = SubjectLocator.objects.filter(may_follow_up='Yes', subject_identifier__in=subject_identifiers)
+        locators = SubjectLocator.objects.filter(
+            may_follow_up='Yes', subject_identifier__in=subject_identifiers)
         follow_up_subject_identifiers = []
 
         for locator in locators:
             follow_up_subject_identifiers.append(locator.subject_identifier)
 
-        follow_up_consents = SubjectConsent.objects.filter(subject_identifier__in=follow_up_subject_identifiers)
+        follow_up_consents = SubjectConsent.objects.filter(
+            subject_identifier__in=follow_up_subject_identifiers)
 
         qs_identifiers = []
         for consent in follow_up_consents:
-            qs_identifiers.append(consent.household_member.household_structure.household.plot.plot_identifier)
+            qs_identifiers.append(
+                consent.household_member.household_structure.household.plot.plot_identifier)
         qs_identifiers = list(set(qs_identifiers))
         exclude_labels = self.inner_container_labels(name)
         mapper = site_mappers.registry.get(site_mappers.current_map_area)
@@ -155,7 +153,7 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
             set_inner_container=set_inner_container,
             container_names=SECTIONS,
             inner_container_names=SUB_SECTIONS,
-            device_ids=self.device_ids,
+            device_ids=django_apps.get_app_config('edc_map').device_ids,
             exisiting_containers=self.exisiting_containers,
             sectioning_statistics=self.sectioning_statistics)
         return context

@@ -1,13 +1,7 @@
 from django.test import TestCase
 
-from edc_map.classes import site_mappers
-from ..models import MapperMixin
-
-
-class TestModel(MapperMixin):
-
-    class Meta:
-        app_label = 'edc_map'
+from ..site_mappers import site_mappers
+from .models import TestModel
 
 
 class TestMapper(TestCase):
@@ -26,7 +20,8 @@ class TestMapper(TestCase):
         self.items = [self.item]
 
     def test_distance_between_points(self):
-        self.assertRaises(TypeError, self.mapper.distance_between_points, self.lat, self.lon)
+        self.assertRaises(
+            TypeError, self.mapper.distance_between_points, self.lat, self.lon)
         self.assertEqual(
             self.mapper.distance_between_points(
                 -24.656637, 25.924327, -24.656366, 25.922935), 0.14407256837110122, 'Correct distance if matching')

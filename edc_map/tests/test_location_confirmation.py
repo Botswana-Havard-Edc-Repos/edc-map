@@ -1,34 +1,26 @@
-import factory
-
 from django.test import TestCase
 
-from ..contants import CONFIRMED, UNCONFIRMED
-# from ..classes import site_mappers
+from ..constants import CONFIRMED, UNCONFIRMED
 from ..exceptions import MapperError
-from ..models import MapperMixin
-from edc_map.mappers import TestItemMapper
+from .mappers import TestMapper
+from .models import TestModel
 
 
-class TestModel(MapperMixin):
-
-    class Meta:
-        app_label = 'edc_map'
-
-
-class TestModelFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = TestModel
-
-    gps_target_lon = factory.Sequence(lambda n: '2.123{0}'.format(n))
-    gps_target_lat = factory.Sequence(lambda n: '2.12345{0}'.format(n))
+# class TestModelFactory(factory.DjangoModelFactory):
+#
+#     class Meta:
+#         model = TestModel
+#
+#     gps_target_lon = factory.Sequence(lambda n: '2.123{0}'.format(n))
+#     gps_target_lat = factory.Sequence(lambda n: '2.12345{0}'.format(n))
 
 
 class TestLocationConfirmation(TestCase):
 
     def setUp(self):
-        self.mapper = TestItemMapper()
-        self.item = TestModel.objects.create(gps_target_lat=-24.656620, gps_target_lon=25.923488, area_name=self.mapper.map_area, distance_from_target=25.12)
+        self.mapper = TestMapper()
+        self.item = TestModel.objects.create(
+            gps_target_lat=-24.656620, gps_target_lon=25.923488, area_name=self.mapper.map_area, distance_from_target=25.12)
 
     def test_unconfirm_item(self):
         """Test if a plot has no confirmation coordinates, its action is unconfirmed."""
