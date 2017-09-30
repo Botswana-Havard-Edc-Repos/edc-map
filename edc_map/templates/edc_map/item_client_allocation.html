@@ -34,7 +34,7 @@
 						<th>Containers name</th>
 						<th>Total items contained</th>
 					</tr>
-					{% for name, total_items in cotainer_data.items %}
+					{% for name, total_items in container_data.items %}
 					  <tr>
 					    <td>{{name}}</td>
 					    <td>{{total_items}}</td>
@@ -49,17 +49,23 @@
 			    <div class="panel-body">
 				<table>
 					<tr>
+						<th>List of Items</th>
 						<th>Device ID</th>
 						<th>Container name</th>
 						<th>Inner Containers name</th>
 						<th>Total items contained</th>
 					</tr>
-					{% for inner_cotainer in inner_cotainer_data %}
+					{% for device_id, container_name, inner_container_name, total_items in inner_container_data %}
 					  <tr>
-					  	<td>{{inner_cotainer.0}}</td>
-					  	<td>{{inner_cotainer.1}}</td>
-					    <td>{{inner_cotainer.2}}</td>
-					    <td>{{inner_cotainer.3}}</td>
+					  	<td>
+						  	<a href="{% url 'edc_map:items_list_url' device_id container_name inner_container_name %}">
+					        	<span class="glyphicon glyphicon-th-list"></span>
+					        </a>
+					  	</td>
+					  	<td>{{device_id}}</td>
+					  	<td>{{container_name}}</td>
+					    <td>{{inner_container_name}}</td>
+					    <td>{{total_items}}</td>
 					  </tr>
 					{% endfor %}
 				</table>
