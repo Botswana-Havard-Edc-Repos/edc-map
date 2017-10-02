@@ -10,8 +10,8 @@ class GeoMixin:
 
         n = len(polygon)
         inside = False
-        latitude = point.lat
-        longitude = point.lon
+        latitude = point.latitude
+        longitude = point.longitude
         latitude_x, latitude_y = polygon[0]
         for i in range(n + 1):
             latitude_x2, latitude_y2 = polygon[i % n]
@@ -19,7 +19,8 @@ class GeoMixin:
                 if longitude <= max(latitude_y, latitude_y2):
                     if latitude <= max(latitude_x, latitude_x2):
                         if latitude_y != latitude_y2:
-                            xinters = (longitude - latitude_y) * (latitude_x2 - latitude_x) / (latitude_y2 - latitude_y) + latitude_x
+                            xinters = (longitude - latitude_y) * (latitude_x2 -
+                                                                  latitude_x) / (latitude_y2 - latitude_y) + latitude_x
                         if latitude_x == latitude_x2 or latitude <= xinters:
                             inside = not inside
             latitude_x, latitude_y = latitude_x2, latitude_y2
@@ -79,7 +80,8 @@ class GeoMixin:
         """Converts GPS degree/minutes to latitude or longitude."""
         dct = {'s': -1, 'e': 1}
         if direction not in dct.keys():
-            raise TypeError('Direction must be one of {0}. Got {1}.'.format(dct.keys(), direction))
+            raise TypeError(
+                'Direction must be one of {0}. Got {1}.'.format(dct.keys(), direction))
         d = float(degrees)
         m = float(minutes)
         return dct[direction] * round((d) + (m / 60), 5)

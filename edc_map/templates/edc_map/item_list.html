@@ -1,0 +1,49 @@
+{% extends 'edc_base/base.html' %}
+
+{% load staticfiles %}
+{% block extra-scripts %}
+	{{ block.super }}
+	<style>
+		table {
+		    font-family: arial, sans-serif;
+		    border-collapse: collapse;
+		    width: 100%;
+		}
+		
+		td, th {
+		    border: 1px solid #dddddd;
+		    text-align: left;
+		    padding: 8px;
+		}
+		
+		tr:nth-child(even) {
+		    background-color: #dddddd;
+		}
+	</style>
+{% endblock extra-scripts %}
+
+{% block main %}
+	<div class="container">
+		<div class="raw">
+    	<div id="div-home-right" class="col-md-8">
+        <div class="panel panel-default">
+		    <div class="panel-heading"><h4> {{map_area}} Device: {{device_id}}  | {{container_name}} {{inner_container_name}}</h4></div>
+			    <div class="panel-body">
+				<table>
+					<tr>
+						<th>List of Items</th>
+					</tr>
+					{% for item in item_list %}
+					  <tr>
+					  	<td>{{item}}</td>
+					  </tr>
+					{% endfor %}
+				</table>
+			</div>
+        </div>
+        
+		</div>
+			{% include 'edc_map/admin_stats.html' %}
+    	</div>
+	</div>
+{% endblock main %}

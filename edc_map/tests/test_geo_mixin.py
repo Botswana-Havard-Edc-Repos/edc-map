@@ -1,3 +1,5 @@
+import geopy
+
 from django.test import TestCase
 
 from ..geo_mixin import GeoMixin
@@ -24,9 +26,10 @@ class TestGeoMixin(TestCase):
             [-24.63772, 25.90171],
             [-24.63241, 25.89701],
             [-24.64224, 25.88709]]
+        point = geopy.Point(float(gps_lat), float(gps_lon))
         self.assertTrue(
             self.geo_mixin.polygon_contains_point(
-                polygon, gps_lat, gps_lon))
+                polygon, point))
 
     def test_points_outside_polygon(self):
         """Check if a point is outside a polygon."""
@@ -45,9 +48,10 @@ class TestGeoMixin(TestCase):
             [-24.63772, 25.90171],
             [-24.63241, 25.89701],
             [-24.64224, 25.88709]]
+        point = geopy.Point(float(gps_lat), float(gps_lon))
         self.assertFalse(
             self.geo_mixin.polygon_contains_point(
-                polygon, gps_lat, gps_lon))
+                polygon, point))
 
     def test_distance_btwn_points(self):
         """Assert that the correct distance between points is returned."""
@@ -55,6 +59,7 @@ class TestGeoMixin(TestCase):
         lon = 25.908847
         lat_2 = -24.644726
         lon_2 = 25.899749
-        distance = self.geo_mixin.points_distance(
-            lat, lon, lat_2, lon_2)
-        self.assertEqual(distance, 1.18)
+        point_a = geopy.Point(float(lat), float(lon))
+        point_b = geopy.Point(lat_2, lon_2)
+        distance = self.geo_mixin.distance_between_points(point_a, point_b)
+        self.assertEqual(round(distance, 2), 1.18)
