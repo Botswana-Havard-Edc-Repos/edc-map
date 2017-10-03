@@ -1,8 +1,24 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 
+from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_map.model_mixins import MapperDataModelMixin, LandmarkMixin
+
+
+class ContainerManager(models.Manager):
+
+    def get_by_natural_key(self, name, map_area):
+        return self.get(name=name, map_area=map_area)
+
+
+class InnerContainerManager(models.Manager):
+
+    def get_by_natural_key(self, name, map_area, device_id, container_name, container_map_area):
+        return self.get(
+            name=name, map_area=map_area,
+            device_id=device_id, container__name=container_name,
+            container__map_area=container_map_area)
 
 
 class Landmark(LandmarkMixin, BaseUuidModel):
@@ -37,6 +53,13 @@ class Container(BaseUuidModel):
         null=True)
 
     boundry = models.TextField(null=True)
+
+    objects = ContainerManager()
+
+    history = HistoricalRecords()
+
+    def natural_key(self):
+        return (self.name, self.map_area)
 
     def __str__(self):
         return '{0} {1}'.format(
@@ -92,12 +115,20 @@ class InnerContainer(BaseUuidModel):
 
     boundry = models.TextField(null=True)
 
+    objects = InnerContainerManager()
+
+    history = HistoricalRecords()
+
     def __str__(self):
         return '{0} {1} {2}, {3}'.format(
             self.device_id,
             self.container.name,
             self.name,
             self.map_area)
+
+    def natural_key(self):
+        return (self.name, self.map_area, self.device_id, self.container.natural_key())
+    natural_key.dependencies = ['edc_map.container']
 
     @property
     def identifier_labels(self):
