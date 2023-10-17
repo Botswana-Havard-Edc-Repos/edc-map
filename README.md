@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/botswana-harvard/edc-map.svg?branch=develop)](https://travis-ci.org/botswana-harvard/edc-map) [![Coverage Status](https://coveralls.io/repos/github/botswana-harvard/edc-map/badge.svg?branch=develop)](https://coveralls.io/github/botswana-harvard/edc-map?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/Botswana-Havard-Edc-Repos/edc-map/badge.svg?branch=develop)](https://coveralls.io/github/Botswana-Havard-Edc-Repos/edc-map?branch=develop)
 
 # edc-map
 
