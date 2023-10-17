@@ -8,7 +8,7 @@ def deserialize_json_file(file_name):
         json_txt = file_name.read()
         decoded = serializers.deserialize(
             "json", json_txt)
-    except:
+    except Exception:
         return None
     return decoded
 

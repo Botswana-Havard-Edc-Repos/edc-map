@@ -77,7 +77,13 @@ class ItemsToGps(EdcBaseViewMixin, TemplateView):
                     lon = item.gps_target_lon
                     ele = 0.0
                     city_village = site_mappers.current_map_area
-                    str_from_edc = '<wpt lat="' + str(lat) + '" lon="' + str(lon) + '"><ele>' + str(ele) + '</ele>' + '<name>' + str(identifier_name) + '</name><extensions><gpxx:WaypointExtension><gpxx:Address><gpxx:City>' + str(city_village) + '</gpxx:City><gpxx:State>South Eastern</gpxx:State></gpxx:Address></gpxx:WaypointExtension></extensions>' + '</wpt>'
+                    str_from_edc = '<wpt lat="' + \
+                        str(lat) + '" lon="' + str(lon) + '"><ele>' + str(ele) + '</ele>' + '<'
+                    'name>' + str(identifier_name) + \
+                        '</name><extensions><gpxx:WaypointExtension><gpxx:Address><gpxx:City'
+                    '>' + str(city_village) + \
+                        '</gpxx:City><gpxx:State>South Eastern</gpxx:State></gpxx:Address></gpxx:'
+                    'WaypointExtension></extensions>' + '</wpt>'
                     wf.write(str_from_edc)
                 wf.write(lines)
                 wf.close()

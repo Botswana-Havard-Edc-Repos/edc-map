@@ -69,7 +69,7 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
             pass
         return current_contained_labels
 
-    def items(self, name=None, container_type=None, extra_filter_field_value=None):
+    def items(self, name=None, container_type=None, extra_filter_field_value=None):  # noqa
         """Return  queryset of the item model.
         """
         labels = []  # Labels to exclude when creating a container.
@@ -83,7 +83,8 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
 
         from bcpp_subject.models import SubjectConsent, SubjectLocator
         consents = SubjectConsent.objects.filter(
-            household_member__household_structure__household__plot__map_area=site_mappers.current_map_area)
+            household_member__household_structure__household__plot__map_area=site_mappers.
+            current_map_area)
         subject_identifiers = []
         for consent in consents:
             subject_identifiers.append(consent.subject_identifier)
@@ -114,8 +115,9 @@ class ItemDivisionsView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, For
             extra_filter_field_value = [True, False]
         if container_type == 'set_container':  # QuerySet  to create a container
             qs = mapper.item_model.objects.filter(**{
-                'map_area': site_mappers.current_map_area,
-                '{0}__in'.format(self.identifier_field_attr): qs_identifiers}).exclude(**{'{0}__in'.format(self.identifier_field_attr): labels})
+                'map_area': site_mappers.current_map_area, '{0}__in'.
+                format(self.identifier_field_attr): qs_identifiers}).exclude(
+                    **{'{0}__in'.format(self.identifier_field_attr): labels})
         elif container_type == 'set_inner_container' and containers:
             #  QuerySet  to create an Inner container.
             qs = mapper.item_model.objects.filter(**{

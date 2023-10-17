@@ -96,7 +96,8 @@ class CreateContainers(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, Form
                 messages.add_message(
                     self.request,
                     messages.WARNING,
-                    'The Container {0} already exists in {1}'.format(name, site_mappers.current_map_area))
+                    'The Container {0} already exists in {1}'.
+                    format(name, site_mappers.current_map_area))
             except Container.DoesNotExist:
                 Container.objects.create(
                     labels=labels, name=name,

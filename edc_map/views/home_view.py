@@ -38,7 +38,8 @@ class HomeView(StatisticsViewMixin, EdcBaseViewMixin, TemplateView, FormView):
                     site_mappers.current_map_area))
         except InnerContainer.DoesNotExist:
             try:
-                InnerContainer.objects.get(map_area=site_mappers.current_map_area, device_id=device_id)
+                InnerContainer.objects.get(map_area=site_mappers.current_map_area,
+                                           device_id=device_id)
                 messages.add_message(
                     self.request,
                     messages.WARNING,

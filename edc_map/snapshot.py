@@ -109,8 +109,7 @@ class Snapshot(GeoMixin):
         markers = self.format_as_markers(self.point, color='red')
         query_string = urlencode(
             OrderedDict(
-                center=str(self.point.latitude) + ',' +
-                str(self.point.longitude),
+                center=str(self.point.latitude) + ',' + str(self.point.longitude),
                 format='png32',
                 key=self.app_config.google_api_key,
                 maptype='satellite',

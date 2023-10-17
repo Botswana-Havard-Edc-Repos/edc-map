@@ -98,8 +98,8 @@ class SiteMappers(object):
             current_mapper = None
         if not current_mapper:
             raise SiteMapperError(
-                'Unable to load the mapper for the current community. Got {} not registered ({})'.format(
-                    self.current_map_area, self.registry.keys()))
+                'Unable to load the mapper for the current community. Got {} not registered ({})'.
+                format(self.current_map_area, self.registry.keys()))
         elif current_mapper.map_area != self.current_map_area:
             raise SiteMapperError(
                 'Unable to load the current mapper. Current community does not match the '

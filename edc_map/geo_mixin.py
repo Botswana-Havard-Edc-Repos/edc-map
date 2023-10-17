@@ -19,8 +19,8 @@ class GeoMixin:
                 if longitude <= max(latitude_y, latitude_y2):
                     if latitude <= max(latitude_x, latitude_x2):
                         if latitude_y != latitude_y2:
-                            xinters = (longitude - latitude_y) * (latitude_x2 -
-                                                                  latitude_x) / (latitude_y2 - latitude_y) + latitude_x
+                            xinters = (longitude - latitude_y) * (
+                                latitude_x2 - latitude_x) / (latitude_y2 - latitude_y) + latitude_x
                         if latitude_x == latitude_x2 or latitude <= xinters:
                             inside = not inside
             latitude_x, latitude_y = latitude_x2, latitude_y2
@@ -41,7 +41,8 @@ class GeoMixin:
         """Raises an exception if point not within a polygon."""
         if not self.polygon_contains_point(polygon, point):
             raise MapperError(
-                'GPS ({point.latitude}, {point.longitude}) is outside the expected polygon.'.format(point=point))
+                'GPS ({point.latitude}, {point.longitude}) is outside the expected'
+                ' polygon.'.format(point=point))
 
     def raise_if_not_in_radius(self, point, center_point, radius, units=None,
                                label=None):

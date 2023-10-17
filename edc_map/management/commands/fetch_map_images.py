@@ -31,9 +31,11 @@ class Command(BaseCommand):
         return []
 
     def add_arguments(self, parser):
-        # parser.add_argument('app_config', type=str, help='app config for edc_map or other map app')
+        # parser.add_argument('app_config',
+        # type=str, help='app config for edc_map or other map app')
         parser.add_argument('model', type=str, help='app_label.model_name')
-        parser.add_argument('max_downloads', type=int, help='Maximum number of concurrent downloads')
+        parser.add_argument('max_downloads', type=int,
+                            help='Maximum number of concurrent downloads')
 
     def handle(self, *args, **options):
         download_items = []

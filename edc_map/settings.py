@@ -37,11 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
     'edc_protocol.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_sync_files.apps.AppConfig',
     'edc_map.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_base.apps.AppConfig',
@@ -139,6 +141,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Edc sync
+EDC_SYNC_SERVER_IP = None
+EDC_SYNC_FILES_USER = None
+EDC_SYNC_FILES_REMOTE_HOST = None
+EDC_SYNC_FILES_USB_VOLUME = None
 
 
 # Static files (CSS, JavaScript, Images)
