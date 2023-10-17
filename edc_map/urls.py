@@ -21,8 +21,9 @@ urlpatterns = [
             CreateContainers.as_view(), name='save_container_url'),
     re_path(r'^items_to_gps/(?P<map_area>\w+)/$',
             ItemsToGps.as_view(), name='items_to_gps_url'),
-    re_path(r'^list_items/(?P<device_id>\w+)/(?P<container_name>\w+)/(?P<inner_container_name>\w+)/$',
-            ItemListView.as_view(), name='items_list_url'),
+    re_path(
+        r'^list_items/(?P<device_id>\w+)/(?P<container_name>\w+)/(?P<inner_container_name>\w+)/$',
+        ItemListView.as_view(), name='items_list_url'),
     re_path(r'^item_client_allocation/$',
             ItemCilentAllocationView.as_view(), name='item_client_allocation_url'),
     re_path(r'^', HomeView.as_view(), name='home_url'),
