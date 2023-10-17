@@ -12,3 +12,4 @@ git+https://github.com/botswana-harvard/edc-navbar.git@develop#egg=edc_navbar
 git+https://github.com/botswana-harvard/edc-sync-files.git@develop#egg=edc_sync_files
 django-tz-detect
 django-crispy-forms
+geopy
