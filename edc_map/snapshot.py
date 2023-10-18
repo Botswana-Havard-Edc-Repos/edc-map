@@ -94,12 +94,14 @@ class Snapshot(GeoMixin):
         image_file_name = os.path.join(
             self.image_folder, self.image_filename(zoom_level))
         result = (image_file_name, None)
+
         if not os.path.exists(image_file_name):
             result = urlretrieve(
                 self.image_url(zoom_level),
                 image_file_name,
                 reporthook=self.retrieve_image_reporthook)
             sleep(2)
+
         self.retrieve_image_result_handler(result)
         return result
 

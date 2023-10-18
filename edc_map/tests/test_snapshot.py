@@ -6,7 +6,22 @@ from django.test import TestCase
 from ..site_mappers import site_mappers
 from ..snapshot import Snapshot
 from .models import TestModel
+import unittest.mock as mock
 
+
+class MockResponse:
+    def read(self, bs):
+        # You may need to open an image file here and return its byte-encoded format
+        return b"Your byte-encoded image"
+
+    def close(self):
+        return False
+
+    def info(self):
+        return ''
+
+def mock_urlopen(url, data):
+    return MockResponse()
 
 class TestSnapshot(TestCase):
 
@@ -28,10 +43,10 @@ class TestSnapshot(TestCase):
         expected_url = 'http://maps.google.com/maps/api/staticmap?center=-25.011111%2C25.741111&format=png32&key=AIzaSyC-N1j8zQ0g8ElLraVfOGcxaBUd2vBne2o&maptype=satellite&scale=2&sensor=false&size=640x600&zoom=17&markers=color%3Ared%7C-25.011111%2C25.741111'
         self.assertEqual(url, expected_url)
 
+    @mock.patch('urllib.request.urlopen', new=mock_urlopen)
     def test_grep_image(self):
         """Check if an image if downloaded."""
-
-        path = os.path.join(settings.MEDIA_ROOT, 'edc_map', 'img17.jpg')
         self.snapshot.image_url(17)
         self.snapshot.retrieve_and_store_image(17)
+        path = os.path.join(settings.MEDIA_ROOT, 'edc_map', 'img17.jpg')
         self.assertTrue(os.path.isfile(path))
